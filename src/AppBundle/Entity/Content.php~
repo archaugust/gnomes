@@ -1,0 +1,66 @@
+<?php
+namespace AppBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="gno1_content")
+ */
+class Content
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+    
+    /**
+     * @ORM\Column(type="string", length=200)
+     * @Assert\NotBlank()
+     */
+    private $title;
+    
+    /**
+     * @ORM\Column(type="string", length=200)
+     */
+    private $alias;
+    
+    /**
+     * @ORM\Column(type="text")
+     * @Assert\NotBlank()
+     */
+    private $content;
+    
+    /**
+     * @ORM\Column(type="string", length=160)
+     */
+    private $meta_title;
+    
+    /**
+     * @ORM\Column(type="string", length=160)
+     */
+    private $meta_description;
+    
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $meta_keywords;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $hits;
+    
+    /**
+     * @ORM\Column(type="datetime")
+     * @Assert\Type("\DateTime")
+     */
+    private $date_added;
+    
+    /**
+     * @ORM\Column(type="datetime")
+     * @Assert\Type("\DateTime")
+     */
+    private $date_modified;
+}

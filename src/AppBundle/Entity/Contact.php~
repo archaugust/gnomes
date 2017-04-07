@@ -1,0 +1,43 @@
+<?php
+namespace AppBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="gno1_contact")
+ */
+class Contact
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $email;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $phone;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $message;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $date_submitted;
+
+}

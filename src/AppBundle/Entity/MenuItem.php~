@@ -1,0 +1,52 @@
+<?php
+namespace AppBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="gno1_menu_item")
+ */
+class MenuItem
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $menu_id;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $parent_id;
+    
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $title;
+    
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $alias;
+    
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $page_type;
+    
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $page_type_id;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $sort_order;
+}

@@ -1,0 +1,154 @@
+<?php
+// src/AppBundle/Entity/User.php
+
+namespace AppBundle\Entity;
+
+use FOS\UserBundle\Model\User as BaseUser;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="gno1_user")
+ */
+class User extends BaseUser
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updated_at;
+    
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $deleted_at;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2)
+     */
+    private $purchase_total;
+    
+    /** 
+     * @ORM\Column(type="string", length=100)
+     */
+    private $customer_code;
+    
+    /**
+     * @ORM\Column(type="string", length=150)
+     */
+    private $company_name;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $first_name;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $last_name;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $phone;
+    
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $mobile;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $fax;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $website;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $physical_address1;
+    
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $physical_address2;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $physical_suburb;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $physical_city;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $physical_postcode;
+    
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $physical_state;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $physical_country_ID;
+    
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $postal_address1;
+    
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $postal_address2;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $postal_suburb;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $postal_city;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $postal_postcode;
+    
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $postal_state;
+    
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $postal_country_ID;
+    
+    public function __construct()
+    {
+        parent::__construct();
+        // your own logic
+    }
+}
