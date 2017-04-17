@@ -2,203 +2,169 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\Appointment;
-use AppBundle\Entity\Contact;
-use AppBundle\Entity\Referral;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Filesystem\Filesystem;
-use AppBundle\Form\AppointmentType;
-use AppBundle\Form\ContactType;
-use AppBundle\Form\ReferralType;
 use JasonGrimes\Paginator;
 
 class DefaultController extends Controller
 {
-    /**
-     * @Route("/admin", name="admin")
-     */
-    public function adminAction()
-    {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN', null, 'Unable to access this page!');
-        $em = $this->getDoctrine();
-        
-        $appointments = $em->getRepository('AppBundle:Appointment')->findBy([], array('id' => 'DESC'), 10);
-        $referrals = $em->getRepository('AppBundle:Referral')->findBy([], array('id' => 'DESC'), 10);
-        $contacts = $em->getRepository('AppBundle:Contact')->findBy([], array('id' => 'DESC'), 10);
-        $contents = $em->getRepository('AppBundle:Content')->findBy([], array('hits' => 'DESC'));
-        
-        return $this->render('admin/index.html.twig', array(
-                'header' => 'Dashboard',
-        		'appointments' => $appointments,
-        		'referrals' => $referrals,
-        		'contacts' => $contacts,
-        		'contents' => $contents,
-            )
-        );
-    }
-    /**
-     * @Route("/", name="homepage")
-     */
-    public function indexAction()
-    {
-    	$em = $this->getDoctrine()->getManager();
-    	$content = $em->getRepository('AppBundle:Content')->findOneBy(array('alias'=>'home-page'));
-    	$content->setHits($content->getHits() + 1);
-    	$em->flush();
-    	
-   		return $this->render('home.html.twig', array('content' => $content));
-    }
-    
-    /**
-     * @Route("/draft", name="draft")
-     */
-    public function draftAction()
-    {
-    	return $this->render('draft.html.twig');
-    }
-    
-    /**
-     * @Route("/book", name="book")
-     */
-    public function book(Request $request) {
-    	$em = $this->getDoctrine()->getManager();
-    	$content = $em->getRepository('AppBundle:Content')->findOneBy(array('alias'=>'book'));
-    	
-		$appointment = new Appointment();
-		$form = $this->createForm(AppointmentType::class, $appointment);
-		if (!empty($request->request->all())) {
-			$form->handleRequest($request);
+	/**
+	 * @Route("/", name="homepage")
+	 */
+	public function indexAction()
+	{
+		return $this->render('default/index.html.twig', array(
+		));
+	}
 
-			$success = false;
-
-			if ($form->isValid()) {
-			
-				$appointment
-				->setDateSubmitted(time())
-				;
-			
-				$em->persist($appointment);
-				$em->flush();
-				
-				$success = true;
-
-				$message = \Swift_Message::newInstance()
-					->setSubject('Appointment Booking')
-					->setFrom(array('noreply@brightsmiles.nz' => 'Bright Smiles Dental Care'))
-					->setTo('hello@brightsmiles.nz')
-					->setBody(
-						$this->renderView('email/booking.html.twig', array(
-							'data' => $appointment			
-							)),
-						'text/html'
-				);
-				$this->get('mailer')->send($message);
-					
-			}
-
-			return $this->render('default/book-send.html.twig', array(
-					'success' => $success,
-					'id' => md5(time()),
-					'form' => $form->createView()
-			));
+	/**
+	 * @Route("/regions", name="regions")
+	 */
+	public function regions(Request $request) {
+		$em = $this->getDoctrine();
+		$data = $request->request->all();
+		$id = isset($data['country']) ? $data['country'] : '';
+		$field = isset($data['field']) ? $data['field'] : '';
+		
+		$country = $em->getRepository('AppBundle:ArchCountry')->findOneBy(array('country_id' => $id));
+		
+		if (count($country) > 0) 
+			$regions = $em->getRepository('AppBundle:ArchRegion')->findBy(array('country_id' => $country->getId())); 
+		else 
+			$regions = array();
+		return $this->render('regions.html.twig', array(
+				'items' => $regions,
+				'field' => $field
+		));
+	}
+	
+	public function getCountryNameAction($code) {
+		$country = $this->getDoctrine()->getRepository('AppBundle:ArchCountry');
+		
+		return new Response($country->findOneBy(array('country_id' => $code))->getName());
+	}
+	
+	public function getSexAction($code) {
+		return new Response($code == 'F' ? 'Female' : 'Male');
+	}
+	
+	/**
+	 * @Route("/result", name="result")
+	 */
+	public function result(){
+		$result = $this->get('session')->get('result');
+		
+		$result = json_decode($result);
+		$products = $result->products;
+		foreach ($products as $product) {
+			echo $product->id .' '. $product->name .'<br />';
 		}
-        else {
-        	$content->setHits($content->getHits() + 1);
-        	$em->flush();
-        }
-        
-        return $this->render('default/book.html.twig', array(
-        	'content' => $content,
-        	'form' => $form->createView()
-        ));
-    }
-
-    /**
-     * @Route("/referral", name="referral")
-     */
-    public function referral(Request $request) {
-    	$em = $this->getDoctrine()->getManager();
-    	$content = $em->getRepository('AppBundle:Content')->findOneBy(array('alias'=>'referral'));
-    	 
-    	$referral = new Referral();
-    	$form = $this->createForm(ReferralType::class, $referral);
-
-    	if (!empty($request->request->all())) {
-    		$form->handleRequest($request);
-    		
-    		$success = false; 
-    		
-    		if ($form->isValid()) {
-    			$now = time();
-    			$success = true;
-
-    			// attachments
-    			$attachments = $referral->getAttachments();
-    			$attach = array();
-    			 
-    			if (count($attachments) > 0) {
-    				$rootDir = $this->container->getParameter('kernel.root_dir');
-    			
-    				$fs = new Filesystem();
-    				if ($fs->exists($rootDir . '/../attachments'))
-    					$uploadDir = $rootDir . '/../attachments';
-   					else
-   						$uploadDir = $rootDir . '/../images/attachments';
-    			
-    				$uploader = $this->get('app.file_uploader');
-    				$uploader->setTargetDir($uploadDir);
-    			
-					$ctr = 0;
-					foreach ($attachments as $attachment) {
-						$ctr++;
-    					$fileName = $uploader->upload($attachment, $now .'-'. $ctr);
-    					
-    					if (!is_null($fileName))
-    						$attach[] = $fileName;
-					}
-    			}
-    			 
-    			$referral
-	    			->setDateSubmitted($now)
-	    			->setAttachments($attach)
-    			;
-
-    			$em->persist($referral);
-    			$em->flush();
-    
-    			$message = \Swift_Message::newInstance()
-    			->setSubject('Dentist Referral')
-    			->setFrom(array('noreply@brightsmiles.nz' => 'Bright Smiles Dental Care'))
-				->setTo('hello@brightsmiles.nz')
-				->setBody(
-    					$this->renderView('email/referral.html.twig', array(
-    							'data' => $referral
-    					)),
-    					'text/html'
-    					);
-    			$this->get('mailer')->send($message);
-    		}
-    		
-    		return $this->render('default/referral-send.html.twig', array(
-    				'content' => $content,
-    				'success' => $success,
-    				'form' => $form->createView()
-    		));
-    	}
-    	else {
-   			$content->setHits($content->getHits() + 1);
-   			$em->flush();
-    	}
-    
-    	return $this->render('default/referral.html.twig', array(
-    			'content' => $content,
-    			'form' => $form->createView()
-    	));
-    }
-    
+		if (!empty($result->pagination)) {
+			$pages = $result->pagination;
+			dump($pages);
+		}
+		die;
+	}
+	
+	/**
+	 * @Route("/vend-suppliers", name="vend_suppliers")
+	 */
+	public function vendSuppliers()
+	{
+		$config = $this->getDoctrine()->getRepository('ShopBundle:ArchConfig');
+		
+		// check if Vend access token is set
+		$vendToken = $this->get('session')->get('vendToken');
+		$vendURL = $this->get('session')->get('vendURL');
+		
+		if (empty($vendToken)) 
+			$vendToken = $this->getVendAccessToken();
+		
+		// test Vend access token
+		$url = $vendURL .'/taxes';
+		$context = stream_context_create(array(
+				'http' => array(
+						'header' => "Authorization: Bearer " . $vendToken,
+				),
+		));
+		
+		@$result = file_get_contents($vendURL, false, $context);
+		dump($result);
+		die;
+		//   		return $this->render('home.html.twig', array('content' => $content));
+	}
+	
+	/**
+	 * @Route("/vend-authorize", name="vend_authorize")
+	 */
+	public function vendAuthorize(Request $request) {
+		$get = $request->query->all();
+		$em = $this->getDoctrine()->getManager();
+		
+		$config = $em->getRepository('ShopBundle:ArchConfig');
+		$vendURL = 'https://'. $config->findOneBy(array('name' => 'vend_prefix'))->getValue() .'.vendhq.com/api';
+		
+		if ($get['state'] == 'getCode') {
+			$data = array(
+					'code' => $get['code'],
+					'client_id' => $config->findOneBy(array('name' => 'vend_client_id'))->getValue(),
+					'client_secret' => $config->findOneBy(array('name' => 'vend_client_secret'))->getValue(),
+					'grant_type' => 'authorization_code',
+					'redirect_uri' => $config->findOneBy(array('name' => 'vend_redirect_uri'))->getValue(),
+			);
+			
+			$options = array(
+					'http' => array(
+							'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+							'method'  => 'POST',
+							'content' => http_build_query($data)
+					)
+			);
+			$context  = stream_context_create($options);
+			$result = file_get_contents($vendURL .'/1.0/token', false, $context);
+			if ($result === FALSE) {
+				$this->addFlash('warning', 'Failed. Please check your configuration.');
+				$this->redirectToRoute('homepage');
+			}
+			
+			$access_token = $config->findOneBy(array('name' => 'vend_access_token'));
+			$refresh_token = $config->findOneBy(array('name' => 'vend_refresh_token'));
+			
+			$result = json_decode($result);
+			$access_token->setValue($result->access_token);
+			$refresh_token->setValue($result->refresh_token);
+			
+			$em->flush();
+			
+			return new Response($result);
+		}
+	}
+	
+	/**
+	 * @Route("/member", name="member")
+	 */
+	public function memberAction() {
+		if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'))
+			return $this->redirectToRoute('admin');
+		
+		if ($this->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+			$this->addFlash(
+					'info',
+					'You have successfully logged in.'
+					);
+		}
+		else {
+			$this->addFlash(
+					'info',
+					'Please login to your account.'
+					);
+		}
+		return $this->redirectToRoute('homepage');
+	}
+	
     /**
      * @Route("/contact-us", name="contact")
      */

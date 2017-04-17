@@ -33,19 +33,19 @@ class Content
     private $content;
     
     /**
-     * @ORM\Column(type="string", length=160)
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $core;
+    
+    /**
+     * @ORM\Column(type="string", length=160, nullable=true)
      */
     private $meta_title;
     
     /**
-     * @ORM\Column(type="string", length=160)
+     * @ORM\Column(type="string", length=160, nullable=true)
      */
     private $meta_description;
-    
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $meta_keywords;
     
     /**
      * @ORM\Column(type="integer")
@@ -147,6 +147,30 @@ class Content
     }
 
     /**
+     * Set core
+     *
+     * @param boolean $core
+     *
+     * @return Content
+     */
+    public function setCore($core)
+    {
+        $this->core = $core;
+
+        return $this;
+    }
+
+    /**
+     * Get core
+     *
+     * @return boolean
+     */
+    public function getCore()
+    {
+        return $this->core;
+    }
+
+    /**
      * Set metaTitle
      *
      * @param string $metaTitle
@@ -192,30 +216,6 @@ class Content
     public function getMetaDescription()
     {
         return $this->meta_description;
-    }
-
-    /**
-     * Set metaKeywords
-     *
-     * @param string $metaKeywords
-     *
-     * @return Content
-     */
-    public function setMetaKeywords($metaKeywords)
-    {
-        $this->meta_keywords = $metaKeywords;
-
-        return $this;
-    }
-
-    /**
-     * Get metaKeywords
-     *
-     * @return string
-     */
-    public function getMetaKeywords()
-    {
-        return $this->meta_keywords;
     }
 
     /**

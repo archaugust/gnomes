@@ -1,0 +1,27 @@
+<p>Set the default payment type to use when registering online sales.</p>
+<p id="warning"{% if default %} class="hidden"{% endif %}><b>Warning: </b>No default payment type set.</p>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>ID</th>
+			<th class="th-toggle">Default</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for item in items %}
+		<tr>
+			<td>{{ item.name }}<input type="hidden" value="{{ item.id }}" /></td>
+			<td>{{ item.id }}</td>
+			<td align="center">
+				{% if 'Deleted' not in item.name %}
+				<a href="javascript:;" class="toggle-default">
+					<i class="fa fa-star{% if item.isDefault == 0 %}-o{% endif %}"></i>
+				</a>
+				{% endif %}
+			</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>

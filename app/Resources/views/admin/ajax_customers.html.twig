@@ -1,0 +1,75 @@
+{% set sort = app.session.get('sort') %}
+{% set filters = app.session.get('filters_customer') %}
+<form method="get" id="filter-form">
+	<div class="btn-filter">
+		Filter customers <i class="fa fa-caret-down"></i>
+    	<div class="filter-box">
+    		Show all customers where:
+    		<select class="form-control" name="f" id="filter-field">
+    			<option value="">Select a filter...</option>
+    			<option value="total_spent">Money spent</option>
+    			<option value="order_count">Number of orders</option>
+    			<option value="updated_at">Date created</option>
+    			<option value="accepts_marketing">Accepts marketing</option>
+    			<option value="enabled">Account status</option>
+    		</select>
+    		<div id="filter-operator"></div>
+    		</select>
+    		<div id="filter-value"></div>
+    		</select>
+    		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
+        </div>
+    </div>
+	<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for customers..." /></span>
+</form>
+<div class="filters">
+	{% for filter in filters %}
+		{% if filter['label'] != '' %}
+			<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+		{% endif %}
+	{% endfor %}
+</div>
+<form method="post">
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th class="check">
+				<div class="check-box">
+					<input type="checkbox" id="check-all" />
+					<div class="with-checked">
+						<div id="selected">0 customers selected</div>
+                		<div class="dropdown delete">
+                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete selected</a>
+                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
+                            	<h4>Confirm</h4>
+                            	<p>Delete selected customers?</p>
+                            	<p>This will NOT delete their account on Vend.</p>
+                            	<input type="submit" class="btn btn-primary" value="Proceed" />
+                          	</div>
+                        </div>
+					</div>
+				</div>
+			</th>
+			<th class="sort"><a href="?sort=last_name{% if sort['name'] == 'last_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Name <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Name{% endif %}</a></th>
+			<th class="sort"><a href="?sort=physical_city{% if sort['name'] == 'physical_city' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Location <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Location{% endif %}</a></th>
+			<th class="sort"><a href="?sort=customer_code{% if sort['name'] == 'customer_code' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Code <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Code{% endif %}</a></th>
+			<th class="sort text-center"><a href="?sort=order_count{% if sort['name'] == 'order_count' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Orders <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Orders{% endif %}</a></th>
+			<th class="sort text-right"><a href="?sort=total_spent{% if sort['name'] == 'total_spent' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Total Spent <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Total Spent{% endif %}</a></th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in items %}
+		<tr>
+			<td><input type="checkbox" class="customer" name="customers[]" value="{{ item.id }}" /></td>
+			<td><a href="{{ path('admin_customer_view',{'id':item.customerId}) }}">{{ item.firstName ~' '~ item.lastName }}</a></td>
+			<td>{% if item.physicalCity is not empty %}{{ item.physicalCity }}, {% endif %}{{ item.physicalCountryID }}</td>
+			<td>{{ item.customerCode }}</td>
+			<td align="center"><a href="#">{{ item.orderCount }}</a></td>
+			<td align="right">${{ item.totalSpent|number_format(2, '.', ',') }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+</form>
+
+<script src="{{ asset('js/ajax-customers.js') }}"></script>

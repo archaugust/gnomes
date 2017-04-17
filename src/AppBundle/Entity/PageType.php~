@@ -26,4 +26,62 @@ class PageType
      * @Assert\NotBlank()
      */
     private $page_type;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set pageTypeTitle
+     *
+     * @param string $pageTypeTitle
+     *
+     * @return PageType
+     */
+    public function setPageTypeTitle($pageTypeTitle)
+    {
+        $this->page_type_title = $pageTypeTitle;
+
+        return $this;
+    }
+
+    /**
+     * Get pageTypeTitle
+     *
+     * @return string
+     */
+    public function getPageTypeTitle()
+    {
+        return $this->page_type_title;
+    }
+
+    /**
+     * Set pageType
+     *
+     * @param string $pageType
+     *
+     * @return PageType
+     */
+    public function setPageType($pageType)
+    {
+        $this->page_type = $pageType;
+
+        return $this;
+    }
+
+    /**
+     * Get pageType
+     *
+     * @return string
+     */
+    public function getPageType()
+    {
+        return $this->page_type;
+    }
 }

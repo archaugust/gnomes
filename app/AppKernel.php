@@ -22,6 +22,7 @@ class AppKernel extends Kernel
        		new FM\ElfinderBundle\FMElfinderBundle(),
        		new \UserBundle\UserBundle(),
        		new \CmsBundle\CmsBundle(),
+        	new \ShopBundle\ShopBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

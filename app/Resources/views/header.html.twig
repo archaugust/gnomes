@@ -1,0 +1,15 @@
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    {% set logged = 1 %}
+{% else %}
+    {% set logged = 0 %}
+{% endif %}
+<div class="container">
+    <ul class="list-inline">
+        {% if logged %}
+            <li><a href="/admin" data-toggle="tooltip" data-placement="bottom" title="Admin">Admin</a></li>
+            <li><a href="/logout" data-toggle="tooltip" data-placement="bottom" title="Logout" class="last">Logout</a></li>
+        {% else %}
+            <li><a href="#" data-toggle="modal" data-target="#loginModal">Login</a></li>
+        {% endif %}
+    </ul>
+</div>

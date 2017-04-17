@@ -1,0 +1,326 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Customers{% endblock %}
+{% block menu_sub %}
+	<div class="menu-sub animated slideInLeft">
+		<ul class="list-unstyled">
+			<li><a href="{{ path('admin_customer') }}" id="submenu-customers" class="active">Customers</a></li>
+		</ul>
+	</div>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-users"></i></span> Customers
+		<div class="pull-right">
+            <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Customer</a>
+    		<div class="dropdown">
+    			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
+              	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
+                	<h4>Confirm</h4>
+                	<p>Re-download Customers data from Vend?</p>
+                	<p>NOTE: Deleted accounts with active Vend accounts will be reactivated.</p>
+                	<a id="vendReload" class="btn btn-primary">Proceed</a>
+              	</div>
+            </div>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="header">
+				<a href="#" class="active">All Customers</a>
+				<div class="pull-right paginator">
+                    {% if paginator.prevUrl %}
+                        <a href="{{ paginator.prevUrl }}"><i class="fa fa-chevron-left"></i></a>
+                    {% endif %}
+
+                    {% for page in paginator.pages %}
+                        {% if page.url %}
+                            <a href="{{ page.url }}" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+                        {% else %}
+                            <a class="disabled"><span>{{ page.num }}</span></a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginator.nextUrl %}
+                        <a href="{{ paginator.nextUrl }}"><i class="fa fa-chevron-right"></i></a></li>
+                    {% endif %}
+				</div>
+			</div>
+			<div class="details">
+			    {% set sort = app.session.get('sort') %}
+                {% set filters = app.session.get('filters_customer') %}
+				<form method="get" id="filter-form">
+					<div class="btn-filter">
+						Filter customers <i class="fa fa-caret-down"></i>
+                    	<div class="filter-box">
+                    		Show all customers where:
+                    		<select class="form-control" name="f" id="filter-field">
+                    			<option value="">Select a filter...</option>
+                    			<option value="total_spent">Money spent</option>
+                    			<option value="order_count">Number of orders</option>
+                    			<option value="updated_at">Date created</option>
+                    			<option value="accepts_marketing">Accepts marketing</option>
+                    			<option value="enabled">Account status</option>
+                    		</select>
+                    		<div id="filter-operator"></div>
+                    		</select>
+                    		<div id="filter-value"></div>
+                    		</select>
+                    		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
+	                    </div>
+                    </div>
+					<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for customers..." /></span>
+				</form>
+            	<div class="filters">
+            		{% for filter in filters %}
+            			{% if filter['label'] != '' %}
+            				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+            			{% endif %}
+            		{% endfor %}
+            	</div>
+				<form method="post">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+    						<th class="check">
+    							<div class="check-box">
+   	    							<input type="checkbox" id="check-all" />
+        							<div class="with-checked">
+    	    							<div id="selected">0 customers selected</div>
+                                		<div class="dropdown delete">
+                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete selected</a>
+                                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
+                                            	<h4>Confirm</h4>
+                                            	<p>Delete selected customers?</p>
+                                            	<p>This will NOT delete their account on Vend.</p>
+                                            	<input type="submit" class="btn btn-primary" value="Proceed" />
+                                          	</div>
+                                        </div>
+        							</div>
+    							</div>
+    						</th>
+    						<th class="sort"><a href="?sort=last_name{% if sort['name'] == 'last_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Name <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Name{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=physical_city{% if sort['name'] == 'physical_city' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Location <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Location{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=customer_code{% if sort['name'] == 'customer_code' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Code <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Code{% endif %}</a></th>
+    						<th class="sort text-center"><a href="?sort=order_count{% if sort['name'] == 'order_count' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Orders <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Orders{% endif %}</a></th>
+    						<th class="sort text-right"><a href="?sort=total_spent{% if sort['name'] == 'total_spent' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Total Spent <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Total Spent{% endif %}</a></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in items %}
+						<tr>
+							<td><input type="checkbox" class="customer" name="customers[]" value="{{ item.id }}" /></td>
+							<td><a href="{{ path('admin_customer_view',{'id':item.customerId}) }}">{{ item.firstName ~' '~ item.lastName }}</a></td>
+							<td>{% if item.physicalCity is not empty %}{{ item.physicalCity }}, {% endif %}{{ item.physicalCountryID }}</td>
+							<td>{{ item.customerCode }}</td>
+							<td align="center"><a href="#">{{ item.orderCount }}</a></td>
+							<td align="right">${{ item.totalSpent|number_format(2, '.', ',') }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				</form>
+			</div>
+			
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      {{ form_start(form) }}
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="addModalLabel">Add Customer</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.first_name) }}
+                {{ form_widget(form.first_name) }}
+                {{ form_errors(form.first_name) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.last_name) }}
+                {{ form_widget(form.last_name) }}
+                {{ form_errors(form.last_name) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-12">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email) }}
+                {{ form_errors(form.email) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.date_of_birth) }}
+                {{ form_widget(form.date_of_birth) }}
+                {{ form_errors(form.date_of_birth) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.sex) }}
+                {{ form_widget(form.sex) }}
+                {{ form_errors(form.sex) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.phone) }}
+                {{ form_widget(form.phone) }}
+                {{ form_errors(form.phone) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.mobile) }}
+                {{ form_widget(form.mobile) }}
+                {{ form_errors(form.mobile) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.fax) }}
+                {{ form_widget(form.fax) }}
+                {{ form_errors(form.fax) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.website) }}
+                {{ form_widget(form.website) }}
+                {{ form_errors(form.website) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+      			<div class="subheader">Physical Address</div>
+                {{ form_label(form.physical_address1) }}
+                {{ form_widget(form.physical_address1) }}
+                {{ form_errors(form.physical_address1) }}
+
+                {{ form_label(form.physical_address2) }}
+                {{ form_widget(form.physical_address2) }}
+                {{ form_errors(form.physical_address2) }}
+
+                {{ form_label(form.physical_suburb) }}
+                {{ form_widget(form.physical_suburb) }}
+                {{ form_errors(form.physical_suburb) }}
+
+                {{ form_label(form.physical_city) }}
+                {{ form_widget(form.physical_city) }}
+                {{ form_errors(form.physical_city) }}
+
+                {{ form_label(form.physical_postcode) }}
+                {{ form_widget(form.physical_postcode) }}
+                {{ form_errors(form.physical_postcode) }}
+
+                {{ form_label(form.physical_state) }}
+				<div id="physical_state_div">
+                {{ form_widget(form.physical_state) }}
+                </div>
+                {{ form_errors(form.physical_state) }}
+
+                {{ form_label(form.physical_country_id) }}
+                {{ form_widget(form.physical_country_id) }}
+                {{ form_errors(form.physical_country_id) }}
+      		</div>
+      		<div class="col-md-6">
+      			<div class="subheader">
+      				Postal Address
+      				<div class="pull-right">
+      					<a href="javascript:" id="same_address">Same as Physical Address</a>
+      				</div> 
+      			</div>
+                {{ form_label(form.postal_address1) }}
+                {{ form_widget(form.postal_address1) }}
+                {{ form_errors(form.postal_address1) }}
+
+                {{ form_label(form.postal_address2) }}
+                {{ form_widget(form.postal_address2) }}
+                {{ form_errors(form.postal_address2) }}
+
+                {{ form_label(form.postal_suburb) }}
+                {{ form_widget(form.postal_suburb) }}
+                {{ form_errors(form.postal_suburb) }}
+
+                {{ form_label(form.postal_city) }}
+                {{ form_widget(form.postal_city) }}
+                {{ form_errors(form.postal_city) }}
+
+                {{ form_label(form.postal_postcode) }}
+                {{ form_widget(form.postal_postcode) }}
+                {{ form_errors(form.postal_postcode) }}
+
+                {{ form_label(form.postal_state) }}
+				<div id="postal_state_div">
+                {{ form_widget(form.postal_state) }}
+                </div>
+                {{ form_errors(form.postal_state) }}
+
+                {{ form_label(form.postal_country_id) }}
+                {{ form_widget(form.postal_country_id) }}
+                {{ form_errors(form.postal_country_id) }}
+      		</div>
+      	</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+      </div>
+      {{ form_end(form) }}
+    </div>
+  </div>
+</div>
+<input type="hidden" id="mode" value="customer" />
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#user_admin_date_of_birth').datepicker({
+	    dateFormat: 'yy-mm-dd',
+	    changeMonth: true, 
+	    changeYear: true, 
+    });
+
+    $('#same_address').click(function(){
+        $('#user_admin_postal_address1').val($('#user_admin_physical_address1').val());
+        $('#user_admin_postal_address2').val($('#user_admin_physical_address2').val());
+        $('#user_admin_postal_suburb').val($('#user_admin_physical_suburb').val());
+        $('#user_admin_postal_city').val($('#user_admin_physical_city').val());
+        $('#user_admin_postal_state').val($('#user_admin_physical_state').val());
+        $('#user_admin_postal_postcode').val($('#user_admin_physical_postcode').val());
+        $('#user_admin_postal_country_id').val($('#user_admin_physical_country_id').val()).trigger('change');
+    });
+
+    $('#user_admin_physical_country_id').change(function(){
+        var country = $(this).val();
+        $.ajax({
+            url: "{{ path('regions') }}",
+            data: "country="+ country + "&field=user_admin[physical_state]",
+            type: "POST",
+            success: function (data) {
+    	    	$('#physical_state_div').hide().html(data).fadeIn();
+            }
+        });
+    });
+
+    $('#user_admin_postal_country_id').change(function(){
+        var country = $(this).val();
+        $.ajax({
+            url: "{{ path('regions') }}",
+            data: "country="+ country + "&field=user_admin[postal_state]",
+            type: "POST",
+            success: function (data) {
+    	    	$('#postal_state_div').hide().html(data).fadeIn();
+            }
+        });
+    });
+});
+var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+$.fn.modal.Constructor.prototype.enforceFocus = function() {};
+</script>
+<script src="{{ asset('js/ajax-customers.js') }}"></script>
+<script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

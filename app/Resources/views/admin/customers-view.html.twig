@@ -1,0 +1,425 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Customers - {{ item.fullName }}{% endblock %}
+{% block menu_sub %}
+	<div class="menu-sub animated slideInLeft">
+		<ul class="list-unstyled">
+			<li><a href="{{ path('admin_customer') }}" id="submenu-customers" class="active">Customers</a></li>
+		</ul>
+	</div>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-users"></i> Customers /</span> {{ item.fullName }}
+		<div class="pull-right">
+            <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Edit Customer</a>
+            <a class="btn btn-primary" data-toggle="modal" data-target="#deleteModal">Delete Customer</a>
+    		<div class="dropdown">
+    			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
+              	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
+                	<h4>Confirm</h4>
+                	<p>Re-download Customer data from Vend?</p>
+                	<a id="vendReload" class="btn btn-primary">Proceed</a>
+              	</div>
+            </div>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="row">
+							<div class="col-md-4"><b>Email</b></div>
+							<div class="col-md-8">{{ item.email }}</div>
+						</div>
+						{% if item.phone != null %}
+						<div class="row">
+							<div class="col-md-4"><b>Phone</b></div>
+							<div class="col-md-8">{{ item.phone }}</div>
+						</div>
+						{% endif %}
+						{% if item.mobile != null %}
+						<div class="row">
+							<div class="col-md-4"><b>Mobile</b></div>
+							<div class="col-md-8">{{ item.mobile }}</div>
+						</div>
+						{% endif %}
+						{% if item.fax != null %}
+						<div class="row">
+							<div class="col-md-4"><b>Fax</b></div>
+							<div class="col-md-8">{{ item.fax }}</div>
+						</div>
+						{% endif %}
+						{% if item.website != null %}
+						<div class="row">
+							<div class="col-md-4"><b>Website</b></div>
+							<div class="col-md-8">{{ item.website }}</div>
+						</div>
+						{% endif %}
+						<hr class="dotted" />
+						{% if item.dateOfBirth != null %}
+						<div class="row">
+							<div class="col-md-4"><b>DOB</b></div>
+							<div class="col-md-8">{{ item.dateOfBirth|date('j F Y') }}</div>
+						</div>
+						{% endif %}
+						{% if item.sex != null %}
+						<div class="row">
+							<div class="col-md-4"><b>Sex</b></div>
+							<div class="col-md-8">{{ render(controller('AppBundle:Default:getSex', { 'code': item.sex })) }}</div>
+						</div>
+						{% endif %}
+						<hr />
+						<div class="row">
+							<div class="col-md-4"><b>Physical Address</b></div>
+							<div class="col-md-8">
+								{% if item.physicalAddress1 != null %}
+							        {{ item.physicalAddress1 }}<br />
+							    {% endif %}
+								{% if item.physicalAddress2 != null %}
+							        {{ item.physicalAddress2 }}<br />
+							    {% endif %}
+								{% if item.physicalSuburb != null %}
+							        {{ item.physicalSuburb }}<br />
+							    {% endif %}
+								{% if item.physicalCity != null %}
+							        {{ item.physicalCity }}<br />
+							    {% endif %}
+								{% if item.physicalState != null %}
+							        {{ item.physicalState }}<br />
+							    {% endif %}
+								{% if item.physicalPostcode != null %}
+							        {{ item.physicalPostcode }}<br />
+							    {% endif %}
+								{% if item.physicalCountryId != null %}
+							        {{ render(controller('AppBundle:Default:getCountryName', { 'code': item.physicalCountryId })) }}<br />
+							    {% endif %}
+							</div>
+						</div>
+						<br />
+						<div class="row">
+							<div class="col-md-4"><b>Postal Address</b></div>
+							<div class="col-md-8">
+								{% if item.postalAddress1 != null %}
+							        {{ item.postalAddress1 }}<br />
+							    {% endif %}
+								{% if item.postalAddress2 != null %}
+							        {{ item.postalAddress2 }}<br />
+							    {% endif %}
+								{% if item.postalSuburb != null %}
+							        {{ item.postalSuburb }}<br />
+							    {% endif %}
+								{% if item.postalCity != null %}
+							        {{ item.postalCity }}<br />
+							    {% endif %}
+								{% if item.postalState != null %}
+							        {{ item.postalState }}<br />
+							    {% endif %}
+								{% if item.postalPostcode != null %}
+							        {{ item.postalPostcode }}<br />
+							    {% endif %}
+								{% if item.postalCountryId != null %}
+							        {{ render(controller('AppBundle:Default:getCountryName', { 'code': item.postalCountryId })) }}<br />
+							    {% endif %}
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="row">
+							<div class="col-md-6">
+								<h4>Total Spent</h4>
+								Last 12 months<br />
+								Balance
+							</div>
+							<div class="col-md-6 text-right">
+								<h4>${{ item.totalSpent|number_format(2, '.', ',') }}</h4>
+								${{ item.yearToDate|number_format(2, '.', ',') }}<br />
+								${{ item.balance|number_format(2, '.', ',') }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br /><br />
+		<div id="orders">
+			<h3><i class="fa fa-fw fa-book"></i> Sales History</h3>
+    		<div class="arch-table">
+    			<div class="extra">
+    				<table class="table table-striped">
+    					<thead>
+    						<tr>
+        						<th class="sort">Date</th>
+        						<th class="sort">Customer</th>
+        						<th class="sort text-right">Receipt</a></th>
+        						<th class="sort">Vend User</a></th>
+        						<th class="sort">Status</a></th>
+        						<th class="sort text-right">Total</th>
+    						</tr>
+    					</thead>
+    					<tbody>
+    						{% for sale in item.orders %}
+    						<tr class="order">
+    							<td>
+    								<a href="#" class="more-info" id="{{ sale.id }}"><i class="fa fa-caret-right"></i> {{ sale.saleDate|date() }}</a>
+    							</td>
+    							<td><a href="{{ path('admin_customer_view', {'id':sale.customer.customerId}) }}">{{ sale.customer.fullName }}</td>
+    							<td align="right">{{ sale.invoiceNumber }}</td>
+    							<td>{{ sale.user }}</td>
+    							<td>{{ sale.status }}</td>
+    							<td align="right">${{ (sale.totalPrice + sale.totalTax)|number_format(2, '.', ',') }}</td>
+    						</tr>
+    						<tr class="order-details {{ sale.id }}">
+    							<td colspan="6" class="ajax-content"></td>
+    						</tr>
+    						{% endfor %}
+    					</tbody>
+    				</table>
+    			</div>
+    		</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      {{ form_start(form) }}
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="addModalLabel">Edit Customer</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.first_name) }}
+                {{ form_widget(form.first_name) }}
+                {{ form_errors(form.first_name) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.last_name) }}
+                {{ form_widget(form.last_name) }}
+                {{ form_errors(form.last_name) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-12">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email) }}
+                {{ form_errors(form.email) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.date_of_birth) }}
+                {{ form_widget(form.date_of_birth) }}
+                {{ form_errors(form.date_of_birth) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.sex) }}
+                {{ form_widget(form.sex) }}
+                {{ form_errors(form.sex) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.phone) }}
+                {{ form_widget(form.phone) }}
+                {{ form_errors(form.phone) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.mobile) }}
+                {{ form_widget(form.mobile) }}
+                {{ form_errors(form.mobile) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+                {{ form_label(form.fax) }}
+                {{ form_widget(form.fax) }}
+                {{ form_errors(form.fax) }}
+      		</div>
+      		<div class="col-md-6">
+                {{ form_label(form.website) }}
+                {{ form_widget(form.website) }}
+                {{ form_errors(form.website) }}
+      		</div>
+      	</div>
+      	<div class="row">
+      		<div class="col-md-6">
+      			<div class="subheader">Physical Address</div>
+                {{ form_label(form.physical_address1) }}
+                {{ form_widget(form.physical_address1) }}
+                {{ form_errors(form.physical_address1) }}
+
+                {{ form_label(form.physical_address2) }}
+                {{ form_widget(form.physical_address2) }}
+                {{ form_errors(form.physical_address2) }}
+
+                {{ form_label(form.physical_suburb) }}
+                {{ form_widget(form.physical_suburb) }}
+                {{ form_errors(form.physical_suburb) }}
+
+                {{ form_label(form.physical_city) }}
+                {{ form_widget(form.physical_city) }}
+                {{ form_errors(form.physical_city) }}
+
+                {{ form_label(form.physical_postcode) }}
+                {{ form_widget(form.physical_postcode) }}
+                {{ form_errors(form.physical_postcode) }}
+
+                {{ form_label(form.physical_state) }}
+				<div id="physical_state_div">
+                {{ form_widget(form.physical_state) }}
+                </div>
+                {{ form_errors(form.physical_state) }}
+
+                {{ form_label(form.physical_country_id) }}
+                {{ form_widget(form.physical_country_id) }}
+                {{ form_errors(form.physical_country_id) }}
+      		</div>
+      		<div class="col-md-6">
+      			<div class="subheader">
+      				Postal Address
+      				<div class="pull-right">
+      					<a href="javascript:" id="same_address">Same as Physical Address</a>
+      				</div> 
+      			</div>
+                {{ form_label(form.postal_address1) }}
+                {{ form_widget(form.postal_address1) }}
+                {{ form_errors(form.postal_address1) }}
+
+                {{ form_label(form.postal_address2) }}
+                {{ form_widget(form.postal_address2) }}
+                {{ form_errors(form.postal_address2) }}
+
+                {{ form_label(form.postal_suburb) }}
+                {{ form_widget(form.postal_suburb) }}
+                {{ form_errors(form.postal_suburb) }}
+
+                {{ form_label(form.postal_city) }}
+                {{ form_widget(form.postal_city) }}
+                {{ form_errors(form.postal_city) }}
+
+                {{ form_label(form.postal_postcode) }}
+                {{ form_widget(form.postal_postcode) }}
+                {{ form_errors(form.postal_postcode) }}
+
+                {{ form_label(form.postal_state) }}
+				<div id="postal_state_div">
+                {{ form_widget(form.postal_state) }}
+                </div>
+                {{ form_errors(form.postal_state) }}
+
+                {{ form_label(form.postal_country_id) }}
+                {{ form_widget(form.postal_country_id) }}
+                {{ form_errors(form.postal_country_id) }}
+      		</div>
+      	</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+      </div>
+      {{ form_end(form) }}
+    </div>
+  </div>
+</div>
+<input type="hidden" id="mode" value="customer_view" />
+<input type="hidden" id="get_id" value="{{ item.customerId }}" />
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$(function(){
+		$('#menu-customers').addClass('active');
+		$('.btn-filter').click(function (){
+			$('.filter-box').slideToggle();
+		});
+		$('html').click(function() {
+			$('.filter-box').slideUp();
+		});
+		$('.btn-filter').click(function(event){
+			event.stopPropagation();
+		});
+		$('.filter-box').click(function(event){
+			event.stopPropagation();
+		});
+
+		// country dropdown fix
+	    $('#user_admin_physical_country_id').val('{{ item.physicalCountryId }}');
+	    $('#user_admin_postal_country_id').val('{{ item.postalCountryId }}');
+	});
+
+	$('#user_admin_date_of_birth').datepicker({
+	    dateFormat: 'yy-mm-dd',
+	    changeMonth: true, 
+	    changeYear: true, 
+    });
+
+    $('#same_address').click(function(){
+        $('#user_admin_postal_address1').val($('#user_admin_physical_address1').val());
+        $('#user_admin_postal_address2').val($('#user_admin_physical_address2').val());
+        $('#user_admin_postal_suburb').val($('#user_admin_physical_suburb').val());
+        $('#user_admin_postal_city').val($('#user_admin_physical_city').val());
+        $('#user_admin_postal_state').val($('#user_admin_physical_state').val());
+        $('#user_admin_postal_postcode').val($('#user_admin_physical_postcode').val());
+        $('#user_admin_postal_country_id').val($('#user_admin_physical_country_id').val()).trigger('change');
+    });
+
+    $('#user_admin_physical_country_id').change(function(){
+        var country = $(this).val();
+        $.ajax({
+            url: "{{ path('regions') }}",
+            data: "country="+ country + "&field=user_admin[physical_state]",
+            type: "POST",
+            success: function (data) {
+    	    	$('#physical_state_div').hide().html(data).fadeIn();
+            }
+        });
+    });
+
+    $('#user_admin_postal_country_id').change(function(){
+        var country = $(this).val();
+        $.ajax({
+            url: "{{ path('regions') }}",
+            data: "country="+ country + "&field=user_admin[postal_state]",
+            type: "POST",
+            success: function (data) {
+    	    	$('#postal_state_div').hide().html(data).fadeIn();
+            }
+        });
+    });
+});
+
+$('.more-info').click(function(){
+	$(this).find('i').toggleClass('fa-caret-down').toggleClass('fa-caret-right');
+
+	id = $(this).attr('id');
+	$('.'+ id).fadeToggle();
+	ajax_content = $('.'+ id).find('.ajax-content');
+
+	if (ajax_content.html() == '') {
+    	ajax_content.html('<i class="fa fa-2x fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>')
+        $.ajax({
+            url: "/admin/sales/view/"+ id,
+            data: "mode="+ mode,
+            success: function (data) {
+                ajax_content.hide().html(data).slideDown();
+            }
+        });
+	}
+});
+
+var mode = $('#mode').val();
+var get_id = $('#get_id').val();
+
+var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+$.fn.modal.Constructor.prototype.enforceFocus = function() {};
+</script>
+<script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

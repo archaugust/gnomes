@@ -1,0 +1,200 @@
+<?php
+namespace AppBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="gno1_arch_product_tax")
+ */
+class ArchProductTax
+{
+    /**
+     * @ORM\Column(type="string", length=50)
+     * @ORM\Id
+     */
+    private $id;
+    
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="decimal", precision=5, scale=2)
+     */
+    private $rate;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $default;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $active;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="ArchProduct", mappedBy="tax_map")
+     */
+    private $products;
+
+    public function __construct() {
+    	$this->products = new ArrayCollection();
+    }
+
+    /**
+     * Set id
+     *
+     * @param string $id
+     *
+     * @return ArchProductTax
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * Get id
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return ArchProductTax
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set rate
+     *
+     * @param string $rate
+     *
+     * @return ArchProductTax
+     */
+    public function setRate($rate)
+    {
+        $this->rate = $rate;
+
+        return $this;
+    }
+
+    /**
+     * Get rate
+     *
+     * @return string
+     */
+    public function getRate()
+    {
+        return $this->rate;
+    }
+
+    /**
+     * Set default
+     *
+     * @param boolean $default
+     *
+     * @return ArchProductTax
+     */
+    public function setDefault($default)
+    {
+        $this->default = $default;
+
+        return $this;
+    }
+
+    /**
+     * Get default
+     *
+     * @return boolean
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * Set active
+     *
+     * @param boolean $active
+     *
+     * @return ArchProductTax
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return boolean
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Add product
+     *
+     * @param \ShopBundle\Entity\ArchProduct $product
+     *
+     * @return ArchProductTax
+     */
+    public function addProduct(\ShopBundle\Entity\ArchProduct $product)
+    {
+        $this->products[] = $product;
+
+        return $this;
+    }
+
+    /**
+     * Remove product
+     *
+     * @param \ShopBundle\Entity\ArchProduct $product
+     */
+    public function removeProduct(\ShopBundle\Entity\ArchProduct $product)
+    {
+        $this->products->removeElement($product);
+    }
+
+    /**
+     * Get products
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getProducts()
+    {
+        return $this->products;
+    }
+}

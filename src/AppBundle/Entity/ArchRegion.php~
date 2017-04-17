@@ -1,0 +1,115 @@
+<?php
+namespace AppBundle\Entity;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="gno1_arch_region")
+ */
+class ArchRegion
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=50)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="string", length=2)
+     */
+    private $country_id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="ArchCountry", inversedBy="regions")
+     * @ORM\JoinColumn(name="country_id", referencedColumnName="id")
+     */
+    private $country;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return ArchRegion
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set countryId
+     *
+     * @param string $countryId
+     *
+     * @return ArchRegion
+     */
+    public function setCountryId($countryId)
+    {
+        $this->country_id = $countryId;
+
+        return $this;
+    }
+
+    /**
+     * Get countryId
+     *
+     * @return string
+     */
+    public function getCountryId()
+    {
+        return $this->country_id;
+    }
+
+    /**
+     * Set country
+     *
+     * @param \AppBundle\Entity\ArchCountry $country
+     *
+     * @return ArchRegion
+     */
+    public function setCountry(\AppBundle\Entity\ArchCountry $country = null)
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * Get country
+     *
+     * @return \AppBundle\Entity\ArchCountry
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+}

@@ -14,3 +14,7 @@ services:
         class: AppBundle\ImageResizer
     app.misc_functions:
         class: AppBundle\MiscFunctions
+    app.vend:
+        class: ShopBundle\Vend
+        arguments: [ "@doctrine.orm.entity_manager" ]
+        

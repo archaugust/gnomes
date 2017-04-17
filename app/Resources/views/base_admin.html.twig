@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block description %}{% endblock %}">
+    <title>{% block title %}{% endblock %} - Gnomes</title>
+
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_admin.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+<section id="header">
+	<div class="container-fluid">
+		<div class="pull-left"><b>Gnomes CMS</b></div>
+		<a class="pull-right" href="/" target="_blank" data-toggle="tooltip" data-placement="left" title="View you website"><i class="fa fa-fw fa-external-link"></i></a>
+	</div>
+</section>
+<section id="content">
+	<div class="menu">
+		<div class="menu-main">
+			<a href="{{ path('admin') }}" id="menu-home">
+				<i class="fa fa-fw fa-home"></i>
+				Home
+			</a>
+			<a href="{{ path('admin_product') }}" id="menu-products">
+				<i class="fa fa-fw fa-tags"></i>
+				Products
+			</a>
+			<a href="{{ path('admin_sales') }}" id="menu-sales">
+				<i class="fa fa-fw fa-book"></i>
+				Sales
+			</a>
+			<a href="{{ path('admin_customer') }}" id="menu-customers">
+				<i class="fa fa-fw fa-users"></i>
+				Customers
+			</a>
+			<a href="{{ path('admin_content') }}" id="menu-pages">
+				<i class="fa fa-file-text"></i><br />
+				Pages
+			</a>
+			<a href="#" id="menu-rentals">
+				<i class="fa fa-fw fa-universal-access"></i>
+				Rentals
+			</a>
+			<a href="{{ path('admin_settings') }}" id="menu-settings">
+				<i class="fa fa-fw fa-cogs"></i>
+				Settings
+			</a>
+		</div>
+		{% block menu_sub %}{% endblock %}
+	</div>
+	{% block content %}{% endblock %}
+</section>
+
+{% block javascripts %}
+<script src="{{ asset('js/jquery.js') }}"></script>
+<script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/custom_admin.js') }}"></script>
+{% endblock %}
+</body>
+</html>

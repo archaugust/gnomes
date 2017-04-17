@@ -1,0 +1,127 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Sales{% endblock %}
+{% block content %}
+<div class="content content-nosub">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-book"></i></span> Sales Ledger
+		<div class="pull-right">
+    		<div class="dropdown">
+    			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
+              	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
+                	<h4>Confirm</h4>
+                	<p>Re-download Sales data from Vend?</p>
+                	<a id="vendReload" class="btn btn-primary">Proceed</a>
+              	</div>
+            </div>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="header">
+				<a href="#" class="active">All Sales</a>
+				<div class="pull-right paginator">
+                    {% if paginator.prevUrl %}
+                        <a href="{{ paginator.prevUrl }}"><i class="fa fa-chevron-left"></i></a>
+                    {% endif %}
+
+                    {% for page in paginator.pages %}
+                        {% if page.url %}
+                            <a href="{{ page.url }}" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+                        {% else %}
+                            <a class="disabled"><span>{{ page.num }}</span></a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginator.nextUrl %}
+                        <a href="{{ paginator.nextUrl }}"><i class="fa fa-chevron-right"></i></a></li>
+                    {% endif %}
+				</div>
+			</div>
+			<div class="details">
+			    {% set sort = app.session.get('sort') %}
+                {% set filters = app.session.get('filters_sales') %}
+				<form method="get" id="filter-form">
+					<div class="btn-filter">
+						Filter sales <i class="fa fa-caret-down"></i>
+                    	<div class="filter-box">
+                    		<p>Show all sales where:</p>
+                    		<input type="text" name="date_from" placeholder="Dated after" class="form-control datepicker" />
+                    		<input type="text" name="date_to" placeholder="Dated before" class="form-control datepicker" />
+                    		<input type="submit" class="btn btn-primary" value="Add Filter">
+	                    </div>
+                    </div>
+					<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for customers..." /></span>
+				</form>
+            	<div class="filters">
+            		{% for filter in filters %}
+            			{% if filter['label'] != '' %}
+            				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+            			{% endif %}
+            		{% endfor %}
+            	</div>
+				<form method="post">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+    						<th class="sort"><a href="?sort=o.sale_date{% if sort['name'] == 'o.sale_date' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Date <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Date{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=u.last_name{% if sort['name'] == 'u.last_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Customer <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Customer{% endif %}</a></th>
+    						<th class="sort text-right"><a href="?sort=o.invoice_number{% if sort['name'] == 'o.invoice_number' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Receipt <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Receipt{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=o.user{% if sort['name'] == 'o.user' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Vend User <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Vend User{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=o.status{% if sort['name'] == 'o.status' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Status <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Status{% endif %}</a></th>
+    						<th class="sort text-right"><a href="?sort=o.total_price{% if sort['name'] == 'o.total_price' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Total <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Total{% endif %}</a></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in items %}
+						<tr class="order">
+							<td>
+								<a href="#" class="more-info" id="{{ item.id }}"><i class="fa fa-caret-right"></i> {{ item.saleDate|date() }}</a>
+							</td>
+							<td><a href="{{ path('admin_customer_view', {'id':item.customer.customerId}) }}">{{ item.customer.fullName }}</td>
+							<td align="right">{{ item.invoiceNumber }}</td>
+							<td>{{ item.user }}</td>
+							<td>{{ item.status }}</td>
+							<td align="right">${{ (item.totalPrice + item.totalTax)|number_format(2, '.', ',') }}</td>
+						</tr>
+						<tr class="order-details {{ item.id }}">
+							<td colspan="6" class="ajax-content"></td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				</form>
+			</div>
+			
+		</div>
+	</div>
+</div>
+<input type="hidden" id="mode" value="sales" />
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$('.more-info').click(function(){
+	$(this).find('i').toggleClass('fa-caret-down').toggleClass('fa-caret-right');
+
+	id = $(this).attr('id');
+	$('.'+ id).fadeToggle();
+	ajax_content = $('.'+ id).find('.ajax-content');
+
+	if (ajax_content.html() == '') {
+    	ajax_content.html('<i class="fa fa-2x fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>')
+        $.ajax({
+            url: "/admin/sales/view/"+ id,
+            data: "mode="+ mode,
+            success: function (data) {
+                ajax_content.hide().html(data).slideDown();
+            }
+        });
+	}
+});
+var mode = $('#mode').val();
+</script>
+<script src="{{ asset('js/ajax-sales.js') }}"></script>
+<script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

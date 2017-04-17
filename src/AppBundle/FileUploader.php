@@ -37,4 +37,9 @@ class FileUploader extends Controller
 	public function setTargetDir($targetDir) {
 		$this->targetDir = $targetDir;
 	}
+	
+	public function getTargetDir() {
+		
+		return $this->targetDir;
+	}
 }

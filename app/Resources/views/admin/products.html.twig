@@ -1,0 +1,125 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Products{% endblock %}
+{% block menu_sub %}
+	<div class="menu-sub animated slideInLeft">
+		<ul class="list-unstyled">
+			<li><a href="{{ path('admin_product') }}" id="submenu-products">Products</a></li>
+			<li><a href="#" id="submenu-products">Collections</a></li>
+			<li><a href="#" id="submenu-products">Brands</a></li>
+			<li><a href="#" id="submenu-products">Suppliers</a></li>
+			<li><a href="#" id="submenu-products">Tags</a></li>
+		</ul>
+	</div>
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-tags"></i></span> Products
+		<div class="pull-right">
+            <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Product</a>
+    		<div class="dropdown">
+    			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
+              	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
+                	<h4>Confirm</h4>
+                	<p>Re-download Products data from Vend?</p>
+                	<a id="vendReload" class="btn btn-primary">Proceed</a>
+              	</div>
+            </div>
+        </div>
+	</div>
+	<div class="content-body">
+		<div class="arch-table">
+			<div class="header">
+				<a href="#" class="active">All Products</a>
+			</div>
+			<div class="details">
+				<form>
+					<div class="btn-filter">
+						Filter products <i class="fa fa-caret-down"></i>
+                    	<div class="filter-box">
+                    		Show all products where:
+                    		<select class="form-control" name="filter">
+                    			<option>Select a filter...</option>
+                    		</select>
+                    		<input type="submit" class="btn" value="Add Filter">
+	                    </div>
+                    </div>
+					<span><input type="text" class="input-filter" name="search" placeholder="Start typing to search for products..." /></span>
+				</form>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+    						<th class="check"><input type="checkbox" id="check_all" /></th>
+    						<th class="thumb"></th>
+    						<th><a href="#">Product</a></th>
+    						<th><a href="#">Inventory</a></th>
+    						<th><a href="#">Type</a></th>
+    						<th><a href="#">Brand</a></th>
+    						<th><a href="#">Supplier</a></th>
+    						<th width="70"><a href="#" class="text-center">Active</a></th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for item in items %}
+                		<tr>
+                			<td>
+                				<input type="checkbox" name="products[]" value="{{ item.id }}" />
+                				<input type="hidden" value="{{ item.id }}" />
+                			</td>
+                			<td><img src="{{ asset('images/no-image.png') }}" alt="{{ item.name }}" /></td>
+                			<td><a href="#">{{ item.baseName }}</a></td>
+                			<td>-</td>
+                			<td><a href="#">{{ item.productType }}</a></td>
+                			<td><a href="#">{{ item.brandName }}</a></td>
+                			<td><a href="#">{{ item.supplierName }}</a></td>
+                			<td align="center">
+                				{% if 'Deleted' not in item.name %}
+                				<a href="javascript:;" class="toggle-active">
+                					<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
+                				</a>
+                				{% endif %}
+                			</td>
+                		</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+<input type="hidden" id="mode" value="product" />
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/notify.min.js') }}"></script>
+<script>
+$(function(){
+	$('#menu-products').addClass('active');
+	$('#submenu-products').addClass('active');
+	$('.btn-filter').click(function (){
+		$('.filter-box').slideToggle();
+	});
+	$('html').click(function() {
+		$('.filter-box').slideUp();
+	});
+	$('.btn-filter').click(function(event){
+		event.stopPropagation();
+	});
+	$('.filter-box').click(function(event){
+		event.stopPropagation();
+	});
+})
+var mode = $('#mode').val();
+</script>
+<script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% set sort = app.session.get('sort') %}
+{% set filters = app.session.get('filters_sales') %}
+<form method="get" id="filter-form">
+	<div class="btn-filter">
+		Filter sales <i class="fa fa-caret-down"></i>
+    	<div class="filter-box">
+    		<p>Show all sales where:</p>
+    		<input type="text" name="date_from" placeholder="Dated after" class="form-control datepicker" />
+    		<input type="text" name="date_to" placeholder="Dated before" class="form-control datepicker" />
+    		<input type="submit" class="btn btn-primary" value="Add Filter">
+        </div>
+    </div>
+	<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for customers..." /></span>
+</form>
+<div class="filters">
+	{% for filter in filters %}
+		{% if filter['label'] != '' %}
+			<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+		{% endif %}
+	{% endfor %}
+</div>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th class="sort"><a href="?sort=o.sale_date{% if sort['name'] == 'o.sale_date' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Date <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Date{% endif %}</a></th>
+			<th class="sort"><a href="?sort=u.last_name{% if sort['name'] == 'u.last_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Customer <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Customer{% endif %}</a></th>
+			<th class="sort text-right"><a href="?sort=o.invoice_number{% if sort['name'] == 'o.invoice_number' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Receipt <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Receipt{% endif %}</a></th>
+			<th class="sort"><a href="?sort=o.user{% if sort['name'] == 'o.user' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Vend User <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Vend User{% endif %}</a></th>
+			<th class="sort"><a href="?sort=o.status{% if sort['name'] == 'o.status' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Status <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Status{% endif %}</a></th>
+			<th class="sort text-right"><a href="?sort=o.total_price{% if sort['name'] == 'o.total_price' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Total <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Total{% endif %}</a></th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in items %}
+		<tr>
+			<td><a href="#" class="more-info"><i class="fa fa-caret-down"></i> {{ item.saleDate|date() }}</a></td>
+			<td>{{ item.customer.fullName }}</td>
+			<td align="right">{{ item.invoiceNumber }}</td>
+			<td>{{ item.user }}</td>
+			<td>{{ item.status }}</td>
+			<td align="right">${{ (item.totalPrice + item.totalTax)|number_format(2, '.', ',') }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<script src="{{ asset('js/ajax-sales.js') }}"></script>

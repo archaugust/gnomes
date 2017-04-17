@@ -20,6 +20,7 @@
 }
 .rubik { font-family: 'Rubik', sans-serif; }
 .bold { font-weight: 500 }
+.modal { z-index: 10000 }
 html, body {
     overflow-x: hidden;
     font-family: 'Rubik', sans-serif;

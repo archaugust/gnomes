@@ -1,0 +1,80 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}{{ header }}{% endblock %}
+{% block menu_sub %}
+	{{ include('admin/submenu_pages.html.twig') }}
+{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i> Pages /</span> {{ header }}
+		<div class="pull-right">
+            <button class="btn btn-primary">Save</button>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details">
+                {{ form_errors(form) }}
+                <div class="animated fadeInUp">
+                	<div>
+                        {{ form_label(form.title) }}
+                        {{ form_widget(form.title, {'attr':{'class':'form-control'}}) }}
+                        {{ form_errors(form.title) }}
+					</div>
+					<div>
+                        {{ form_label(form.alias) }}
+                        {{ form_widget(form.alias, {'attr':{'class':'form-control','readonly':'readonly'}}) }}
+                        {{ form_errors(form.alias) }}
+                        {% if form.vars.value.core != 1 %}<a href="javascript:" id="edit_alias" class="btn btn-xs btn-default">Edit</a>{% endif %}
+					</div>
+					<hr />
+					<div>
+                        {{ form_label(form.content) }} 
+                        {{ form_widget(form.content) }}
+                        {{ form_errors(form.content) }}
+					</div>
+					<hr />
+					<div>
+                        {{ form_label(form.meta_title) }}
+                        {{ form_widget(form.meta_title, {'attr':{'class':'form-control'}}) }}
+                        {{ form_errors(form.meta_title) }}
+					</div>
+					<div>
+                        {{ form_label(form.meta_description) }}
+                        {{ form_widget(form.meta_description, {'attr':{'class':'form-control'}}) }}
+                        {{ form_errors(form.meta_description) }}
+					</div>
+					<div>
+                        {{ form_widget(form.save, {'attr':{'class':'btn-primary'}}) }} <a href="{{ path('admin_content') }}" class="btn btn-primary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#submenu-page').addClass('active');
+});
+{% if form.vars.value.core != 1 %}
+$('#content_title').keyup(function(){
+	if ($('#content_alias').prop('readonly'))
+		$('#content_alias').val($(this).val().toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-'));
+});
+$('#edit_alias').click(function(){
+	if ($('#content_alias').prop('readonly'))
+		$('#content_alias').prop('readonly', false);
+	else
+		$('#content_alias').prop('readonly', true);
+});
+{% endif %}
+</script>
+{% endblock %}

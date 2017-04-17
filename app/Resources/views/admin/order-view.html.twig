@@ -1,0 +1,58 @@
+{% set subtotal = 0 %}
+{% set tax = 0 %}
+{% set discount = 0 %}
+{% for product in item.products %}
+    <div class="row order-item">
+    	<div class="col-md-5">
+    		<b>{{ product.quantity }} x</b> <a href="{{ path('admin_product_view', {'id':product.id}) }}">{{ product.name }}</a>
+    		{% if product.discount %}<div class="light">With discount of ${{ product.discount|number_format(2, '.', ',') }}</div>{% endif %}
+    	</div>
+    	<div class="col-md-4">
+    		<b>@ ${{ product.price|number_format(2, '.', ',') }}</b> + <span>${{ product.tax|number_format(2, '.', ',') }} Tax ({{ item.taxName }})</span>
+    	</div>
+    	<div class="col-md-3 text-right">
+    		<b>${{ (product.priceTotal + product.taxTotal)|number_format(2, '.', ',') }}</b>
+    	</div>
+    </div>
+    {% set subtotal = subtotal + product.priceTotal %}
+    {% set tax = tax + product.taxTotal %}
+    {% set discount = discount + product.discount %}
+{% endfor %} 
+<hr />
+<div class="row">
+	<div class="col-md-6">
+    	<span>
+    		Sub-total<br />
+    		Total tax ({{ item.taxName }})
+    	</span>
+	</div>
+	<div class="col-md-6 text-right">
+		<span>
+			${{ subtotal|number_format(2, '.', ',') }}<br />
+			${{ tax|number_format(2, '.', ',') }}
+		</span>
+	</div>
+</div>
+<div class="row order-item">
+	<div class="col-md-6">
+		<b>TOTAL</b>
+	</div>
+	<div class="col-md-6 text-right">
+		<b>${{ (subtotal + tax)|number_format(2, '.', ',') }}</b>
+	</div>
+</div>
+<hr />
+<div class="row">
+	<div class="col-md-7"></div>
+	<div class="col-md-5">
+		{% if discount > 0 %}
+		<div class="row">
+			<div class="col-md-6">Discount applied</div>
+			<div class="col-md-6 text-right">			
+			    <b>${{ discount|number_format(2, '.', ',') }}</b>
+			</div>
+		</div>
+		{% endif %}
+	</div>
+</div>
+<a href="#" class="btn btn-default">View Receipt</a>

@@ -1,0 +1,71 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Registers{% endblock %}
+{% block menu_sub %}
+	{{ include('admin/submenu_settings.html.twig') }}
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-cogs"></i> Settings / </span> Registers
+		<div class="pull-right">
+    		<div class="dropdown">
+    			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
+              	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
+                	<h4>Confirm</h4>
+                	<p class="mb-15">Re-download Registers data from Vend?</p>
+                	<a id="vendReload" class="btn btn-primary">Proceed</a>
+              	</div>
+            </div>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details">
+				<p>Set the default register to use for registering online sales.</p>
+				<p id="warning"{% if default %} class="hidden"{% endif %}><b>Warning: </b>No default register set.</p>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+    						<th>Name</th>
+    						<th>ID</th>
+    						<th class="th-toggle">Default</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for item in items %}
+						<tr>
+							<td>{{ item.name }}<input type="hidden" value="{{ item.id }}" /></td>
+							<td>{{ item.id }}</td>
+							<td align="center">
+								{% if 'Deleted' not in item.name %}
+								<a href="javascript:;" class="toggle-default">
+									<i class="fa fa-star{% if item.isDefault == 0 %}-o{% endif %}"></i>
+								</a>
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+</div>
+<input type="hidden" id="mode" value="register" />
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/notify.min.js') }}"></script>
+<script>
+$(function(){
+	$('#menu-settings').addClass('active');
+	$('#submenu-registers').addClass('active');
+});
+var mode = $('#mode').val();
+</script>
+<script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

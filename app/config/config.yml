@@ -8,6 +8,8 @@ imports:
 parameters:
     locale: en
     root_directory: '%kernel.root_dir%/../web'
+    redirect_uri: 'http://gnomes.dev/vend-authorize'
+    vend_prefix: 'gnomes'
 
 framework:
     #esi:             ~
@@ -94,6 +96,9 @@ ivory_ck_editor:
             toolbar: standard
             filebrowserBrowseRoute: "elfinder"
             filebrowserBrowseRouteParameters: []
+            height: 500
+            allowedContent: true
+            contentsCss: ['/css/bootstrap.css','/css/style.css','/css/ckeditor.css']
 
 fm_elfinder:
     #assets_path: / # default is /assets, this is where css/js elfinder files are

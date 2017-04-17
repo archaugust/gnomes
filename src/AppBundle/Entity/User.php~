@@ -1,10 +1,9 @@
 <?php
-// src/AppBundle/Entity/User.php
-
 namespace AppBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -20,135 +19,199 @@ class User extends BaseUser
     protected $id;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $customer_id;
+    
+    /**
+     * @ORM\Column(type="string", length=8, nullable=true)
+     */
+    private $account_type;
+    
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $updated_at;
     
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $deleted_at;
     
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
      */
-    private $purchase_total;
+    private $balance;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $total_spent;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $year_to_date;
     
     /** 
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $customer_code;
     
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(type="string", length=150, nullable=true)
      */
     private $company_name;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $first_name;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $last_name;
-
+    
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $full_name;
+    
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $phone;
     
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $mobile;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $fax;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $website;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $physical_address1;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $physical_address2;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_suburb;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_city;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_postcode;
     
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_state;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=2)
      */
-    private $physical_country_ID;
+    private $physical_country_id;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\ManyToOne(targetEntity="ArchCountry")
+     * @ORM\JoinColumn(name="physical_country_id", referencedColumnName="id")
+     */
+    private $physical_country;
+    
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $postal_address1;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $postal_address2;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_suburb;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_city;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_postcode;
-    
-    
+        
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_state;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=2, nullable=true)
      */
-    private $postal_country_ID;
+    private $postal_country_id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="ArchCountry")
+     * @ORM\JoinColumn(name="postal_country_id")
+     */
+    private $postal_country;
+    
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_of_birth;
+    
+    /**
+     * @ORM\Column(type="string", length=1, nullable=true)
+     */
+    private $sex;
+    
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $accepts_marketing;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $order_count;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="ArchOrder", mappedBy="customer")
+     */
+    private $orders;
     
     public function __construct()
     {
         parent::__construct();
-        // your own logic
+        $this->order_count = 0;
+        $this->accepts_marketing = 1;
+        $this->orders = new ArrayCollection();
     }
+
 }

@@ -56,7 +56,7 @@ class ContentController extends Controller
     /**
      * @Route("admin/menu/add/", name="admin_menu_add")
      */
-    public function newMenuAction(Request $request)
+    public function newMenu(Request $request)
     {
         $menu = new Menu();
         $form = $this->createForm(MenuType::class, $menu);
@@ -78,11 +78,11 @@ class ContentController extends Controller
                 'Menu added.'
             );
 
-            $nextAction = $form->get('saveAndAdd')->isClicked()
+            $next = $form->get('saveAndAdd')->isClicked()
                 ? 'admin_menu_add'
                 : 'admin_menu';
 
-            return $this->redirectToRoute($nextAction);
+            return $this->redirectToRoute($next);
         }
 
         return $this->render('admin/menu_form.html.twig', array(
@@ -94,7 +94,7 @@ class ContentController extends Controller
     /**
      * @Route("/admin/menu/edit/{id}/", name="admin_menu_edit", defaults={"id": 1})
      */
-    public function editMenuAction(Request $request, $id)
+    public function editMenu(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -131,49 +131,43 @@ class ContentController extends Controller
             'header' => 'Edit Menu',
         ));
     }
-
+    
     /**
      * @Route("/admin/content/", name="admin_content")
      */
-    public function adminContentAction(Request $request)
+    public function adminContent(Request $request)
     {
-        $repository = $this->getDoctrine()
-            ->getRepository('AppBundle:Content');
+    	$em = $this->getDoctrine()->getManager();
+    	$items = $em->getRepository('AppBundle:Content');
 
-        if ($request->request->get('submit')) {
-            $em = $this->getDoctrine()->getManager();
-            $deleteList = $request->request->get('delete');
-            foreach ($deleteList as $item)
-            {
-                $menu = $repository->find($item);
-                $em->remove($menu);
-                $em->flush();
-            }
-
-            $this->addFlash(
-                'notice',
-                'Content page(s) deleted.'
-            );
-        }
-
-        $sortBy = $request->query->get('sort');
-        if ($sortBy == '')
-            $sortBy = 'id';
-        $order = $request->query->get('order');
-        if ($order == '')
-            $order = 'ASC';
-        $content = $repository->findBy([],array($sortBy => $order));
-
-        return $this->render('admin/content.html.twig', array(
-            'contents' => $content,
-            'header' => 'Pages',
-        ));
+    	// delete
+    	if ($request->isMethod('POST')) {
+    		$data = $request->request->all();
+    		if (isset($data['items'])) {
+    			$ctr = 0;
+    			foreach ($data['items'] as $item) {
+    				$page = $items->findOneBy(array('id' => $item, 'core' => null));
+    				if (count($page) > 0) {
+    					$em->remove($page);
+    					$ctr++; 
+    				}
+    			}
+    			
+    			$em->flush();
+    			if ($ctr > 0)
+    				$this->addFlash('info', 'Pages deleted.');
+    		}
+    	}
+    	
+    	return $this->render('admin/content.html.twig', array(
+			'items' => $items->findAll(),
+    	));
     }
-
+    
     /**
      * @Route("admin/content/add/", name="admin_content_add")
      */
-    public function newContentAction(Request $request)
+    public function newContent(Request $request)
     {
         $content = new Content();
         $form = $this->createForm(ContentType::class, $content);
@@ -181,12 +175,10 @@ class ContentController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $request->request->get('content');
-            $alias = $this->get('app.misc_functions')->slug($data['title']);
 
             $tmp = new \DateTime('now');
 
             $content->setTitle($data['title'])
-                ->setAlias($alias)
                 ->setDateAdded($tmp)
                 ->setDateModified($tmp)
                 ->setHits(0);
@@ -205,14 +197,14 @@ class ContentController extends Controller
 
         return $this->render('admin/content_form.html.twig', array(
             'form' => $form->createView(),
-            'header' => 'Add New Content Page',
+            'header' => 'Add Page',
         ));
     }
 
     /**
      * @Route("/admin/content/edit/{id}/", name="admin_content_edit", defaults={"id": 1})
      */
-    public function editContentAction(Request $request, $id)
+    public function editContent(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -255,7 +247,7 @@ class ContentController extends Controller
     /**
      * @Route("/admin/menu/page/{id}/", name="admin_menu_page")
      */
-    public function adminMenuPageAction(Request $request, $id)
+    public function adminMenuPage(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -312,7 +304,7 @@ class ContentController extends Controller
     /**
      * @Route("admin/menu/page/add/{id}", name="admin_menu_page_add")
      */
-    public function newMenuPageAction(Request $request, $id)
+    public function newMenuPage(Request $request, $id)
     {
         $repository = $this->getDoctrine()
             ->getRepository('AppBundle:MenuItem');
@@ -343,11 +335,11 @@ class ContentController extends Controller
                 'Menu Item added.'
             );
 
-            $nextAction = $form->get('saveAndAdd')->isClicked()
+            $next = $form->get('saveAndAdd')->isClicked()
                 ? 'admin_menu_page_add'
                 : 'admin_menu_page';
 
-            return $this->redirectToRoute($nextAction, array('id' => $id));
+            return $this->redirectToRoute($next, array('id' => $id));
         }
 
         return $this->render('admin/menu_item_form.html.twig', array(
@@ -360,7 +352,7 @@ class ContentController extends Controller
     /**
      * @Route("admin/menu/page/edit/{menu_id}/{id}/", name="admin_menu_page_edit")
      */
-    public function editMenuPageAction(Request $request, $menu_id, $id)
+    public function editMenuPage(Request $request, $menu_id, $id)
     {
         $em = $this->getDoctrine()->getManager();
         $menuItem = $em->getRepository('AppBundle:MenuItem')->find($id);
@@ -403,11 +395,11 @@ class ContentController extends Controller
                 'Menu Item modified.'
             );
 
-            $nextAction = $form->get('saveAndAdd')->isClicked()
+            $next = $form->get('saveAndAdd')->isClicked()
                 ? 'admin_menu_page_add'
                 : 'admin_menu_page';
 
-            return $this->redirectToRoute($nextAction, array('id' => $menu_id));
+            return $this->redirectToRoute($next, array('id' => $menu_id));
         }
 
         return $this->render('admin/menu_item_form_edit.html.twig', array(
@@ -488,7 +480,7 @@ class ContentController extends Controller
         ));
     }
 
-    public  function menuItemChildrenAction(Request $request, $menu_id, $parent){
+    public  function menuItemChildren(Request $request, $menu_id, $parent){
         $sortBy = $request->request->get('sort');
         if ($sortBy == '')
             $sortBy = 'sortOrder';
@@ -507,9 +499,18 @@ class ContentController extends Controller
     }
 
     /**
+     * @Route("/admin/blog", name="admin_blog")
+     */
+    public function blog(Request $request) {
+    	return $this->render('admin/blog.html.twig', array(
+    			
+    	));
+    }
+    
+    /**
      * @Route("/{alias}", name="_custom_route", requirements={"alias"=".+"})
      */
-    public function customRouteAction($alias)
+    public function customRoute($alias)
     {
         $em = $this->getDoctrine()->getManager();
         $alias = explode('/',$alias);

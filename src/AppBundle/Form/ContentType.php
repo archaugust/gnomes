@@ -13,12 +13,18 @@ class ContentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title', TextType::class, array(
-                'required' => true
-            ))
+            ->add('title', TextType::class)
+            ->add('alias', TextType::class)
             ->add('content', CKEditorType::class)
-            ->add('meta_description', TextType::class)
-            ->add('save', SubmitType::class, array('label' => 'Save Changes'))
+            ->add('meta_title', TextType::class, array(
+            		'label' => 'Meta Title',
+            		'required' => false
+            ))
+            ->add('meta_description', TextType::class, array(
+            		'label' => 'Meta Description',
+            		'required' => false
+            ))
+            ->add('save', SubmitType::class, array('label' => 'Save'))
         ;
     }
 

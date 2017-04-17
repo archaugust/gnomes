@@ -1,0 +1,113 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Pages{% endblock %}
+{% block menu_sub %}
+	{{ include('admin/submenu_pages.html.twig') }}
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i></span> Pages
+		<div class="pull-right">
+            <a class="btn btn-primary" href="{{ path('admin_content_add') }}">Add Page</a>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details">
+			    {% set sort = app.session.get('sort') %}
+			    <form method="post">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+    						<th class="check">
+    							<div class="check-box">
+   	    							<input type="checkbox" id="check-all" />
+        							<div class="with-checked">
+    	    							<div id="selected">0 pages selected</div>
+                                		<div class="dropdown delete">
+                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete selected</a>
+                                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
+                                            	<h4>Confirm</h4>
+                                            	<p>Delete selected pages?</p>
+                                            	<p>Required pages will NOT be deleted.</p>
+                                            	<input type="submit" class="btn btn-primary" value="Proceed" />
+                                          	</div>
+                                        </div>
+        							</div>
+    							</div>
+    						</th>
+    						<th class="sort"><a href="?sort=title{% if sort['name'] == 'title' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Title <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Title{% endif %}</a></th>
+    						<th class="sort">Link</th>
+    						<th class="sort text-center">Required</th>
+    						<th class="sort text-center"><a href="?sort=hits{% if sort['name'] == 'hits' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Views <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Views{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=date_modified{% if sort['name'] == 'date_modified' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Updated <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Updated{% endif %}</a></th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for item in items %}
+						<tr>
+							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
+							<td><a href="{{ path('admin_content_edit',{'id':item.id}) }}">{{ item.title }}</a></td>
+							<td><input class="form-control" type="text" value="{% if item.core != 1 %}/pages/{% endif %}{{ item.alias }}" readonly="readonly" onfocus="this.select()" /></td>
+							<td align="center"><i class="fa fa-star{% if (item.core != 1) %}-o{% endif %}"></i></td>
+							<td align="center">{{ item.hits|number_format(2, '.', ',') }}</td>
+							<td>{{ item.dateModified|date("H:i:s - j F Y") }}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#submenu-page').addClass('active');
+});
+$('#check-all').click(function(){
+	$(".item").prop('checked', this.checked);
+	if (this.checked) {
+		$('thead').addClass('active');
+		$('.with-checked').show();
+		countSelected();
+	}
+	else {
+		$('thead').removeClass('active');
+		$('.with-checked').hide();
+	}
+});
+
+$(".item").click(function(){
+	countSelected();
+});
+
+function countSelected() {
+	var ctr = 0;
+	var item = ' page';
+
+	$(".item").each(function(){
+		if (this.checked) 
+			ctr++;
+	});
+
+	if (ctr > 0) {
+		if (ctr > 1) 
+			item += 's';
+		$('#selected').html(ctr + item + ' selected');
+		$('thead').addClass('active');
+		$('.with-checked').show();
+	}
+	else {
+		$('thead').removeClass('active');
+		$('.with-checked').hide();
+	}
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% form_theme form 'form_errors.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Sales Taxes{% endblock %}
+{% block menu_sub %}
+	{{ include('admin/submenu_settings.html.twig') }}
+{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-cogs"></i> Settings / </span> Sales Taxes
+		<div class="pull-right">
+            <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Sales Tax</a>
+    		<div class="dropdown">
+    			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
+              	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
+                	<h4>Confirm</h4>
+                	<p>Re-download Sales Taxes data from Vend?</p>
+                	<p class="mb-15"><b>Warning:</b><br />This will reset all local changes to Active and Default settings.</p>
+                	<a id="vendReload" class="btn btn-primary">Proceed</a>
+              	</div>
+            </div>
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details">
+				<p>Set the default tax rate to use when adding new products.</p>
+				<p id="warning"{% if default %} class="hidden"{% endif %}><b>Warning: </b>No default sales tax set.</p>
+				<table class="table table-striped">
+					<thead>
+						<tr>
+    						<th>Name</th>
+    						<th>Rate</th>
+    						<th class="th-toggle">Default</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for item in items %}
+						<tr>
+							<td>{{ item.name }}<input type="hidden" value="{{ item.id }}" /></td>
+							<td>{{ item.rate * 100 }}%</td>
+							<td align="center">
+								{% if 'Deleted' not in item.name %}
+								<a href="javascript:;" class="toggle-default">
+									<i class="fa fa-star{% if item.isDefault == 0 %}-o{% endif %}"></i>
+								</a>
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+  <div class="modal-dialog" role="document">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="addModalLabel">Add Sales Tax</h4>
+      </div>
+      <div class="modal-body">
+  		<div class="row">
+  			<div class="col-md-6">
+                {{ form_label(form.name) }}
+                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.name) }}
+  			</div>
+  			<div class="col-md-6">
+                {{ form_label(form.rate) }}
+                {{ form_widget(form.rate, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.rate) }}
+  			</div>
+  		</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+      </div>
+    </div>
+    {{ form_end(form) }}
+  </div>
+</div>
+<input type="hidden" id="mode" value="tax" />
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/notify.min.js') }}"></script>
+<script>
+$(function(){
+	$('#menu-settings').addClass('active');
+	$('#submenu-taxes').addClass('active');
+});
+var mode = $('#mode').val();
+</script>
+<script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

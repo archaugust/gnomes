@@ -1,5 +1,5 @@
 $('#form_contact').submit(function(event) {
-	var data = $('#form_contact').serialize();
+	var data = $(this).serialize();
     var recaptcha = grecaptcha.getResponse();
     $('#contactDiv').html('<div class="col-md-12"><i class="fa fa-refresh fa-spin fa-5x red"></i><span class="sr-only">Loading...</span></div>');
     $.ajax({

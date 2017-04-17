@@ -1,10 +1,9 @@
 <?php
-// src/AppBundle/Entity/User.php
-
 namespace AppBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -20,136 +19,236 @@ class User extends BaseUser
     protected $id;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $customer_id;
+    
+    /**
+     * @ORM\Column(type="string", length=8, nullable=true)
+     */
+    private $account_type;
+    
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $updated_at;
     
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $deleted_at;
     
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
      */
-    private $purchase_total;
+    private $balance;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $total_spent;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     */
+    private $year_to_date;
     
     /** 
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $customer_code;
     
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(type="string", length=150, nullable=true)
      */
     private $company_name;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $first_name;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $last_name;
-
+    
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $full_name;
+    
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $phone;
     
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $mobile;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $fax;
 
     /**
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $website;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $physical_address1;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $physical_address2;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_suburb;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_city;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_postcode;
     
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $physical_state;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=2, nullable=true)
      */
-    private $physical_country_ID;
+    private $physical_country_id;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $postal_address1;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $postal_address2;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_suburb;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_city;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_postcode;
-    
-    
+        
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $postal_state;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=2, nullable=true)
      */
-    private $postal_country_ID;
+    private $postal_country_id;
+    
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_of_birth;
+    
+    /**
+     * @ORM\Column(type="string", length=1, nullable=true)
+     */
+    private $sex;
+    
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $accepts_marketing;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $order_count;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="ArchOrder", mappedBy="customer")
+     */
+    private $orders;
     
     public function __construct()
     {
         parent::__construct();
-        // your own logic
+        $this->order_count = 0;
+        $this->accepts_marketing = 1;
+        $this->orders = new ArrayCollection();
+    }
+
+
+    /**
+     * Set customerId
+     *
+     * @param string $customerId
+     *
+     * @return User
+     */
+    public function setCustomerId($customerId)
+    {
+        $this->customer_id = $customerId;
+
+        return $this;
+    }
+
+    /**
+     * Get customerId
+     *
+     * @return string
+     */
+    public function getCustomerId()
+    {
+        return $this->customer_id;
+    }
+
+    /**
+     * Set accountType
+     *
+     * @param string $accountType
+     *
+     * @return User
+     */
+    public function setAccountType($accountType)
+    {
+        $this->account_type = $accountType;
+
+        return $this;
+    }
+
+    /**
+     * Get accountType
+     *
+     * @return string
+     */
+    public function getAccountType()
+    {
+        return $this->account_type;
     }
 
     /**
@@ -201,27 +300,75 @@ class User extends BaseUser
     }
 
     /**
-     * Set purchaseTotal
+     * Set balance
      *
-     * @param string $purchaseTotal
+     * @param string $balance
      *
      * @return User
      */
-    public function setPurchaseTotal($purchaseTotal)
+    public function setBalance($balance)
     {
-        $this->purchase_total = $purchaseTotal;
+        $this->balance = $balance;
 
         return $this;
     }
 
     /**
-     * Get purchaseTotal
+     * Get balance
      *
      * @return string
      */
-    public function getPurchaseTotal()
+    public function getBalance()
     {
-        return $this->purchase_total;
+        return $this->balance;
+    }
+
+    /**
+     * Set totalSpent
+     *
+     * @param string $totalSpent
+     *
+     * @return User
+     */
+    public function setTotalSpent($totalSpent)
+    {
+        $this->total_spent = $totalSpent;
+
+        return $this;
+    }
+
+    /**
+     * Get totalSpent
+     *
+     * @return string
+     */
+    public function getTotalSpent()
+    {
+        return $this->total_spent;
+    }
+
+    /**
+     * Set yearToDate
+     *
+     * @param string $yearToDate
+     *
+     * @return User
+     */
+    public function setYearToDate($yearToDate)
+    {
+        $this->year_to_date = $yearToDate;
+
+        return $this;
+    }
+
+    /**
+     * Get yearToDate
+     *
+     * @return string
+     */
+    public function getYearToDate()
+    {
+        return $this->year_to_date;
     }
 
     /**
@@ -318,6 +465,30 @@ class User extends BaseUser
     public function getLastName()
     {
         return $this->last_name;
+    }
+
+    /**
+     * Set fullName
+     *
+     * @param string $fullName
+     *
+     * @return User
+     */
+    public function setFullName($fullName)
+    {
+        $this->full_name = $fullName;
+
+        return $this;
+    }
+
+    /**
+     * Get fullName
+     *
+     * @return string
+     */
+    public function getFullName()
+    {
+        return $this->full_name;
     }
 
     /**
@@ -561,27 +732,27 @@ class User extends BaseUser
     }
 
     /**
-     * Set physicalCountryID
+     * Set physicalCountryId
      *
-     * @param string $physicalCountryID
+     * @param string $physicalCountryId
      *
      * @return User
      */
-    public function setPhysicalCountryID($physicalCountryID)
+    public function setPhysicalCountryId($physicalCountryId)
     {
-        $this->physical_country_ID = $physicalCountryID;
+        $this->physical_country_id = $physicalCountryId;
 
         return $this;
     }
 
     /**
-     * Get physicalCountryID
+     * Get physicalCountryId
      *
      * @return string
      */
-    public function getPhysicalCountryID()
+    public function getPhysicalCountryId()
     {
-        return $this->physical_country_ID;
+        return $this->physical_country_id;
     }
 
     /**
@@ -729,26 +900,204 @@ class User extends BaseUser
     }
 
     /**
-     * Set postalCountryID
+     * Set postalCountryId
      *
-     * @param string $postalCountryID
+     * @param string $postalCountryId
      *
      * @return User
      */
-    public function setPostalCountryID($postalCountryID)
+    public function setPostalCountryId($postalCountryId)
     {
-        $this->postal_country_ID = $postalCountryID;
+        $this->postal_country_id = $postalCountryId;
 
         return $this;
     }
 
     /**
-     * Get postalCountryID
+     * Get postalCountryId
      *
      * @return string
      */
-    public function getPostalCountryID()
+    public function getPostalCountryId()
     {
-        return $this->postal_country_ID;
+        return $this->postal_country_id;
+    }
+
+    /**
+     * Set dateOfBirth
+     *
+     * @param \DateTime $dateOfBirth
+     *
+     * @return User
+     */
+    public function setDateOfBirth($dateOfBirth)
+    {
+        $this->date_of_birth = $dateOfBirth;
+
+        return $this;
+    }
+
+    /**
+     * Get dateOfBirth
+     *
+     * @return \DateTime
+     */
+    public function getDateOfBirth()
+    {
+        return $this->date_of_birth;
+    }
+
+    /**
+     * Set sex
+     *
+     * @param string $sex
+     *
+     * @return User
+     */
+    public function setSex($sex)
+    {
+        $this->sex = $sex;
+
+        return $this;
+    }
+
+    /**
+     * Get sex
+     *
+     * @return string
+     */
+    public function getSex()
+    {
+        return $this->sex;
+    }
+
+    /**
+     * Set acceptsMarketing
+     *
+     * @param boolean $acceptsMarketing
+     *
+     * @return User
+     */
+    public function setAcceptsMarketing($acceptsMarketing)
+    {
+        $this->accepts_marketing = $acceptsMarketing;
+
+        return $this;
+    }
+
+    /**
+     * Get acceptsMarketing
+     *
+     * @return boolean
+     */
+    public function getAcceptsMarketing()
+    {
+        return $this->accepts_marketing;
+    }
+
+    /**
+     * Set orderCount
+     *
+     * @param integer $orderCount
+     *
+     * @return User
+     */
+    public function setOrderCount($orderCount)
+    {
+        $this->order_count = $orderCount;
+
+        return $this;
+    }
+
+    /**
+     * Get orderCount
+     *
+     * @return integer
+     */
+    public function getOrderCount()
+    {
+        return $this->order_count;
+    }
+
+    /**
+     * Set physicalCountry
+     *
+     * @param \AppBundle\Entity\ArchCountry $physicalCountry
+     *
+     * @return User
+     */
+    public function setPhysicalCountry(\AppBundle\Entity\ArchCountry $physicalCountry = null)
+    {
+        $this->physical_country = $physicalCountry;
+
+        return $this;
+    }
+
+    /**
+     * Get physicalCountry
+     *
+     * @return \AppBundle\Entity\ArchCountry
+     */
+    public function getPhysicalCountry()
+    {
+        return $this->physical_country;
+    }
+
+    /**
+     * Set postalCountry
+     *
+     * @param \AppBundle\Entity\ArchCountry $postalCountry
+     *
+     * @return User
+     */
+    public function setPostalCountry(\AppBundle\Entity\ArchCountry $postalCountry = null)
+    {
+        $this->postal_country = $postalCountry;
+
+        return $this;
+    }
+
+    /**
+     * Get postalCountry
+     *
+     * @return \AppBundle\Entity\ArchCountry
+     */
+    public function getPostalCountry()
+    {
+        return $this->postal_country;
+    }
+
+    /**
+     * Add order
+     *
+     * @param \AppBundle\Entity\ArchOrder $order
+     *
+     * @return User
+     */
+    public function addOrder(\AppBundle\Entity\ArchOrder $order)
+    {
+        $this->orders[] = $order;
+
+        return $this;
+    }
+
+    /**
+     * Remove order
+     *
+     * @param \AppBundle\Entity\ArchOrder $order
+     */
+    public function removeOrder(\AppBundle\Entity\ArchOrder $order)
+    {
+        $this->orders->removeElement($order);
+    }
+
+    /**
+     * Get orders
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getOrders()
+    {
+        return $this->orders;
     }
 }
