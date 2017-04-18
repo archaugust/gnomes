@@ -21,6 +21,11 @@ class ArchProduct
     private $variant_parent_id;
     
     /**
+     * @ORM\OneToMany(targetEntity="ArchProduct", mappedBy="parent")
+     */
+    private $variants;
+    
+    /**
      * @ORM\ManyToOne(targetEntity="ArchProduct", inversedBy="variants")
      * @ORM\JoinColumn(name="variant_parent_id", referencedColumnName="id")
      */
@@ -30,11 +35,6 @@ class ArchProduct
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $has_variants;
-    
-    /**
-     * @ORM\OneToMany(targetEntity="ArchProduct", mappedBy="parent")
-     */
-    private $variants;
     
     /**
      * @ORM\Column(type="text")
@@ -148,24 +148,51 @@ class ArchProduct
     private $supplier_name;
     
     /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $collections;
-    
-    /**
      * @ORM\OneToMany(targetEntity="ArchProductInventory", mappedBy="product")
      */
     private $inventory;
     
     /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $image;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $video;
+    
+    /**
      * @ORM\OneToMany(targetEntity="ArchProductImage", mappedBy="product")
      */
     private $images;
-
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $views;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $adds;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $meta_title;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $meta_description;
+    
     public function __construct() {
     	$this->inventory = new ArrayCollection();
     	$this->images = new ArrayCollection();
     	$this->variants = new ArrayCollection();
+    	$this->views = 0;
+    	$this->adds = 0;
     }
 
 
@@ -263,6 +290,30 @@ class ArchProduct
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set baseName
+     *
+     * @param string $baseName
+     *
+     * @return ArchProduct
+     */
+    public function setBaseName($baseName)
+    {
+        $this->base_name = $baseName;
+
+        return $this;
+    }
+
+    /**
+     * Get baseName
+     *
+     * @return string
+     */
+    public function getBaseName()
+    {
+        return $this->base_name;
     }
 
     /**
@@ -722,51 +773,75 @@ class ArchProduct
     }
 
     /**
-     * Set collections
+     * Set image
      *
-     * @param string $collections
+     * @param string $image
      *
      * @return ArchProduct
      */
-    public function setCollections($collections)
+    public function setImage($image)
     {
-        $this->collections = $collections;
+        $this->image = $image;
 
         return $this;
     }
 
     /**
-     * Get collections
+     * Get image
      *
      * @return string
      */
-    public function getCollections()
+    public function getImage()
     {
-        return $this->collections;
+        return $this->image;
     }
 
     /**
-     * Set parent
+     * Set views
      *
-     * @param \AppBundle\Entity\ArchProduct $parent
+     * @param integer $views
      *
      * @return ArchProduct
      */
-    public function setParent(\AppBundle\Entity\ArchProduct $parent = null)
+    public function setViews($views)
     {
-        $this->parent = $parent;
+        $this->views = $views;
 
         return $this;
     }
 
     /**
-     * Get parent
+     * Get views
      *
-     * @return \AppBundle\Entity\ArchProduct
+     * @return integer
      */
-    public function getParent()
+    public function getViews()
     {
-        return $this->parent;
+        return $this->views;
+    }
+
+    /**
+     * Set adds
+     *
+     * @param integer $adds
+     *
+     * @return ArchProduct
+     */
+    public function setAdds($adds)
+    {
+        $this->adds = $adds;
+
+        return $this;
+    }
+
+    /**
+     * Get adds
+     *
+     * @return integer
+     */
+    public function getAdds()
+    {
+        return $this->adds;
     }
 
     /**
@@ -801,6 +876,30 @@ class ArchProduct
     public function getVariants()
     {
         return $this->variants;
+    }
+
+    /**
+     * Set parent
+     *
+     * @param \AppBundle\Entity\ArchProduct $parent
+     *
+     * @return ArchProduct
+     */
+    public function setParent(\AppBundle\Entity\ArchProduct $parent = null)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return \AppBundle\Entity\ArchProduct
+     */
+    public function getParent()
+    {
+        return $this->parent;
     }
 
     /**
@@ -896,26 +995,74 @@ class ArchProduct
     }
 
     /**
-     * Set baseName
+     * Set video
      *
-     * @param string $baseName
+     * @param string $video
      *
      * @return ArchProduct
      */
-    public function setBaseName($baseName)
+    public function setVideo($video)
     {
-        $this->base_name = $baseName;
+        $this->video = $video;
 
         return $this;
     }
 
     /**
-     * Get baseName
+     * Get video
      *
      * @return string
      */
-    public function getBaseName()
+    public function getVideo()
     {
-        return $this->base_name;
+        return $this->video;
+    }
+
+    /**
+     * Set metaTitle
+     *
+     * @param string $metaTitle
+     *
+     * @return ArchProduct
+     */
+    public function setMetaTitle($metaTitle)
+    {
+        $this->meta_title = $metaTitle;
+
+        return $this;
+    }
+
+    /**
+     * Get metaTitle
+     *
+     * @return string
+     */
+    public function getMetaTitle()
+    {
+        return $this->meta_title;
+    }
+
+    /**
+     * Set metaDescription
+     *
+     * @param string $metaDescription
+     *
+     * @return ArchProduct
+     */
+    public function setMetaDescription($metaDescription)
+    {
+        $this->meta_description = $metaDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get metaDescription
+     *
+     * @return string
+     */
+    public function getMetaDescription()
+    {
+        return $this->meta_description;
     }
 }

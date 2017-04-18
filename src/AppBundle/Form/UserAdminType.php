@@ -47,12 +47,12 @@ class UserAdminType extends AbstractType
 			->add('postal_state', TextType::class, array('label' => 'Region', 'required' => false))
 			->add('postal_country_id', EntityType::class,
 					array(
-							'label' => 'Country',
-							'class' => 'AppBundle:ArchCountry',
-							'choice_label' => 'name',
-							'choice_value' => 'countryId',
-							'placeholder' => 'Select Country',
-							'required' => false
+						'label' => 'Country',
+						'class' => 'AppBundle:ArchCountry',
+						'choice_label' => 'name',
+						'choice_value' => 'countryId',
+						'placeholder' => 'Select Country',
+						'required' => false
 					)
 			)
 			->add('date_of_birth', DateType::class, array(

@@ -21,7 +21,7 @@ class ArchRegion
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=2)
+     * @ORM\Column(type="integer")
      */
     private $country_id;
 
@@ -68,7 +68,7 @@ class ArchRegion
     /**
      * Set countryId
      *
-     * @param string $countryId
+     * @param integer $countryId
      *
      * @return ArchRegion
      */
@@ -82,7 +82,7 @@ class ArchRegion
     /**
      * Get countryId
      *
-     * @return string
+     * @return integer
      */
     public function getCountryId()
     {

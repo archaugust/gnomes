@@ -11,7 +11,7 @@ class ImageResizer
                            $output             = 'file',
                            $delete_original    = true,
                            $use_linux_commands = false,
-                           $quality = 80
+                           $quality = 90
     ) {
         if ( $height <= 0 && $width <= 0 ) return false;
         if ( $file === null && $string === null ) return false;

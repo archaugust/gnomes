@@ -1,0 +1,70 @@
+{% form_theme form 'form_errors.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Brands - Edit{% endblock %}
+{% block menu_sub %}
+	{{ include('admin/submenu_products.html.twig') }}
+{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-tags"></i> <a href="{{ path('admin_product') }}">Products</a> / <a href="{{ path('admin_product_type') }}">Brands</a> / </span> {{ item.name }}
+		<div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details">
+          		<div class="row">
+          			<div class="col-md-6">
+                        {{ form_label(form.name) }}
+                        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.name) }}
+          			</div>
+          		</div>
+          		<div class="row">
+          			<div class="col-md-6">
+                        {{ form_label(form.meta_title) }}
+                        {{ form_widget(form.meta_title, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.meta_title) }}
+          			</div>
+          			<div class="col-md-6">
+                        {{ form_label(form.meta_description) }}
+                        {{ form_widget(form.meta_description, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.meta_description) }}
+          			</div>
+          		</div>
+          		<div class="row">
+          			<div class="col-md-6">
+                        {{ form_label(form.image) }}
+                        {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.image) }}
+          			</div>
+          			<div class="col-md-6">
+                        {{ form_label(form.is_active) }}
+                        {{ form_widget(form.is_active, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.is_active) }}
+          			</div>
+          		</div>
+          		{% if item.image %}
+          		<div class="row">
+          			<div class="col-md-6">
+						<img src="{{ asset('images/brands/'~ item.image) }}" class="img-responsive mb-15" alt="{{ item.name }}" />
+          			</div>
+          		</div>
+          		{% endif %}
+          		<div class="row">
+          			<div class="col-md-12">
+          			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }} 
+          			    <a href="{{ path('admin_brand') }}" class="btn btn-default">Cancel</a>
+          			</div>
+          		</div>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

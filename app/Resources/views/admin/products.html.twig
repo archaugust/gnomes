@@ -1,15 +1,7 @@
 {% extends 'base_admin.html.twig' %}
 {% block title %}Products{% endblock %}
 {% block menu_sub %}
-	<div class="menu-sub animated slideInLeft">
-		<ul class="list-unstyled">
-			<li><a href="{{ path('admin_product') }}" id="submenu-products">Products</a></li>
-			<li><a href="#" id="submenu-products">Collections</a></li>
-			<li><a href="#" id="submenu-products">Brands</a></li>
-			<li><a href="#" id="submenu-products">Suppliers</a></li>
-			<li><a href="#" id="submenu-products">Tags</a></li>
-		</ul>
-	</div>
+    {% include('admin/submenu_products.html.twig') %}
 {% endblock %}
 {% block content %}
 <div class="content">
@@ -66,12 +58,12 @@
                 				<input type="checkbox" name="products[]" value="{{ item.id }}" />
                 				<input type="hidden" value="{{ item.id }}" />
                 			</td>
-                			<td><img src="{{ asset('images/no-image.png') }}" alt="{{ item.name }}" /></td>
+                			<td><img src="{% if item.image %}{{ item.image }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" alt="{{ item.name }}" /></td>
                 			<td><a href="#">{{ item.baseName }}</a></td>
                 			<td>-</td>
-                			<td><a href="#">{{ item.productType }}</a></td>
-                			<td><a href="#">{{ item.brandName }}</a></td>
-                			<td><a href="#">{{ item.supplierName }}</a></td>
+                			<td><a href="{{ render(controller('ShopBundle:Default:getLink', { 'entity':'ProductType', 'name': item.productType })) }}">{{ item.productType }}</a></td>
+                			<td><a href="{{ render(controller('ShopBundle:Default:getLink', { 'entity':'ProductBrand', 'name': item.brandName })) }}">{{ item.brandName }}</a></td>
+                			<td><a href="?supplier_name={{ item.supplierName }}">{{ item.supplierName }}</a></td>
                 			<td align="center">
                 				{% if 'Deleted' not in item.name %}
                 				<a href="javascript:;" class="toggle-active">

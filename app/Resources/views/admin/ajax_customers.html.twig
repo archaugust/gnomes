@@ -60,16 +60,16 @@
 	<tbody>
 		{% for item in items %}
 		<tr>
-			<td><input type="checkbox" class="customer" name="customers[]" value="{{ item.id }}" /></td>
+			<td><input type="checkbox" class="item" name="customers[]" value="{{ item.id }}" /></td>
 			<td><a href="{{ path('admin_customer_view',{'id':item.customerId}) }}">{{ item.firstName ~' '~ item.lastName }}</a></td>
 			<td>{% if item.physicalCity is not empty %}{{ item.physicalCity }}, {% endif %}{{ item.physicalCountryID }}</td>
 			<td>{{ item.customerCode }}</td>
-			<td align="center"><a href="#">{{ item.orderCount }}</a></td>
+			<td align="center"><a href="{{ path('admin_customer_view',{'id':item.customerId}) }}#orders">{{ item.orderCount }}</a></td>
 			<td align="right">${{ item.totalSpent|number_format(2, '.', ',') }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>
 </table>
 </form>
-
+<script src="{{ asset('js/checkbox.js') }}"></script>
 <script src="{{ asset('js/ajax-customers.js') }}"></script>

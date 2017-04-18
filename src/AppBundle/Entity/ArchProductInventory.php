@@ -16,26 +16,20 @@ class ArchProductInventory
 	private $id;
 	
 	/**
-	 * @ORM\Column(type="string", length=50)
+	 * @ORM\Column(type="string", length=50, nullable=true)
 	 */
 	private $product_id;
 	
     /**
-     * @ORM\ManyToOne(targetEntity="ArchProduct")
+     * @ORM\ManyToOne(targetEntity="ArchProduct", inversedBy="inventory")
      * @ORM\JoinColumn(name="product_id", referencedColumnName="id")
      */
     private $product;
     
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $outlet_id;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="ArchOutlet")
-     * @ORM\JoinColumn(name="outlet_id", referencedColumnName="id")
-     */
-    private $outlet;
 
     /**
      * @ORM\Column(type="integer")
@@ -185,11 +179,11 @@ class ArchProductInventory
     /**
      * Set product
      *
-     * @param \ShopBundle\Entity\ArchProduct $product
+     * @param \AppBundle\Entity\ArchProduct $product
      *
      * @return ArchProductInventory
      */
-    public function setProduct(\ShopBundle\Entity\ArchProduct $product = null)
+    public function setProduct(\AppBundle\Entity\ArchProduct $product = null)
     {
         $this->product = $product;
 
@@ -199,7 +193,7 @@ class ArchProductInventory
     /**
      * Get product
      *
-     * @return \ShopBundle\Entity\ArchProduct
+     * @return \AppBundle\Entity\ArchProduct
      */
     public function getProduct()
     {
@@ -209,11 +203,11 @@ class ArchProductInventory
     /**
      * Set outlet
      *
-     * @param \ShopBundle\Entity\ArchOutlet $outlet
+     * @param \AppBundle\Entity\ArchOutlet $outlet
      *
      * @return ArchProductInventory
      */
-    public function setOutlet(\ShopBundle\Entity\ArchOutlet $outlet = null)
+    public function setOutlet(\AppBundle\Entity\ArchOutlet $outlet = null)
     {
         $this->outlet = $outlet;
 
@@ -223,7 +217,7 @@ class ArchProductInventory
     /**
      * Get outlet
      *
-     * @return \ShopBundle\Entity\ArchOutlet
+     * @return \AppBundle\Entity\ArchOutlet
      */
     public function getOutlet()
     {

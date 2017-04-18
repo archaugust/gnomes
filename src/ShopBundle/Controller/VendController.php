@@ -5,7 +5,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use JasonGrimes\Paginator;
 use AppBundle\Entity\ArchTax;
 use AppBundle\Entity\ArchOutlet;
 use AppBundle\Entity\ArchRegister;
@@ -14,6 +13,11 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\ArchProduct;
 use AppBundle\Entity\ArchOrder;
 use AppBundle\Entity\ArchOrderProduct;
+use AppBundle\Entity\ArchProductBrand;
+use AppBundle\Entity\ArchProductType;
+use AppBundle\Entity\ArchProductTag;
+use AppBundle\Entity\ArchProductInventory;
+use AppBundle\Entity\ArchSupplier;
 
 class VendController extends Controller
 {
@@ -45,6 +49,10 @@ class VendController extends Controller
 				$url = 'taxes';
 				$entity = 'ArchTax';
 				break;
+			case 'supplier':
+				$url = 'supplier';
+				$entity = 'ArchSupplier';
+				break;
 			case 'outlet':
 				$url = 'outlets';
 				$entity = 'ArchOutlet';
@@ -65,109 +73,89 @@ class VendController extends Controller
 
 		$em = $this->getDoctrine()->getManager();
 		$repository = $em->getRepository('AppBundle:'. $entity);
+		$repository_inventory = $em->getRepository('AppBundle:ArchProductInventory');
 		switch ($mode) {
 			case 'product':
 				$msg = 'Products';
 				$items = $result->products;
+				
+				$product_types = $product_tags = $product_brands = array();
 				foreach ($items as $item) {
-					if ($item->has_variants) {
-						$product = $repository->findOneBy(array('id' => $item->id));
-						
-						if (count($product) == 0)
-							$product = new ArchProduct();
-							
-							$product
-							->setId(@$item->id)
-							->setProductType(@$item->type)
-							->setHandle(@$item->handle)
-							->setIsActive(@$item->active)
-							->setName(@$item->name)
-							->setBaseName(@$item->base_name)
-							->setTags(@$item->tags)
-							->setDescription(@$item->description)
-							->setBrandName(@$item->brand_name)
-							->setSupplierName(@$item->supplier_name)
-							;
-							$em->persist($product);
-							/*
-							 "id": "0515649e-80e5-11df-b0bf-4040f540b50a",
-							 "source_id": "magento-123",
-							 "source_variant_id": "magento-variant-1-123",
-							 "handle": "abc123",
-							 "active": true,
-							 "name": "MacBook Pro 15&quot;",
-							 "tags": "Apple, iPad",
-							 "description": "The mobile computing powerhouse.",
-							 "variant_option_one_name": "Size",
-							 "variant_option_one_value": "15",
-							 "variant_option_two_name": null,
-							 "variant_option_two_value": "",
-							 "variant_option_three_name": null,
-							 "variant_option_three_value": "",
-							 "image": "/uploads/product/3eb691e90914967d5d25f4c7c3cbc310662c98e5_thumb.png",
-							 "sku": "macbookpro15",
-							 "brand_name": "MacBook",
-							 "supplier_name": "Apple",
-							 "inventory": [
-							 {
-							 "outlet_id": "8319a320-586e-102e-86b1-3945ad97ead1",
-							 "outlet_name": "Our discount store",
-							 "count": "0.00000",
-							 "reorder_point": "",
-							 "restock_level": "",
-							 },
-							 {
-							 "outlet_id": "83189cdc-586e-102e-86b1-3945ad97ead1",
-							 "outlet_name": "Our retail store",
-							 "count": "22.00000",
-							 "reorder_point": "33",
-							 "restock_level": "11",
-							 }],
-							 "price_book_entries": [
-							 {
-							 "id": "164081ec-83cc-11df-b0bf-4040f540b50a",
-							 "product_id": "0515649e-80e5-11df-b0bf-4040f540b50a",
-							 "type": "GENERAL",
-							 "customer_group_name": "All customers",
-							 "customer_group_id": "f823c3c2-83cb-11df-b0bf-4040f540b50a",
-							 "price": "1162.17",
-							 "tax": "174.33",
-							 "tax_id": "53b3501c-887c-102d-8a4b-a9cf13f17faa",
-							 "tax_rate": "0",
-							 "display_retail_price_tax_inclusive": "0",
-							 "min_units": "5.00",
-							 "max_units": "",
-							 "valid_from": "",
-							 "valid_to": ""
-							 },
-							 {
-							 "id": "1fa0344e-9dd5-11df-92db-4040f540b50a",
-							 "product_id": "0515649e-80e5-11df-b0bf-4040f540b50a",
-							 "type": "BASE",
-							 "customer_group_name": "All customers",
-							 "customer_group_id": "6e1dee9e-80e4-11df-b0bf-4040f540b50a",
-							 "price": "1999.13",
-							 "tax": "299.87",
-							 "tax_id": "53b3501c-887c-102d-8a4b-a9cf13f17faa",
-							 "tax_rate": "0",
-							 "display_retail_price_tax_inclusive": "0",
-							 "min_units": "",
-							 "max_units": "",
-							 "valid_from": "",
-							 "valid_to": ""
-							 }],
-							 "price": "1999.13",
-							 "tax": "299.87",
-							 "tax_id": "53b3501c-887c-102d-8a4b-a9cf13f17faa",
-							 "tax_rate": "0.150000",
-							 "tax_name": "NZ GST",
-							 "display_retail_price_tax_inclusive": "0",
-							 "updated_at": "2010-09-30 19:22:52",
-							 "deleted_at": ""
-							 }]*/
-							$em->flush();
+					// locally collect product_types, tags, brands *since they can't be directly pulled off API
+					
+					$product_types = $this->addToArray($item->type, $product_types);
+					$product_brands = $this->addToArray($item->brand_name, $product_brands);
+					
+					if (!empty($item->tags)) {
+						$tags = explode(', ', $item->tags);
+						foreach ($tags as $tag) 
+							if (!in_array($tag, $product_tags))
+								$product_tags[] = $tag;
 					}
+					
+					$product = $repository->findOneBy(array('id' => $item->id));
+					
+					if ($product == null) {
+						$product = new ArchProduct();
+						$product->setId(@$item->id);
+					}
+						
+					$product
+						->setProductType(@$item->type)
+						->setHandle(@$item->handle)
+						->setIsActive(@$item->active)
+						->setName(@$item->name)
+						->setBaseName(@$item->base_name)
+						->setTags(@$item->tags)
+						->setDescription(@$item->description)
+						->setBrandName(@$item->brand_name)
+						->setSupplierName(@$item->supplier_name)
+						->setVariantParentId(empty($item->variant_parent_id) ? null : $item->variant_parent_id)
+						->setVariantOptionOneName(@$item->variant_option_one_name)
+						->setVariantOptionOneValue(@$item->variant_option_one_value)
+						->setVariantOptionTwoName(@$item->variant_option_two_name)
+						->setVariantOptionTwoValue(@$item->variant_option_two_value)
+						->setVariantOptionThreeName(@$item->variant_option_three_name)
+						->setVariantOptionThreeValue(@$item->variant_option_three_value)
+						->setImage(@$item->image)
+						->setSku(@$item->sku)
+						->setSupplyPrice(@$item->supply_price)
+						->setRetailPrice(@$item->price) // retail_price = price when getting, retail_price = retail_price when posting
+						->setTax(@$item->tax)
+						->setTaxId(@$item->tax_id)
+					;
+					
+					$em->persist($product);
+					
+					if (isset($item->inventory)) {
+						foreach ($item->inventory as $inventory) {
+							$product_inventory = $repository_inventory->findOneBy(array('product_id' => $item->id, 'outlet_id' => $inventory->outlet_id));
+							
+							if ($product_inventory == null)
+								$product_inventory = new ArchProductInventory();
+							
+							$product_inventory
+								->setProduct($product)
+								->setOutletId($inventory->outlet_id)
+								->setCount(@$inventory->count)
+								->setReorderPoint(@$inventory->reorder_point)
+								->setRestockLevel(@$inventory->restock_level)
+							;
+								
+							$em->persist($product_inventory);
+						}
+					}
+					
+					$em->flush();
 				}
+
+				$em->clear();
+				
+				// save product types, tags, brands
+				$this->saveProductData('ArchProductType', $product_types);
+				$this->saveProductData('ArchProductBrand', $product_brands);
+				$this->saveProductData('ArchProductTag', $product_tags);
+
 				break;
 			case 'customer':
 			case 'customer_view':
@@ -364,6 +352,25 @@ class VendController extends Controller
 					$em->flush();
 				}
 				break;
+			case 'supplier':
+				$msg = 'Suppliers';
+				$items = $result->suppliers;
+				foreach ($items as $item) {
+					$supplier = $repository->findOneBy(array('id' => $item->id));
+					
+					if ($supplier == null)
+						$supplier = new ArchSupplier();
+						
+						$supplier
+							->setId($item->id)
+							->setName($item->name)
+							->setDescription(@$item->description)
+						;
+						
+						$em->persist($supplier);
+						$em->flush();
+				}
+				break;
 			case 'outlet':
 				$msg = 'Outlets';
 				$items = $result->outlets;
@@ -440,8 +447,23 @@ class VendController extends Controller
 				case 'product':
 					$entity = 'ArchProduct';
 					break;
+				case 'product_type':
+					$entity = 'ArchProductType';
+					break;
+				case 'collection':
+					$entity = 'ArchProductCollection';
+					break;
+				case 'brand':
+					$entity = 'ArchProductBrand';
+					break;
+				case 'tag':
+					$entity = 'ArchProductTag';
+					break;
 				case 'tax':
 					$entity = 'ArchTax';
+					break;
+				case 'supplier':
+					$entity = 'ArchSupplier';
 					break;
 				case 'outlet':
 					$entity = 'ArchOutlet';
@@ -479,6 +501,43 @@ class VendController extends Controller
 		}
 		
 		return new Response($msg);
+	}
+	
+	private function addToArray($data, $items) {
+		if (!empty($data))
+			if (!in_array($data, $items))
+				$items[] = $data;
+		return $items;
+	}
+	
+	private function saveProductData($entity, $items) {
+		$em = $this->getDoctrine()->getManager();
+		$repository = $em->getRepository('AppBundle:'. $entity);
+		foreach ($items as $item) {
+			$product_data = $repository->findOneBy(array('name' => $item));
+			
+			if ($product_data == null) {
+				switch ($entity) {
+					case 'ArchProductBrand':
+						$product_data = new ArchProductBrand();
+						break;
+					case 'ArchProductType':
+						$product_data = new ArchProductType();
+						break;
+					case 'ArchProductTag':
+						$product_data = new ArchProductTag();
+						break;
+				}
+				
+				$product_data
+					->setName($item)
+					->setIsActive(1)
+				;
+				$em->persist($product_data);
+			}
+		}
+		
+		$em->flush();
 	}
 }
 ?>

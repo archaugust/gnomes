@@ -10,10 +10,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 class ArchCountry
 {
     /**
-     * @ORM\Column(type="string", length=2)
+     * @ORM\Column(type="integer")
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+    
+    /**
+     * @ORM\Column(type="string", length=2)
+     */
+    private $country_id;
     
     /**
      * @ORM\Column(type="string", length=50)
@@ -35,23 +41,9 @@ class ArchCountry
     }
 
     /**
-     * Set id
-     *
-     * @param string $id
-     *
-     * @return ArchCountry
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
      * Get id
      *
-     * @return string
+     * @return integer
      */
     public function getId()
     {
@@ -80,30 +72,6 @@ class ArchCountry
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set phoneCode
-     *
-     * @param string $phoneCode
-     *
-     * @return ArchCountry
-     */
-    public function setPhoneCode($phoneCode)
-    {
-        $this->phone_code = $phoneCode;
-
-        return $this;
-    }
-
-    /**
-     * Get phoneCode
-     *
-     * @return string
-     */
-    public function getPhoneCode()
-    {
-        return $this->phone_code;
     }
 
     /**
@@ -138,5 +106,53 @@ class ArchCountry
     public function getRegions()
     {
         return $this->regions;
+    }
+
+    /**
+     * Set countryId
+     *
+     * @param string $countryId
+     *
+     * @return ArchCountry
+     */
+    public function setCountryId($countryId)
+    {
+        $this->country_id = $countryId;
+
+        return $this;
+    }
+
+    /**
+     * Get countryId
+     *
+     * @return string
+     */
+    public function getCountryId()
+    {
+        return $this->country_id;
+    }
+
+    /**
+     * Set phoneCode
+     *
+     * @param string $phoneCode
+     *
+     * @return ArchCountry
+     */
+    public function setPhoneCode($phoneCode)
+    {
+        $this->phone_code = $phoneCode;
+
+        return $this;
+    }
+
+    /**
+     * Get phoneCode
+     *
+     * @return string
+     */
+    public function getPhoneCode()
+    {
+        return $this->phone_code;
     }
 }

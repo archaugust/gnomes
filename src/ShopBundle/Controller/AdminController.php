@@ -11,6 +11,16 @@ use AppBundle\Entity\User;
 use AppBundle\Form\ArchTaxType;
 use AppBundle\Form\UserAdminType;
 use JasonGrimes\Paginator;
+use AppBundle\Entity\ArchProductType;
+use AppBundle\Form\ArchProductTypeType;
+use AppBundle\Entity\ArchProductCollection;
+use AppBundle\Form\ArchProductCollectionType;
+use AppBundle\Entity\ArchProductBrand;
+use AppBundle\Form\ArchProductBrandType;
+use AppBundle\Entity\ArchProductTag;
+use AppBundle\Form\ArchProductTagType;
+use AppBundle\Entity\ArchSupplier;
+use AppBundle\Form\ArchSupplierType;
 
 class AdminController extends Controller
 {
@@ -34,7 +44,7 @@ class AdminController extends Controller
 		$items = $em->getRepository('AppBundle:ArchProduct');
 		
 		return $this->render('admin/'. $mode .'products.html.twig', array(
-			'items' => $items->findAll()
+			'items' => $items->findBy(array('variant_parent_id' => null))
 		));
 	}
 
@@ -66,98 +76,101 @@ class AdminController extends Controller
 		// post = add or delete
 		if ($request->isMethod('POST')) {
 			
-			if ($form->isSubmitted() && $form->isValid()) {
-				$input = $request->request->get('user_admin');
-				
-				// check if email exists
-				$duplicate = $items->findOneBy(array('email' => $input['email']));
-				
-				if (count($duplicate) > 0) 
-					$this->addFlash('danger', 'ERROR: User email already in use.');
-				else 
-				{
-					// post to Vend
-					$data = array(
-							'customer_code' => $input['email'],
-							'company_name' => '',
-							'date_of_birth' => $input['date_of_birth'],
-							'sex' => $input['sex'],
-							"first_name" => $input['first_name'],
-							"last_name" => $input['last_name'],
-							"phone" => $input['phone'],
-							"mobile" => $input['mobile'],
-							"fax" => $input['fax'],
-							"email" => $input['email'],
-							"website" => $input['website'],
-							"physical_address1" => $input['physical_address1'],
-							"physical_address2" => $input['physical_address2'],
-							"physical_suburb" => $input['physical_suburb'],
-							"physical_city" => $input['physical_city'],
-							"physical_postcode" => $input['physical_postcode'],
-							"physical_state" => $input['physical_state'],
-							"physical_country_id" => $input['physical_country_id'],
-							"postal_address1" => $input['postal_address1'],
-							"postal_address2" => $input['postal_address2'],
-							"postal_suburb" => $input['postal_suburb'],
-							"postal_city" => $input['postal_city'],
-							"postal_postcode" => $input['postal_postcode'],
-							"postal_state" => $input['postal_state'],
-							"postal_country_id" => $input['postal_country_id'],
-					);
+			if ($form->isSubmitted()) {
+				if ($form->isValid()) {
+					$input = $request->request->get('user_admin');
+					
+					// check if email exists
+					$duplicate = $items->findOneBy(array('email' => $input['email']));
+					
+					if (count($duplicate) > 0) 
+						$this->addFlash('danger', 'ERROR: User email already in use.');
+					else 
+					{
+						// post to Vend
+						$data = array(
+								'customer_code' => $input['email'],
+								'company_name' => '',
+								'date_of_birth' => $input['date_of_birth'],
+								'sex' => $input['sex'],
+								"first_name" => $input['first_name'],
+								"last_name" => $input['last_name'],
+								"phone" => $input['phone'],
+								"mobile" => $input['mobile'],
+								"fax" => $input['fax'],
+								"email" => $input['email'],
+								"website" => $input['website'],
+								"physical_address1" => $input['physical_address1'],
+								"physical_address2" => $input['physical_address2'],
+								"physical_suburb" => $input['physical_suburb'],
+								"physical_city" => $input['physical_city'],
+								"physical_postcode" => $input['physical_postcode'],
+								"physical_state" => $input['physical_state'],
+								"physical_country_id" => $input['physical_country_id'],
+								"postal_address1" => $input['postal_address1'],
+								"postal_address2" => $input['postal_address2'],
+								"postal_suburb" => $input['postal_suburb'],
+								"postal_city" => $input['postal_city'],
+								"postal_postcode" => $input['postal_postcode'],
+								"postal_state" => $input['postal_state'],
+								"postal_country_id" => $input['postal_country_id'],
+						);
+		
+						$url = 'customers';
+						
+						$result = $this->get('app.vend')->postVend($url, $data);
+						
+						if ($result == null) {
+							$this->addFlash(
+									'danger',
+									'ERROR: Unable to post to Vend API.'
+									);
+							return $this->redirectToRoute('admin_customer');
+						}
 	
-					$url = 'customers';
-					
-					$result = $this->get('app.vend')->postVend($url, $data);
-					
-					if ($result == null) {
+						$password_raw = $this->get('app.misc_functions')->generatePassword();
+						$factory = $this->get('security.encoder_factory');
+						
+						$encoder = $factory->getEncoder($user);
+						$password = $encoder->encodePassword($password_raw, $user->getSalt());
+						
+						$result = $result->customer;
+						
+						$user
+							->setCustomerId($result->id)
+							->setFullName($input['first_name'] .' '. $input['last_name'])
+							->setUpdatedAt(\DateTime::createFromFormat('Y-m-d H:i:s', $result->updated_at))
+							->setUsername($result->email)
+							->setPassword($password)
+							->setEmail($result->email)
+							->setCustomerCode($result->customer_code)
+							->setPhysicalCountryId($input['physical_country_id'])
+							->setPostalCountryId($input['postal_country_id'])
+							->setAccountType('Customer')
+						;
+						
+						$em->persist($user);
+						$em->flush();
+						
 						$this->addFlash(
-								'danger',
-								'ERROR: Unable to post to Vend API.'
+								'info',
+								'Customer added.'
 								);
-						return $this->redirectToRoute('admin_customer');
+						
+						// email customer
+						$this->get('fos_user.mailer')->sendConfirmationEmailMessage($user);
 					}
-
-					$password_raw = $this->get('app.misc_functions')->generatePassword();
-					$factory = $this->get('security.encoder_factory');
-					
-					$encoder = $factory->getEncoder($user);
-					$password = $encoder->encodePassword($password_raw, $user->getSalt());
-					
-					$result = $result->customer;
-					
-					$user
-						->setCustomerId($result->id)
-						->setFullName($input['first_name'] .' '. $input['last_name'])
-						->setUpdatedAt(\DateTime::createFromFormat('Y-m-d H:i:s', $result->updated_at))
-						->setUsername($result->email)
-						->setPassword($password)
-						->setEmail($result->email)
-						->setCustomerCode($result->customer_code)
-						->setPhysicalCountryId($input['physical_country_id'])
-						->setPostalCountryId($input['postal_country_id'])
-						->setAccountType('Customer')
-					;
-					
-					$em->persist($user);
-					$em->flush();
-					
-					$this->addFlash(
-							'info',
-							'Customer added.'
-							);
-					
-					// email customer
 				}
+				else
+					$this->addFlash('danger', 'ERROR: Please check your input.');
 			}
 			
-			if ($form->isSubmitted() && !$form->isValid())
-				$this->addFlash('danger', 'ERROR: Please check your input.');
 			
 			// delete
 			$data = $request->request->all();
 			if (isset($data['customers'])) {
 				$now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
-				foreach ($customers as $customer) {
+				foreach ($data['customers'] as $customer) {
 					$user = $items->findOneBy(array('id' => $customer));
 					$user->setDeletedAt($now);
 				}
@@ -300,28 +313,48 @@ class AdminController extends Controller
 	 */
 	public function customerView(Request $request, $id, $mode = '') {
 		$em = $this->getDoctrine()->getManager();
-		$customer = $em->getRepository('AppBundle:User')->findOneBy(array('customer_id' => $id));
-
+		$repository = $em->getRepository('AppBundle:User');
+		$customer = $repository->findOneBy(array('customer_id' => $id));
+		$current_email = $customer->getEmail();
+		
 		if ($customer == null) 
 			return new Response('ERROR: Customer does not exist.');
 		
-		// set session variable for passing to Vend reloader
-		$this->get('session')->set('customer_id', $customer->getCustomerId());
-		
 		$form = $this->createForm(UserAdminType::class, $customer);
-		$form->handleRequest($request);
-		
-		if ($form->isSubmitted() && $form->isValid()) {
-			$this->addFlash('info', 'Customer info updated.');
+
+		if ($request->isMethod('POST')) {
+			// delete
+			if (!empty($delete = $request->request->get('delete'))) 
+				if ($customer->getCustomerId() == $delete) {
+					$this->addFlash('info', "Customer '". $customer->getFullName() ."' deleted.");
+					$customer->setDeletedAt(new \DateTime('now'));
+					
+					$em->flush();
+					
+					return $this->redirectToRoute('admin_customer');
+				}
 			
-			// entitytype to text dirty fix
-			$data = $request->request->get('user_admin');
-			$customer
-				->setPhysicalCountryId($data['physical_country_id'])
-				->setPostalCountryId($data['postal_country_id'])
-			;
-			
-			$em->flush();
+			// update
+			$form->handleRequest($request);
+			if ($form->isSubmitted() && $form->isValid()) {
+				// entitytype to text dirty fix
+				$data = $request->request->get('user_admin');
+				$customer
+					->setPhysicalCountryId($data['physical_country_id'])
+					->setPostalCountryId($data['postal_country_id'])
+				;
+				
+				// check for email duplicates
+				if ($current_email != $customer->getEmail()) {
+					$duplicate = $repository->findBy(array('email' => $customer->getEmail()));
+					if ($duplicate != null) 
+						$this->addFlash('danger', 'ERROR: Email address already in use.');
+				}
+				else {
+					$this->addFlash('info', 'Customer info updated.');
+					$em->flush();
+				}
+			}
 		}
 		
 		return $this->render('admin/'. $mode .'customers-view.html.twig', array(
@@ -569,49 +602,453 @@ class AdminController extends Controller
 		$form = $this->createForm(ArchTaxType::class, $tax);
 		$form->handleRequest($request);
 		
-		if ($form->isSubmitted() && $form->isValid()) {
-			// post to Vend
-			$input = $request->request->get('arch_tax');
-			$rate = (int)$input['rate'] / 100;
-			$data = array(
-					'name' => $input['name'],
-					'rate' => $rate
-			);
-			$url = 'taxes';
-
-			$result = $this->get('app.vend')->postVend($url, $data);
-
-			if ($result == null) {
-				$this->addFlash(
-						'danger', 
-						'ERROR: Unable to post to Vend API.'
+		if ($form->isSubmitted()) {
+			if ($form->isValid()) {
+				// post to Vend
+				$input = $request->request->get('arch_tax');
+				$rate = (int)$input['rate'] / 100;
+				$data = array(
+						'name' => $input['name'],
+						'rate' => $rate
 				);
-				return $this->redirectToRoute('admin_tax');
+				$url = 'taxes';
+	
+				$result = $this->get('app.vend')->postVend($url, $data);
+	
+				if ($result == null) {
+					$this->addFlash(
+							'danger', 
+							'ERROR: Unable to post to Vend API.'
+					);
+					return $this->redirectToRoute('admin_tax');
+				}
+				
+				$tax
+					->setId($result->id)
+					->setRate($rate)
+					->setIsActive($result->active)
+					->setIsDefault($result->default)
+				;
+				
+				$em->persist($tax);
+				$em->flush();
+				
+				$this->addFlash(
+						'info',
+						'Sales Tax added.'
+				);
 			}
-			
-			$tax
-				->setId($result->id)
-				->setRate($rate)
-				->setIsActive($result->active)
-				->setIsDefault($result->default)
-			;
-			
-			$em->persist($tax);
-			$em->flush();
-			
-			$this->addFlash(
-					'info',
-					'Sales Tax added.'
-			);
+			else
+				$this->addFlash('danger', 'ERROR: Please check your input.');
 		}
 		
-		if ($form->isSubmitted() && !$form->isValid()) 
-			$this->addFlash('danger', 'ERROR: Please check your input.');
-
 		return $this->render('admin/'. $mode .'taxes.html.twig', array(
 				'form' => $form->createView(),
 				'items' => array_reverse($items->findAll()),
 				'default' => count($default)
+		));
+	}
+	
+	/**
+	 * @Route("/admin/supplier/{mode}", name="admin_supplier")
+	 */
+	public function supplier(Request $request, $mode = '') {
+		$em = $this->getDoctrine()->getManager();
+		$items = $em->getRepository('AppBundle:ArchSupplier');
+		
+		$item = new ArchSupplier();
+		$form = $this->createForm(ArchSupplierType::class, $item);
+		$form->handleRequest($request);
+		
+		if ($form->isSubmitted()) {
+			if ($form->isValid()) {
+				// post to Vend
+				$input = $request->request->get('arch_supplier');
+				$data = array(
+						'name' => $input['name'],
+						'description' => $input['description']
+				);
+				$url = 'supplier';
+				
+				$result = $this->get('app.vend')->postVend($url, $data);
+				
+				if ($result == null) {
+					$this->addFlash(
+							'danger',
+							'ERROR: Unable to post to Vend API.'
+							);
+					return $this->redirectToRoute('admin_supplier');
+				}
+				
+				$item
+					->setId($result->id)
+				;
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash(
+						'info',
+						'Supplier added.'
+				);
+			}
+			else
+				$this->addFlash('danger', 'ERROR: Please check your input.');
+		}
+		
+		return $this->render('admin/'. $mode .'suppliers.html.twig', array(
+				'form' => $form->createView(),
+				'items' => array_reverse($items->findAll())
+		));
+	}
+	
+	/**
+	 * @Route("/admin/product-type", name="admin_product_type")
+	 */
+	public function productType(Request $request) {
+		$em = $this->getDoctrine()->getManager();
+		$items = $em->getRepository('AppBundle:ArchProductType');
+		
+		$item = new ArchProductType();
+		$form = $this->createForm(ArchProductTypeType::class, $item);
+		$form->handleRequest($request);
+		
+		if ($request->isMethod('POST')) {
+			// delete
+			$data = $request->request->all();
+			if (isset($data['items'])) {
+				foreach ($data['items'] as $item) {
+					$item = $items->findOneBy(array('id' => $item));
+					$item->setIsActive(0);
+				}
+				
+				$em->flush();
+			}
+			
+			// add
+			if ($form->isSubmitted() && $form->isValid()) {
+
+				// image
+				if ($item->getImage()!= null) {
+					$filename = $this->upload('banner_thumb', 'product-types', $item->getName(), $item->getImage());
+					$item->setImage($filename);
+				}
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash(
+					'info',
+					'Product Type added.'
+				);
+			}
+		}
+		
+		return $this->render('admin/product_types.html.twig', array(
+				'form' => $form->createView(),
+				'items' => $items->findAll(),
+		));
+	}
+
+	/**
+	 * @Route("/admin/product-type-edit/{id}", name="admin_product_type_edit")
+	 */
+	public function productTypeEdit(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $em->getRepository('AppBundle:ArchProductType')->findOneBy(array('id' => $id));
+		$old_image = $item->getImage();
+		
+		if ($item == null) {
+			$this->addFlash('danger', 'ERROR: Product type does not exist.');
+			
+			return $this->redirectToRoute('admin_product_type');
+		}
+		
+		$form = $this->createForm(ArchProductTypeType::class, $item);
+		$form->handleRequest($request);
+		
+		// edit
+		if ($form->isSubmitted() && $form->isValid()) {
+			// image
+			if ($item->getImage()!= null) {
+				$filename = $this->upload('banner_thumb', 'product-types', $item->getName(), $item->getImage(), $old_image);
+				$item->setImage($filename);
+			}
+			
+			$em->persist($item);
+			$em->flush();
+			
+			$this->addFlash(
+				'info',
+				'Product Type updated.'
+			);
+		}
+		
+		return $this->render('admin/product_types-edit.html.twig', array(
+			'form' => $form->createView(),
+			'item' => $item,
+		));
+	}
+	
+	/**
+	 * @Route("/admin/collection", name="admin_collection")
+	 */
+	public function collection(Request $request) {
+		$em = $this->getDoctrine()->getManager();
+		$items = $em->getRepository('AppBundle:ArchProductCollection');
+		
+		$item = new ArchProductCollection();
+		$form = $this->createForm(ArchProductCollectionType::class, $item);
+		$form->handleRequest($request);
+		
+		if ($request->isMethod('POST')) {
+			// delete
+			$data = $request->request->all();
+			if (isset($data['items'])) {
+				foreach ($data['items'] as $item) {
+					$item = $items->findOneBy(array('id' => $item));
+					$item->setIsActive(0);
+				}
+				
+				$em->flush();
+			}
+			
+			// add
+			if ($form->isSubmitted() && $form->isValid()) {
+				// image
+				if ($item->getImage()!= null) {
+					$filename = $this->upload('banner_thumb', 'collections', $item->getName(), $item->getImage());
+					$item->setImage($filename);
+				}
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash(
+						'info',
+						'Collection added.'
+				);
+			}
+		}
+		
+		return $this->render('admin/collections.html.twig', array(
+				'form' => $form->createView(),
+				'items' => $items->findAll(),
+		));
+	}
+	
+	/**
+	 * @Route("/admin/collection-view/{id}", name="admin_collection_view")
+	 */
+	public function collectionView(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $em->getRepository('AppBundle:ArchProductCollection')->findOneBy(array('id' => $id));
+		$old_image = $item->getImage();
+		
+		if ($item == null) {
+			$this->addFlash('danger', 'ERROR: Collection does not exist.');
+			return $this->redirectToRoute('admin_collection');
+		}
+		
+		$form = $this->createForm(ArchProductCollectionType::class, $item);
+		$form->handleRequest($request);
+		
+		if ($form->isSubmitted() && $form->isValid()) {
+			// image
+			if ($item->getImage()!= null) {
+				$filename = $this->upload('banner_thumb', 'collections', $item->getName(), $item->getImage(), $old_image);
+				$item->setImage($filename);
+			}
+			
+			$em->flush();
+			
+			$this->addFlash(
+					'info',
+					'Collection updated.'
+			);
+		}
+		
+		return $this->render('admin/collections-edit.html.twig', array(
+				'form' => $form->createView(),
+				'item' => $item,
+		));
+	}
+	
+	/**
+	 * @Route("/admin/collection-list/{id}", name="admin_collection_list")
+	 */
+	public function collectionList(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $em->getRepository('AppBundle:ArchProductCollection')->findOneBy(array('id'=>$id));
+		
+		if ($item == null)
+			return new Response('ERROR: Collection does not exist.');
+		
+		return $this->render('admin/collections-list.html.twig', array(
+				'items' => $item->getProductTypes(),
+				'item' => $item
+		));
+	}
+	
+	/**
+	 * @Route("/admin/brand", name="admin_brand")
+	 */
+	public function brand(Request $request) {
+		$em = $this->getDoctrine()->getManager();
+		$items = $em->getRepository('AppBundle:ArchProductBrand');
+		
+		$item = new ArchProductBrand();
+		$form = $this->createForm(ArchProductBrandType::class, $item);
+		$form->handleRequest($request);
+		
+		if ($request->isMethod('POST')) {
+			// delete
+			$data = $request->request->all();
+			if (isset($data['items'])) {
+				foreach ($data['items'] as $item) {
+					$item = $items->findOneBy(array('id' => $item));
+					$item->setIsActive(0);
+				}
+				
+				$em->flush();
+			}
+			
+			// add
+			if ($form->isSubmitted() && $form->isValid()) {
+				
+				// image
+				if ($item->getImage()!= null) {
+					$filename = $this->upload('thumb', 'brands', $item->getName(), $item->getImage());
+					$item->setImage($filename);
+				}
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash(
+						'info',
+						'Product Brand added.'
+				);
+			}
+		}
+		
+		return $this->render('admin/brands.html.twig', array(
+				'form' => $form->createView(),
+				'items' => $items->findAll(),
+		));
+	}
+	
+	/**
+	 * @Route("/admin/brand-edit/{id}", name="admin_brand_edit")
+	 */
+	public function brandEdit(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $em->getRepository('AppBundle:ArchProductBrand')->findOneBy(array('id' => $id));
+		$old_image = $item->getImage();
+		
+		if ($item == null) {
+			$this->addFlash('danger', 'ERROR: Brand does not exist.');
+			
+			return $this->redirectToRoute('admin_brand');
+		}
+		
+		$form = $this->createForm(ArchProductBrandType::class, $item);
+		$form->handleRequest($request);
+		
+		// edit
+		if ($form->isSubmitted() && $form->isValid()) {
+			// image
+			if ($item->getImage()!= null) {
+				$filename = $this->upload('thumb', 'brands', $item->getName(), $item->getImage(), $old_image);
+				$item->setImage($filename);
+			}
+			
+			$em->persist($item);
+			$em->flush();
+			
+			$this->addFlash(
+					'info',
+					'Brand updated.'
+					);
+		}
+		
+		return $this->render('admin/brands-edit.html.twig', array(
+				'form' => $form->createView(),
+				'item' => $item,
+		));
+	}
+	
+	/**
+	 * @Route("/admin/tag", name="admin_tag")
+	 */
+	public function tag(Request $request) {
+		$em = $this->getDoctrine()->getManager();
+		$items = $em->getRepository('AppBundle:ArchProductTag');
+		
+		$item = new ArchProductTag();
+		$form = $this->createForm(ArchProductTagType::class, $item);
+		$form->handleRequest($request);
+		
+		if ($request->isMethod('POST')) {
+			// delete
+			$data = $request->request->all();
+			if (isset($data['items'])) {
+				foreach ($data['items'] as $item) {
+					$item = $items->findOneBy(array('id' => $item));
+					$item->setIsActive(0);
+				}
+				
+				$em->flush();
+			}
+			
+			// add
+			if ($form->isSubmitted() && $form->isValid()) {
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash(
+						'info',
+						'Tag added.'
+				);
+			}
+		}
+		
+		return $this->render('admin/tags.html.twig', array(
+				'form' => $form->createView(),
+				'items' => $items->findAll(),
+		));
+	}
+	
+	/**
+	 * @Route("/admin/tag-edit/{id}", name="admin_tag_edit")
+	 */
+	public function tagEdit(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $em->getRepository('AppBundle:ArchProductTag')->findOneBy(array('id' => $id));
+		
+		if ($item == null) {
+			$this->addFlash('danger', 'ERROR: Tag does not exist.');
+			
+			return $this->redirectToRoute('admin_tag');
+		}
+		
+		$form = $this->createForm(ArchProductTagType::class, $item);
+		$form->handleRequest($request);
+		
+		// edit
+		if ($form->isSubmitted() && $form->isValid()) {
+			$em->persist($item);
+			$em->flush();
+			
+			$this->addFlash(
+					'info',
+					'Tag updated.'
+			);
+		}
+		
+		return $this->render('admin/tags-edit.html.twig', array(
+				'form' => $form->createView(),
+				'item' => $item,
 		));
 	}
 	
@@ -666,6 +1103,51 @@ class AdminController extends Controller
 		
 		return $this->render('admin/shipping.html.twig', array(
 		));
+	}
+	
+	private function upload($mode, $folder, $name, $image, $old_image = '') {
+			$fs = new Filesystem();
+			$rootDir = $this->container->getParameter('kernel.root_dir');
+			$resizer = $this->get('app.image_resizer');
+			$uploader = $this->get('app.file_uploader');
+
+			if ($fs->exists($rootDir . '/../web/images/'. $folder))
+				$imagesDir = $rootDir . '/../web/images/'. $folder;
+			else
+				$imagesDir = $rootDir . '/../public_html/images/'. $folder;
+			
+			$uploader->setTargetDir($imagesDir);
+			
+			// if has old_image, delete
+			if (!empty($old_image)) {
+				if ($mode == 'banner_thumb') 
+					$fs->remove($imagesDir .'/banner/'. $old_image);
+				else 
+					$fs->remove($imagesDir .'/'. $old_image);
+
+				$fs->remove($imagesDir .'/thumb/'. $old_image);
+			}
+				
+			// process image
+			$alias = $this->get('app.misc_functions')->slug($name);
+			$filename = $uploader->upload($image, $alias);
+			
+			$source = $imagesDir . '/' . $filename;
+
+			if ($mode == 'banner_thumb') {
+				$resized = $imagesDir . '/banner/' . $filename;
+				$resizer->resize($source, null, 900, 368, false, $resized, false, false, 90);
+				
+				$resized = $imagesDir . '/thumb/' . $filename;
+				$resizer->resize($source, null, 600, 600, false, $resized, true, false, 90);
+			}
+			else 
+			{
+				$resized = $imagesDir . '/thumb/' . $filename;
+				$resizer->resize($source, null, 600, 600, true, $resized, false, false, 90);
+			}
+
+			return $filename;
 	}
 }
 ?>

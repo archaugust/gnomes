@@ -1,0 +1,25 @@
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>ID</th>
+			<th class="th-toggle">Active</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for item in items %}
+		<tr>
+			<td>{{ item.name }}<input type="hidden" value="{{ item.id }}" /></td>
+			<td>{{ item.id }}</td>
+			<td align="center">
+				{% if 'Deleted' not in item.name %}
+				<a href="javascript:;" class="toggle-active">
+					<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
+				</a>
+				{% endif %}
+			</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>

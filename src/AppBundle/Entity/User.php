@@ -202,7 +202,6 @@ class User extends BaseUser
         $this->orders = new ArrayCollection();
     }
 
-
     /**
      * Set customerId
      *
@@ -1017,54 +1016,6 @@ class User extends BaseUser
     public function getOrderCount()
     {
         return $this->order_count;
-    }
-
-    /**
-     * Set physicalCountry
-     *
-     * @param \AppBundle\Entity\ArchCountry $physicalCountry
-     *
-     * @return User
-     */
-    public function setPhysicalCountry(\AppBundle\Entity\ArchCountry $physicalCountry = null)
-    {
-        $this->physical_country = $physicalCountry;
-
-        return $this;
-    }
-
-    /**
-     * Get physicalCountry
-     *
-     * @return \AppBundle\Entity\ArchCountry
-     */
-    public function getPhysicalCountry()
-    {
-        return $this->physical_country;
-    }
-
-    /**
-     * Set postalCountry
-     *
-     * @param \AppBundle\Entity\ArchCountry $postalCountry
-     *
-     * @return User
-     */
-    public function setPostalCountry(\AppBundle\Entity\ArchCountry $postalCountry = null)
-    {
-        $this->postal_country = $postalCountry;
-
-        return $this;
-    }
-
-    /**
-     * Get postalCountry
-     *
-     * @return \AppBundle\Entity\ArchCountry
-     */
-    public function getPostalCountry()
-    {
-        return $this->postal_country;
     }
 
     /**

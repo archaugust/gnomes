@@ -22,7 +22,7 @@ class ArchOrder
     private $user_id;
     
     /**
-     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="orders")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $customer;

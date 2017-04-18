@@ -23,11 +23,9 @@ class FileUploader extends Controller
 			return $fileName;
 		}
 		else {
-			$session = new Session();
-
-			$session->getFlashBag()->add(
+			$this->addFlash(
 					'danger',
-					"File '". $fileName ."' not uploaded. Please upload attachments in .pdf or .docx format, or images only."
+					"File '". $fileName ."' not uploaded. Please upload images only."
 					);
 
 			return null;

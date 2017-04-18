@@ -21,37 +21,6 @@ class DefaultController extends Controller
 	}
 
 	/**
-	 * @Route("/regions", name="regions")
-	 */
-	public function regions(Request $request) {
-		$em = $this->getDoctrine();
-		$data = $request->request->all();
-		$id = isset($data['country']) ? $data['country'] : '';
-		$field = isset($data['field']) ? $data['field'] : '';
-		
-		$country = $em->getRepository('AppBundle:ArchCountry')->findOneBy(array('country_id' => $id));
-		
-		if (count($country) > 0) 
-			$regions = $em->getRepository('AppBundle:ArchRegion')->findBy(array('country_id' => $country->getId())); 
-		else 
-			$regions = array();
-		return $this->render('regions.html.twig', array(
-				'items' => $regions,
-				'field' => $field
-		));
-	}
-	
-	public function getCountryNameAction($code) {
-		$country = $this->getDoctrine()->getRepository('AppBundle:ArchCountry');
-		
-		return new Response($country->findOneBy(array('country_id' => $code))->getName());
-	}
-	
-	public function getSexAction($code) {
-		return new Response($code == 'F' ? 'Female' : 'Male');
-	}
-	
-	/**
 	 * @Route("/result", name="result")
 	 */
 	public function result(){

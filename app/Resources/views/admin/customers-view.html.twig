@@ -14,7 +14,18 @@
 		<span><i class="fa fa-fw fa-users"></i> Customers /</span> {{ item.fullName }}
 		<div class="pull-right">
             <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Edit Customer</a>
-            <a class="btn btn-primary" data-toggle="modal" data-target="#deleteModal">Delete Customer</a>
+    		<div class="dropdown">
+	            <a class="btn btn-primary" id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete Customer</a>
+              	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
+                	<h4>Confirm</h4>
+                	<p>Delete customer account?</p>
+                	<p>This will NOT delete the customer's Vend account.</p>
+                	<form method="post">
+                	<input type="hidden" name="delete" value="{{ item.customerId }}" />
+                	<input type="submit" class="btn btn-danger" value="Proceed" />
+                	</form>
+              	</div>
+            </div>
     		<div class="dropdown">
     			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
               	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
@@ -69,7 +80,7 @@
 						{% if item.sex != null %}
 						<div class="row">
 							<div class="col-md-4"><b>Sex</b></div>
-							<div class="col-md-8">{{ render(controller('AppBundle:Default:getSex', { 'code': item.sex })) }}</div>
+							<div class="col-md-8">{{ render(controller('ShopBundle:Default:getSex', { 'code': item.sex })) }}</div>
 						</div>
 						{% endif %}
 						<hr />
@@ -95,7 +106,7 @@
 							        {{ item.physicalPostcode }}<br />
 							    {% endif %}
 								{% if item.physicalCountryId != null %}
-							        {{ render(controller('AppBundle:Default:getCountryName', { 'code': item.physicalCountryId })) }}<br />
+							        {{ render(controller('ShopBundle:Default:getCountryName', { 'code': item.physicalCountryId })) }}<br />
 							    {% endif %}
 							</div>
 						</div>
@@ -122,7 +133,7 @@
 							        {{ item.postalPostcode }}<br />
 							    {% endif %}
 								{% if item.postalCountryId != null %}
-							        {{ render(controller('AppBundle:Default:getCountryName', { 'code': item.postalCountryId })) }}<br />
+							        {{ render(controller('ShopBundle:Default:getCountryName', { 'code': item.postalCountryId })) }}<br />
 							    {% endif %}
 							</div>
 						</div>

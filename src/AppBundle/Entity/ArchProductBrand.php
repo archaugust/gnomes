@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -23,7 +24,23 @@ class ArchProductBrand
     /**
      * @ORM\Column(type="boolean")
      */
-    private $active;
+    private $is_active;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Assert\File(mimeTypes={ "image/jpg","image/jpeg","image/png","image/gif" })
+     */
+    private $image;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $meta_title;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $meta_description;
 
     /**
      * Get id
@@ -60,26 +77,98 @@ class ArchProductBrand
     }
 
     /**
-     * Set active
+     * Set isActive
      *
-     * @param boolean $active
+     * @param boolean $isActive
      *
      * @return ArchProductBrand
      */
-    public function setActive($active)
+    public function setIsActive($isActive)
     {
-        $this->active = $active;
+        $this->is_active = $isActive;
 
         return $this;
     }
 
     /**
-     * Get active
+     * Get isActive
      *
      * @return boolean
      */
-    public function getActive()
+    public function getIsActive()
     {
-        return $this->active;
+        return $this->is_active;
+    }
+
+    /**
+     * Set image
+     *
+     * @param string $image
+     *
+     * @return ArchProductBrand
+     */
+    public function setImage($image)
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * Get image
+     *
+     * @return string
+     */
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+    /**
+     * Set metaTitle
+     *
+     * @param string $metaTitle
+     *
+     * @return ArchProductBrand
+     */
+    public function setMetaTitle($metaTitle)
+    {
+        $this->meta_title = $metaTitle;
+
+        return $this;
+    }
+
+    /**
+     * Get metaTitle
+     *
+     * @return string
+     */
+    public function getMetaTitle()
+    {
+        return $this->meta_title;
+    }
+
+    /**
+     * Set metaDescription
+     *
+     * @param string $metaDescription
+     *
+     * @return ArchProductBrand
+     */
+    public function setMetaDescription($metaDescription)
+    {
+        $this->meta_description = $metaDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get metaDescription
+     *
+     * @return string
+     */
+    public function getMetaDescription()
+    {
+        return $this->meta_description;
     }
 }
