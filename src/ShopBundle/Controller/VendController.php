@@ -22,6 +22,52 @@ use AppBundle\Entity\ArchSupplier;
 class VendController extends Controller
 {
 	/**
+	 * @Route("/vend-authorize", name="vend_authorize")
+	 */
+	public function vendAuthorize(Request $request) {
+		$get = $request->query->all();
+		$em = $this->getDoctrine()->getManager();
+		
+		$config = $em->getRepository('ShopBundle:ArchConfig');
+		$vendURL = 'https://'. $config->findOneBy(array('name' => 'vend_prefix'))->getValue() .'.vendhq.com/api';
+		
+		if ($get['state'] == 'getCode') {
+			$data = array(
+					'code' => $get['code'],
+					'client_id' => $config->findOneBy(array('name' => 'vend_client_id'))->getValue(),
+					'client_secret' => $config->findOneBy(array('name' => 'vend_client_secret'))->getValue(),
+					'grant_type' => 'authorization_code',
+					'redirect_uri' => $config->findOneBy(array('name' => 'vend_redirect_uri'))->getValue(),
+			);
+			
+			$options = array(
+					'http' => array(
+							'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+							'method'  => 'POST',
+							'content' => http_build_query($data)
+					)
+			);
+			$context  = stream_context_create($options);
+			$result = file_get_contents($vendURL .'/1.0/token', false, $context);
+			if ($result === FALSE) {
+				$this->addFlash('warning', 'Failed. Please check your configuration.');
+				$this->redirectToRoute('homepage');
+			}
+			
+			$access_token = $config->findOneBy(array('name' => 'vend_access_token'));
+			$refresh_token = $config->findOneBy(array('name' => 'vend_refresh_token'));
+			
+			$result = json_decode($result);
+			$access_token->setValue($result->access_token);
+			$refresh_token->setValue($result->refresh_token);
+			
+			$em->flush();
+			
+			return new Response($result);
+		}
+	}
+	
+	/**
 	 * @Route("/admin/vend-reload", name="vend_reload")
 	 */
 	public function vendReload(Request $request) {
