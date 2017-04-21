@@ -1,4 +1,4 @@
-{% form_theme form 'form_errors.html.twig' %}
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Collections{% endblock %}
 {% block menu_sub %}
@@ -57,7 +57,7 @@
 							</td>
 						</tr>
 						<tr class="order-details {{ item.id }}">
-							<td colspan="6" class="ajax-content"></td>
+							<td colspan="5" class="ajax-content"></td>
 						</tr>
 					{% endfor %}
 					</tbody>
@@ -80,35 +80,17 @@
       <div class="modal-body">
   		<div class="row">
   			<div class="col-md-6">
-                {{ form_label(form.name) }}
-                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.name) }}
+                {{ form_row(form.name) }}
   			</div>
   			<div class="col-md-6">
-                {{ form_label(form.is_active) }}
-                {{ form_widget(form.is_active, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.is_active) }}
+                {{ form_row(form.is_active) }}
   			</div>
   		</div>
-  		<div class="row">
-  			<div class="col-md-12">
-                {{ form_label(form.meta_title) }}
-                {{ form_widget(form.meta_title, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.meta_title) }}
-  			</div>
-  		</div>
-  		<div class="row">
-  			<div class="col-md-12">
-                {{ form_label(form.meta_description) }}
-                {{ form_widget(form.meta_description, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.meta_description) }}
-  			</div>
-  		</div>
+        {{ form_row(form.meta_title) }}
+        {{ form_row(form.meta_description) }}
   		<div class="row">
   			<div class="col-md-6">
-                {{ form_label(form.image) }}
-                {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(form.image) }}
+                {{ form_row(form.image) }}
   			</div>
   		</div>
       </div>
@@ -130,6 +112,25 @@
 $(function(){
 	$('#menu-products').addClass('active');
 	$('#submenu-collections').addClass('active');
+});
+
+$('.more-info').click(function(){
+	$(this).find('i').toggleClass('fa-caret-down').toggleClass('fa-caret-right');
+
+	id = $(this).attr('id');
+	$('.'+ id).fadeToggle();
+	ajax_content = $('.'+ id).find('.ajax-content');
+
+	if (ajax_content.html() == '') {
+    	ajax_content.html('<i class="fa fa-2x fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>')
+        $.ajax({
+            url: "/admin/collection-list/"+ id,
+            data: "mode="+ mode,
+            success: function (data) {
+                ajax_content.hide().html(data).slideDown();
+            }
+        });
+	}
 });
 
 var mode = $('#mode').val();

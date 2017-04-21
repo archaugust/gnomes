@@ -1,3 +1,4 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Products{% endblock %}
 {% block menu_sub %}
@@ -20,50 +21,111 @@
         </div>
 	</div>
 	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
 			<div class="header">
 				<a href="#" class="active">All Products</a>
+				<div class="pull-right paginator">
+                    {% if paginator.prevUrl %}
+                        <a href="{{ paginator.prevUrl }}"><i class="fa fa-chevron-left"></i></a>
+                    {% endif %}
+
+                    {% for page in paginator.pages %}
+                        {% if page.url %}
+                            <a href="{{ page.url }}" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+                        {% else %}
+                            <a class="disabled"><span>{{ page.num }}</span></a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginator.nextUrl %}
+                        <a href="{{ paginator.nextUrl }}"><i class="fa fa-chevron-right"></i></a></li>
+                    {% endif %}
+				</div>
 			</div>
 			<div class="details">
-				<form>
+			    {% set sort = app.session.get('sort') %}
+                {% set filters = app.session.get('filters_product') %}
+				<form method="get" id="filter-form">
 					<div class="btn-filter">
 						Filter products <i class="fa fa-caret-down"></i>
                     	<div class="filter-box">
                     		Show all products where:
-                    		<select class="form-control" name="filter">
-                    			<option>Select a filter...</option>
+                    		<select class="form-control" name="f" id="filter-field">
+                    			<option value="">Select a filter...</option>
+                    			<option value="product_type">Product type</option>
+                    			<option value="brand_name">Brand name</option>
+                    			<option value="supplier_name">Supplier</option>
+                    			<option value="tags">Tagged with</option>
+                    			<option value="is_active">Visibility</option>
                     		</select>
-                    		<input type="submit" class="btn" value="Add Filter">
+                    		<div id="filter-value"></div>
+                    		</select>
+                    		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
 	                    </div>
                     </div>
-					<span><input type="text" class="input-filter" name="search" placeholder="Start typing to search for products..." /></span>
+					<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for products..." /></span>
 				</form>
+            	<div class="filters">
+            		{% for filter in filters %}
+            			{% if filter['label'] != '' %}
+            				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+            			{% endif %}
+            		{% endfor %}
+            	</div>
+				<form method="post">
 				<table class="table table-striped">
 					<thead>
 						<tr>
-    						<th class="check"><input type="checkbox" id="check_all" /></th>
+    						<th class="check">
+    							<div class="check-box">
+   	    							<input type="checkbox" id="check-all" />
+        							<div class="with-checked">
+    	    							<div id="selected"></div>
+                                		<div class="dropdown delete">
+                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Disable selected</a>
+                                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
+                                            	<h4>Confirm</h4>
+                                            	<p>Disable selected products?</p>
+                                            	<p>This will NOT disable product at Vend.</p>
+                                            	<input type="submit" class="btn btn-primary" value="Proceed" />
+                                          	</div>
+                                        </div>
+        							</div>
+    							</div>
+    						</th>
     						<th class="thumb"></th>
-    						<th><a href="#">Product</a></th>
-    						<th><a href="#">Inventory</a></th>
-    						<th><a href="#">Type</a></th>
-    						<th><a href="#">Brand</a></th>
-    						<th><a href="#">Supplier</a></th>
-    						<th width="70"><a href="#" class="text-center">Active</a></th>
+    						<th class="sort"><a href="?sort=name{% if sort['name'] == 'name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Name <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Name{% endif %}</a></th>
+    						<th class="sort text-center">Inventory</th>
+    						<th class="sort"><a href="?sort=product_type{% if sort['name'] == 'product_type' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Type <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Type{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=brand_name{% if sort['name'] == 'brand_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Brand <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Brand{% endif %}</a></th>
+    						<th class="sort"><a href="?sort=supplier_name{% if sort['name'] == 'supplier_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Supplier <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Supplier{% endif %}</a></th>
+    						<th class="sort text-center"><a href="?sort=is_active{% if sort['name'] == 'is_active' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Active <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Active{% endif %}</a></th>
 						</tr>
 					</thead>
 					<tbody>
 						{% for item in items %}
+							{% set stock = item.count %}
+							{% set variants = productVariants(item.id) %}
+							{% set variantsCount = variants|length %}
+							{% if variantsCount > 0 %}
+								{% set s = 's' %}
+    							{% for variant in variants %}
+    								{% set stock = stock + variant.count %}
+    							{% endfor %}
+    						{% else %}
+    							{% set s = '' %}
+    						{% endif %}
                 		<tr>
                 			<td>
-                				<input type="checkbox" name="products[]" value="{{ item.id }}" />
-                				<input type="hidden" value="{{ item.id }}" />
+                				<input type="checkbox" class="item" name="products[]" value="{{ item.id }}" />
                 			</td>
-                			<td><img src="{% if item.image %}{{ item.image }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" alt="{{ item.name }}" /></td>
-                			<td><a href="#">{{ item.baseName }}</a></td>
-                			<td>-</td>
-                			<td><a href="{{ render(controller('ShopBundle:Default:getLink', { 'entity':'ProductType', 'name': item.productType })) }}">{{ item.productType }}</a></td>
-                			<td><a href="{{ render(controller('ShopBundle:Default:getLink', { 'entity':'ProductBrand', 'name': item.brandName })) }}">{{ item.brandName }}</a></td>
-                			<td><a href="?supplier_name={{ item.supplierName }}">{{ item.supplierName }}</a></td>
+                			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" alt="{{ item.name }}" /></td>
+                			<td><a href="{{ path('admin_product_edit', {'id':item.id}) }}">{{ item.baseName }}</a></td>
+                			<td align="center">{{ stock ~' in '~ (variantsCount + 1) ~' variant'~ s }}</td>
+                			<td><a href="?f=product_type&v={{ item.productType }}">{{ item.productType }}</a></td>
+                			<td><a href="?f=brand_name&v={{ item.brandName }}">{{ item.brandName }}</a></td>
+                			<td><a href="?f=supplier_name&v={{ item.supplierName }}">{{ item.supplierName }}</a></td>
                 			<td align="center">
                 				{% if 'Deleted' not in item.name %}
                 				<a href="javascript:;" class="toggle-active">
@@ -75,6 +137,7 @@
 						{% endfor %}
 					</tbody>
 				</table>
+				</form>
 			</div>
 			
 		</div>
@@ -83,35 +146,231 @@
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-body">
+      {{ form_start(form, { attr: {'id':'form'} }) }}
+      {{ form_errors(form) }}
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="addModalLabel">Add Product</h4>
       </div>
+      <div class="modal-body">
+        {{ form_row(form.name) }}
+        {{ form_widget(form.base_name, {'attr':{'class':'hidden'}}) }}
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.brand_name) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.supplier_name) }}
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.product_type) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.sku) }}
+        	</div>
+        </div>
+        <hr />
+        <label for="images">Images</label>
+        <fieldset class="form-group">
+            <div class="clearfix"></div>
+            <ul id="images" class="images list-unstyled" data-prototype="{{ form_widget(form.images.vars.prototype)|e('html_attr') }}">
+                {% for image in form.images %}
+                    <li class="tag-group col-md-3">
+                        <img src="{{ asset('images/listings/s/'~ image.vars.value.filename) }}" class="img-responsive mb-15" />
+                        <div class="hidden">{{ form_row(image.filename) }}</div>
+                        <input type="hidden" name="image[]" value="{{ image.vars.value.id }}" />
+                    </li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+        {{ form_row(form.description) }}
+        {{ form_row(form.tags) }}
+        {{ form_row(form.video) }}
+        <hr />
+        <h4>Pricing</h4>
+        <div class="row">
+        	<div class="col-md-4">
+                {{ form_row(form.supply_price, {'attr':{'class':'price'}}) }}
+        	</div>
+        	<div class="col-md-4">
+        		<label for="markup">x Markup (%)</label>
+                <input type="text" id="markup" value="0" class="price form-control" />
+        	</div>
+        	<div class="col-md-4">
+                {{ form_row(form.retail_price, {'attr':{'class':'price','readonly':'readonly'}}) }}
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-md-4">
+                {{ form_row(form.tax, {'attr':{'class':'price'}}) }}
+        	</div>
+        	<div class="col-md-4">
+        		<label for="tax">&nbsp;</label>
+        		<input type="text" id="tax" value="0" class="form-control" readonly="readonly" />
+        	</div>
+        	<div class="col-md-4">
+                {{ form_row(form.price, {'attr':{'class':'price'}}) }}
+        	</div>
+        </div>
+        <hr />
+        <h4>Inventory</h4>
+        <div class="row">
+        	<div class="col-md-4">
+                {{ form_row(form.count) }}
+        	</div>
+        	<div class="col-md-4">
+        		{{ form_row(form.reorder_point) }}
+        	</div>
+        	<div class="col-md-4">
+        		{{ form_row(form.restock_level) }}
+            </div>
+        </div>
+        <hr />
+        <h4>Variant Settings</h4>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.variant_option_one_name) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.variant_option_one_value) }}
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.variant_option_two_name) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.variant_option_two_value) }}
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-md-6">
+		        {{ form_row(form.variant_option_three_name) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.variant_option_three_value) }}
+        	</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+      </div>
+      {{ form_end(form) }}
     </div>
   </div>
 </div>
 <input type="hidden" id="mode" value="product" />
 {% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/tags.css') }}" rel="stylesheet" type="text/css" />
+{% endblock %}
 {% block javascripts %}
 {{ parent() }}
+<script src="{{ asset('js/tags.js') }}"></script>
 <script src="{{ asset('js/notify.min.js') }}"></script>
 <script>
-$(function(){
-	$('#menu-products').addClass('active');
-	$('#submenu-products').addClass('active');
-	$('.btn-filter').click(function (){
-		$('.filter-box').slideToggle();
+$('#arch_products_name').change(function(){
+	$('#arch_products_base_name').val($(this).val());
+});
+
+var $collectionHolder;
+
+var $addImageLink = $('<a href="#" class="add_image_link btn btn-default">Add Image</a>');
+var $newLinkLi = $('<li></li>').append($addImageLink);
+
+jQuery(document).ready(function() {
+    $collectionHolder = $('ul.images');
+
+    $collectionHolder.find('li').each(function() {
+        addImageFormDeleteLink($(this));
+    });
+
+    $collectionHolder.append($newLinkLi);
+
+    $collectionHolder.data('index', $collectionHolder.find(':input').length);
+
+    $addImageLink.on('click', function(e) {
+        e.preventDefault();
+
+        addImageForm($collectionHolder, $newLinkLi);
+    });
+});
+
+function addImageForm($collectionHolder, $newLinkLi) {
+    var prototype = $collectionHolder.data('prototype');
+
+    var index = $collectionHolder.data('index');
+
+    var newForm = prototype.replace(/__name__/g, index);
+
+    $collectionHolder.data('index', index + 1);
+
+    var $newFormLi = $('<li class="tag-group"></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+
+    addImageFormDeleteLink($newFormLi);
+}
+
+function addImageFormDeleteLink($imageFormLi) {
+    var $removeFormA = $('<a href="#" class="btn btn-default btn-sm mb-15">Remove this Image</a>');
+    $imageFormLi.append($removeFormA);
+
+    $removeFormA.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // remove the li for the tag form
+        $imageFormLi.remove();
+    });
+}
+
+$(function() {
+	$('.price').focus(function(){
+		$(this).select();
 	});
-	$('html').click(function() {
-		$('.filter-box').slideUp();
+
+	function calc() {
+		supply_price = $('#arch_products_supply_price').val();
+		markup = $('#markup').val() / 100 + 1;
+		tax = $('#arch_products_tax').val().split(':');
+		$('#arch_products_retail_price').val(retail_price = supply_price * markup);
+		$('#tax').val(tax = (retail_price * tax[1]));
+		$('#arch_products_price').val(retail_price + tax);
+	}
+	$('#arch_products_supply_price').keyup(function(){
+		calc();
 	});
-	$('.btn-filter').click(function(event){
-		event.stopPropagation();
+	$('#markup').keyup(function(){
+		calc();
 	});
-	$('.filter-box').click(function(event){
-		event.stopPropagation();
+	$('#arch_products_tax').change(function(){
+		calc();
 	});
+
+	$('#arch_products_price').keyup(function(){
+		price = $(this).val();
+		tax = $('#arch_products_tax').val().split(':');
+		tax = parseFloat(tax[1]);
+		$('#arch_products_retail_price').val(retail_price = price / (1 + tax));
+		$('#tax').val(retail_price * tax);
+		supply_price = $('#arch_products_supply_price').val();
+		$('#markup').val(((retail_price / supply_price) - 1) * 100);
+	});
+
+	$('.tags').tagsInput( {
+        'defaultText':'Add a tag',
+        'width':'100%',
+        'height':'44px'
+    });
 })
-var mode = $('#mode').val();
+
 </script>
 <script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-products.js') }}"></script>
+<script src="{{ asset('js/checkbox.js') }}"></script>
 <script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
 {% endblock %}

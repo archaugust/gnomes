@@ -98,7 +98,7 @@ ivory_ck_editor:
             filebrowserBrowseRouteParameters: []
             height: 500
             allowedContent: true
-            contentsCss: ['/css/bootstrap.css','/css/style.css','/css/ckeditor.css']
+            contentsCss: ['/css/bootstrap.css','/css/ckeditor.css']
 
 fm_elfinder:
     #assets_path: / # default is /assets, this is where css/js elfinder files are

@@ -205,81 +205,53 @@
       <div class="modal-body">
       	<div class="row">
       		<div class="col-md-6">
-                {{ form_label(form.first_name) }}
-                {{ form_widget(form.first_name) }}
-                {{ form_errors(form.first_name) }}
+                {{ form_row(form.first_name) }}
       		</div>
       		<div class="col-md-6">
-                {{ form_label(form.last_name) }}
-                {{ form_widget(form.last_name) }}
-                {{ form_errors(form.last_name) }}
+                {{ form_row(form.last_name) }}
       		</div>
       	</div>
       	<div class="row">
       		<div class="col-md-12">
-                {{ form_label(form.email) }}
-                {{ form_widget(form.email) }}
-                {{ form_errors(form.email) }}
+                {{ form_row(form.email) }}
       		</div>
       	</div>
       	<div class="row">
       		<div class="col-md-6">
-                {{ form_label(form.date_of_birth) }}
-                {{ form_widget(form.date_of_birth) }}
-                {{ form_errors(form.date_of_birth) }}
+                {{ form_row(form.date_of_birth) }}
       		</div>
       		<div class="col-md-6">
-                {{ form_label(form.sex) }}
-                {{ form_widget(form.sex) }}
-                {{ form_errors(form.sex) }}
+                {{ form_row(form.sex) }}
       		</div>
       	</div>
       	<div class="row">
       		<div class="col-md-6">
-                {{ form_label(form.phone) }}
-                {{ form_widget(form.phone) }}
-                {{ form_errors(form.phone) }}
+                {{ form_row(form.phone) }}
       		</div>
       		<div class="col-md-6">
-                {{ form_label(form.mobile) }}
-                {{ form_widget(form.mobile) }}
-                {{ form_errors(form.mobile) }}
+                {{ form_row(form.mobile) }}
       		</div>
       	</div>
       	<div class="row">
       		<div class="col-md-6">
-                {{ form_label(form.fax) }}
-                {{ form_widget(form.fax) }}
-                {{ form_errors(form.fax) }}
+                {{ form_row(form.fax) }}
       		</div>
       		<div class="col-md-6">
-                {{ form_label(form.website) }}
-                {{ form_widget(form.website) }}
-                {{ form_errors(form.website) }}
+                {{ form_row(form.website) }}
       		</div>
       	</div>
       	<div class="row">
       		<div class="col-md-6">
       			<div class="subheader">Physical Address</div>
-                {{ form_label(form.physical_address1) }}
-                {{ form_widget(form.physical_address1) }}
-                {{ form_errors(form.physical_address1) }}
+                {{ form_row(form.physical_address1) }}
 
-                {{ form_label(form.physical_address2) }}
-                {{ form_widget(form.physical_address2) }}
-                {{ form_errors(form.physical_address2) }}
+                {{ form_row(form.physical_address2) }}
 
-                {{ form_label(form.physical_suburb) }}
-                {{ form_widget(form.physical_suburb) }}
-                {{ form_errors(form.physical_suburb) }}
+                {{ form_row(form.physical_suburb) }}
 
-                {{ form_label(form.physical_city) }}
-                {{ form_widget(form.physical_city) }}
-                {{ form_errors(form.physical_city) }}
+                {{ form_row(form.physical_city) }}
 
-                {{ form_label(form.physical_postcode) }}
-                {{ form_widget(form.physical_postcode) }}
-                {{ form_errors(form.physical_postcode) }}
+                {{ form_row(form.physical_postcode) }}
 
                 {{ form_label(form.physical_state) }}
 				<div id="physical_state_div">
@@ -287,9 +259,7 @@
                 </div>
                 {{ form_errors(form.physical_state) }}
 
-                {{ form_label(form.physical_country_id) }}
-                {{ form_widget(form.physical_country_id) }}
-                {{ form_errors(form.physical_country_id) }}
+                {{ form_row(form.physical_country_id) }}
       		</div>
       		<div class="col-md-6">
       			<div class="subheader">
@@ -298,25 +268,15 @@
       					<a href="javascript:" id="same_address">Same as Physical Address</a>
       				</div> 
       			</div>
-                {{ form_label(form.postal_address1) }}
-                {{ form_widget(form.postal_address1) }}
-                {{ form_errors(form.postal_address1) }}
+                {{ form_row(form.postal_address1) }}
 
-                {{ form_label(form.postal_address2) }}
-                {{ form_widget(form.postal_address2) }}
-                {{ form_errors(form.postal_address2) }}
+                {{ form_row(form.postal_address2) }}
 
-                {{ form_label(form.postal_suburb) }}
-                {{ form_widget(form.postal_suburb) }}
-                {{ form_errors(form.postal_suburb) }}
+                {{ form_row(form.postal_suburb) }}
 
-                {{ form_label(form.postal_city) }}
-                {{ form_widget(form.postal_city) }}
-                {{ form_errors(form.postal_city) }}
+                {{ form_row(form.postal_city) }}
 
-                {{ form_label(form.postal_postcode) }}
-                {{ form_widget(form.postal_postcode) }}
-                {{ form_errors(form.postal_postcode) }}
+                {{ form_row(form.postal_postcode) }}
 
                 {{ form_label(form.postal_state) }}
 				<div id="postal_state_div">
@@ -324,9 +284,7 @@
                 </div>
                 {{ form_errors(form.postal_state) }}
 
-                {{ form_label(form.postal_country_id) }}
-                {{ form_widget(form.postal_country_id) }}
-                {{ form_errors(form.postal_country_id) }}
+                {{ form_row(form.postal_country_id) }}
       		</div>
       	</div>
       </div>

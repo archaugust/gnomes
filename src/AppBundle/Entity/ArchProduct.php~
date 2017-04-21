@@ -19,17 +19,6 @@ class ArchProduct
      * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $variant_parent_id;
-    
-    /**
-     * @ORM\OneToMany(targetEntity="ArchProduct", mappedBy="parent")
-     */
-    private $variants;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="ArchProduct", inversedBy="variants")
-     * @ORM\JoinColumn(name="variant_parent_id", referencedColumnName="id")
-     */
-    private $parent;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
@@ -107,14 +96,19 @@ class ArchProduct
     private $sku;
     
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=5, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=5)
      */
     private $supply_price;
     
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=5, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=5)
      */
     private $retail_price;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=5)
+     */
+    private $price;
     
     /**
      * @ORM\Column(type="decimal", precision=10, scale=5, nullable=true)
@@ -122,7 +116,7 @@ class ArchProduct
     private $discount_price;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=5, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=5)
      */
     private $tax;
     
@@ -130,12 +124,6 @@ class ArchProduct
      * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $tax_id;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="ArchTax")
-     * @ORM\JoinColumn(name="tax_id", referencedColumnName="id")
-     */
-    private $tax_map;
     
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
@@ -146,11 +134,6 @@ class ArchProduct
      * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $supplier_name;
-    
-    /**
-     * @ORM\OneToMany(targetEntity="ArchProductInventory", mappedBy="product")
-     */
-    private $inventory;
     
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -187,14 +170,30 @@ class ArchProduct
      */
     private $meta_description;
     
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $outlet_id;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $count;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $reorder_point;
+    
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $restock_level;
+    
     public function __construct() {
-    	$this->inventory = new ArrayCollection();
     	$this->images = new ArrayCollection();
-    	$this->variants = new ArrayCollection();
-    	$this->views = 0;
-    	$this->adds = 0;
+    	$this->supply_price = $this->retail_price = $this->views = $this->count = $this->reorder_point = $this->restock_level = $this->adds = 0;
     }
-
 
     /**
      * Set id
@@ -797,6 +796,30 @@ class ArchProduct
     }
 
     /**
+     * Set video
+     *
+     * @param string $video
+     *
+     * @return ArchProduct
+     */
+    public function setVideo($video)
+    {
+        $this->video = $video;
+
+        return $this;
+    }
+
+    /**
+     * Get video
+     *
+     * @return string
+     */
+    public function getVideo()
+    {
+        return $this->video;
+    }
+
+    /**
      * Set views
      *
      * @param integer $views
@@ -845,180 +868,6 @@ class ArchProduct
     }
 
     /**
-     * Add variant
-     *
-     * @param \AppBundle\Entity\ArchProduct $variant
-     *
-     * @return ArchProduct
-     */
-    public function addVariant(\AppBundle\Entity\ArchProduct $variant)
-    {
-        $this->variants[] = $variant;
-
-        return $this;
-    }
-
-    /**
-     * Remove variant
-     *
-     * @param \AppBundle\Entity\ArchProduct $variant
-     */
-    public function removeVariant(\AppBundle\Entity\ArchProduct $variant)
-    {
-        $this->variants->removeElement($variant);
-    }
-
-    /**
-     * Get variants
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getVariants()
-    {
-        return $this->variants;
-    }
-
-    /**
-     * Set parent
-     *
-     * @param \AppBundle\Entity\ArchProduct $parent
-     *
-     * @return ArchProduct
-     */
-    public function setParent(\AppBundle\Entity\ArchProduct $parent = null)
-    {
-        $this->parent = $parent;
-
-        return $this;
-    }
-
-    /**
-     * Get parent
-     *
-     * @return \AppBundle\Entity\ArchProduct
-     */
-    public function getParent()
-    {
-        return $this->parent;
-    }
-
-    /**
-     * Set taxMap
-     *
-     * @param \AppBundle\Entity\ArchTax $taxMap
-     *
-     * @return ArchProduct
-     */
-    public function setTaxMap(\AppBundle\Entity\ArchTax $taxMap = null)
-    {
-        $this->tax_map = $taxMap;
-
-        return $this;
-    }
-
-    /**
-     * Get taxMap
-     *
-     * @return \AppBundle\Entity\ArchTax
-     */
-    public function getTaxMap()
-    {
-        return $this->tax_map;
-    }
-
-    /**
-     * Add inventory
-     *
-     * @param \AppBundle\Entity\ArchProductInventory $inventory
-     *
-     * @return ArchProduct
-     */
-    public function addInventory(\AppBundle\Entity\ArchProductInventory $inventory)
-    {
-        $this->inventory[] = $inventory;
-
-        return $this;
-    }
-
-    /**
-     * Remove inventory
-     *
-     * @param \AppBundle\Entity\ArchProductInventory $inventory
-     */
-    public function removeInventory(\AppBundle\Entity\ArchProductInventory $inventory)
-    {
-        $this->inventory->removeElement($inventory);
-    }
-
-    /**
-     * Get inventory
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getInventory()
-    {
-        return $this->inventory;
-    }
-
-    /**
-     * Add image
-     *
-     * @param \AppBundle\Entity\ArchProductImage $image
-     *
-     * @return ArchProduct
-     */
-    public function addImage(\AppBundle\Entity\ArchProductImage $image)
-    {
-        $this->images[] = $image;
-
-        return $this;
-    }
-
-    /**
-     * Remove image
-     *
-     * @param \AppBundle\Entity\ArchProductImage $image
-     */
-    public function removeImage(\AppBundle\Entity\ArchProductImage $image)
-    {
-        $this->images->removeElement($image);
-    }
-
-    /**
-     * Get images
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getImages()
-    {
-        return $this->images;
-    }
-
-    /**
-     * Set video
-     *
-     * @param string $video
-     *
-     * @return ArchProduct
-     */
-    public function setVideo($video)
-    {
-        $this->video = $video;
-
-        return $this;
-    }
-
-    /**
-     * Get video
-     *
-     * @return string
-     */
-    public function getVideo()
-    {
-        return $this->video;
-    }
-
-    /**
      * Set metaTitle
      *
      * @param string $metaTitle
@@ -1064,5 +913,135 @@ class ArchProduct
     public function getMetaDescription()
     {
         return $this->meta_description;
+    }
+
+    /**
+     * Set outletId
+     *
+     * @param string $outletId
+     *
+     * @return ArchProduct
+     */
+    public function setOutletId($outletId)
+    {
+        $this->outlet_id = $outletId;
+
+        return $this;
+    }
+
+    /**
+     * Get outletId
+     *
+     * @return string
+     */
+    public function getOutletId()
+    {
+        return $this->outlet_id;
+    }
+
+    /**
+     * Set count
+     *
+     * @param integer $count
+     *
+     * @return ArchProduct
+     */
+    public function setCount($count)
+    {
+        $this->count = $count;
+
+        return $this;
+    }
+
+    /**
+     * Get count
+     *
+     * @return integer
+     */
+    public function getCount()
+    {
+        return $this->count;
+    }
+
+    /**
+     * Set reorderPoint
+     *
+     * @param integer $reorderPoint
+     *
+     * @return ArchProduct
+     */
+    public function setReorderPoint($reorderPoint)
+    {
+        $this->reorder_point = $reorderPoint;
+
+        return $this;
+    }
+
+    /**
+     * Get reorderPoint
+     *
+     * @return integer
+     */
+    public function getReorderPoint()
+    {
+        return $this->reorder_point;
+    }
+
+    /**
+     * Set restockLevel
+     *
+     * @param integer $restockLevel
+     *
+     * @return ArchProduct
+     */
+    public function setRestockLevel($restockLevel)
+    {
+        $this->restock_level = $restockLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get restockLevel
+     *
+     * @return integer
+     */
+    public function getRestockLevel()
+    {
+        return $this->restock_level;
+    }
+
+    /**
+     * Add image
+     *
+     * @param \AppBundle\Entity\ArchProductImage $image
+     *
+     * @return ArchProduct
+     */
+    public function addImage(\AppBundle\Entity\ArchProductImage $image)
+    {
+        $this->images[] = $image;
+
+        return $this;
+    }
+
+    /**
+     * Remove image
+     *
+     * @param \AppBundle\Entity\ArchProductImage $image
+     */
+    public function removeImage(\AppBundle\Entity\ArchProductImage $image)
+    {
+        $this->images->removeElement($image);
+    }
+
+    /**
+     * Get images
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getImages()
+    {
+        return $this->images;
     }
 }

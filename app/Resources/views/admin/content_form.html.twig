@@ -19,37 +19,15 @@
 			<div class="details">
                 {{ form_errors(form) }}
                 <div class="animated fadeInUp">
-                	<div>
-                        {{ form_label(form.title) }}
-                        {{ form_widget(form.title, {'attr':{'class':'form-control'}}) }}
-                        {{ form_errors(form.title) }}
-					</div>
-					<div>
-                        {{ form_label(form.alias) }}
-                        {{ form_widget(form.alias, {'attr':{'class':'form-control','readonly':'readonly'}}) }}
-                        {{ form_errors(form.alias) }}
-                        {% if form.vars.value.core != 1 %}<a href="javascript:" id="edit_alias" class="btn btn-xs btn-default">Edit</a>{% endif %}
-					</div>
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.alias) }}
+                    {% if form.vars.value.core != 1 %}<a href="javascript:" id="edit_alias" class="btn btn-xs btn-default">Edit</a>{% endif %}
 					<hr />
-					<div>
-                        {{ form_label(form.content) }} 
-                        {{ form_widget(form.content) }}
-                        {{ form_errors(form.content) }}
-					</div>
+                    {{ form_row(form.content) }} 
 					<hr />
-					<div>
-                        {{ form_label(form.meta_title) }}
-                        {{ form_widget(form.meta_title, {'attr':{'class':'form-control'}}) }}
-                        {{ form_errors(form.meta_title) }}
-					</div>
-					<div>
-                        {{ form_label(form.meta_description) }}
-                        {{ form_widget(form.meta_description, {'attr':{'class':'form-control'}}) }}
-                        {{ form_errors(form.meta_description) }}
-					</div>
-					<div>
-                        {{ form_widget(form.save, {'attr':{'class':'btn-primary'}}) }} <a href="{{ path('admin_content') }}" class="btn btn-primary">Cancel</a>
-                    </div>
+                    {{ form_row(form.meta_title) }}
+                    {{ form_row(form.meta_description) }}
+                    {{ form_widget(form.save, {'attr':{'class':'btn-primary'}}) }} <a href="{{ path('admin_content') }}" class="btn btn-primary">Cancel</a>
                 </div>
             </div>
         </div>

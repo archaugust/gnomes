@@ -30,7 +30,7 @@ class ArchProductInventory
      * @ORM\Column(type="string", length=50, nullable=true)
      */
     private $outlet_id;
-
+    
     /**
      * @ORM\Column(type="integer")
      */

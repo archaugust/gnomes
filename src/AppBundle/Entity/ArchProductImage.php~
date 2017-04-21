@@ -28,7 +28,7 @@ class ArchProductImage
     private $product;
 
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(type="string", length=150, nullable=true)
      */
     private $description;
     
@@ -73,6 +73,30 @@ class ArchProductImage
     }
 
     /**
+     * Set description
+     *
+     * @param string $description
+     *
+     * @return ArchProductImage
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
      * Set filename
      *
      * @param string $filename
@@ -99,11 +123,11 @@ class ArchProductImage
     /**
      * Set product
      *
-     * @param \ShopBundle\Entity\ArchProduct $product
+     * @param \AppBundle\Entity\ArchProduct $product
      *
      * @return ArchProductImage
      */
-    public function setProduct(\ShopBundle\Entity\ArchProduct $product = null)
+    public function setProduct(\AppBundle\Entity\ArchProduct $product = null)
     {
         $this->product = $product;
 
@@ -113,34 +137,10 @@ class ArchProductImage
     /**
      * Get product
      *
-     * @return \ShopBundle\Entity\ArchProduct
+     * @return \AppBundle\Entity\ArchProduct
      */
     public function getProduct()
     {
         return $this->product;
-    }
-
-    /**
-     * Set description
-     *
-     * @param string $description
-     *
-     * @return ArchProductImage
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * Get description
-     *
-     * @return string
-     */
-    public function getDescription()
-    {
-        return $this->description;
     }
 }

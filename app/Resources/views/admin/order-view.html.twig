@@ -4,7 +4,7 @@
 {% for product in item.products %}
     <div class="row order-item">
     	<div class="col-md-5">
-    		<b>{{ product.quantity }} x</b> <a href="{{ path('admin_product_view', {'id':product.id}) }}">{{ product.name }}</a>
+    		<b>{{ product.quantity }} x</b> <a href="{{ path('admin_product_edit', {'id':product.id}) }}">{{ product.name }}</a>
     		{% if product.discount > 0 %}<div class="light">With discount of ${{ product.discount|number_format(2, '.', ',') }}</div>{% endif %}
     	</div>
     	<div class="col-md-4">

@@ -8,6 +8,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DefaultController extends Controller
 {
+	public function getInventoryAction($id) {
+		$em = $this->getDoctrine();
+		$item = $em->getRepository('AppBundle:ArchProduct')->findOneBy(array('id' => $id));
+
+		if ($item == null) 
+			return new Response('-');
+		
+		$variants = $item->getVariants();
+		$variant_msg = (count($variants) > 0) ? count($variants) .' variants' : '1 variant';
+
+		$stock = $item->getCount();
+		foreach ($variants as $variant) 
+			$stock += $variant->getCount();
+		
+		return new Response($stock .' in '. $variant_msg);
+	}
+	
 	/**
 	 * @Route("/regions", name="regions")
 	 */

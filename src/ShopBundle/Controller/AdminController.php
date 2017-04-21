@@ -6,21 +6,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Filesystem\Filesystem;
+use JasonGrimes\Paginator;
 use AppBundle\Entity\ArchTax;
 use AppBundle\Entity\User;
+use AppBundle\Entity\ArchProductType;
+use AppBundle\Entity\ArchProductCollection;
+use AppBundle\Entity\ArchProductBrand;
+use AppBundle\Entity\ArchProductTag;
+use AppBundle\Entity\ArchSupplier;
+use AppBundle\Entity\ArchProduct;
 use AppBundle\Form\ArchTaxType;
 use AppBundle\Form\UserAdminType;
-use JasonGrimes\Paginator;
-use AppBundle\Entity\ArchProductType;
 use AppBundle\Form\ArchProductTypeType;
-use AppBundle\Entity\ArchProductCollection;
 use AppBundle\Form\ArchProductCollectionType;
-use AppBundle\Entity\ArchProductBrand;
 use AppBundle\Form\ArchProductBrandType;
-use AppBundle\Entity\ArchProductTag;
 use AppBundle\Form\ArchProductTagType;
-use AppBundle\Entity\ArchSupplier;
 use AppBundle\Form\ArchSupplierType;
+use AppBundle\Form\ArchProductsType;
 
 class AdminController extends Controller
 {
@@ -40,25 +42,700 @@ class AdminController extends Controller
 	 */
 	public function product(Request $request, $mode = '') {
 		// mode can be used to switch template to ajax
+		$session = $this->get('session');
+		$data = $request->query->all();
+		
 		$em = $this->getDoctrine()->getManager();
 		$items = $em->getRepository('AppBundle:ArchProduct');
 		
+		$item = new ArchProduct();
+		$form = $this->createForm(ArchProductsType::class, $item);
+		$form->handleRequest($request);
+		
+		// post = add or delete
+		if ($request->isMethod('POST')) {
+			
+			// delete
+			$data = $request->request->all();
+			if (isset($data['products'])) {
+				foreach ($data['products'] as $product) {
+					$product = $items->findOneBy(array('id' => $product));
+					$product->setIsActive(0);
+				}
+				
+				$em->flush();
+			}
+			
+			// add
+			if ($form->isSubmitted()) {
+				if ($form->isValid()) {
+					$input = $request->request->get('arch_products');
+					
+					// post to Vend
+					$tax = explode(':', $input['tax']);
+
+					// use default outlet
+					$outlet_id = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
+					$data = array(
+							"handle" => str_replace(' ', '', $input['name']),
+							"type" => $input['product_type'],
+							"tags" => $input['tags'],
+							"name" => $input['name'],
+							"description" => $input['description'],
+							"sku" => $input['sku'],
+							"variant_option_one_name" => $input['variant_option_one_name'],
+							"variant_option_one_value" => $input['variant_option_one_value'],
+							"variant_option_two_name" => $input['variant_option_two_name'],
+							"variant_option_two_value" => $input['variant_option_two_value'],
+							"variant_option_three_name" => $input['variant_option_three_name'],
+							"variant_option_three_value" => $input['variant_option_three_value'],
+							"supply_price" => $input['supply_price'],
+							"retail_price" => $input['price'],
+							"tax" => $tax[0],
+							"brand_name" => $input['brand_name'],
+							"supplier_name" => $input['supplier_name'],
+							"inventory" => 
+								array(
+									array(
+										'outlet_id' => $outlet_id,
+										'count' => $input['count'],
+										'reorder_point' => $input['reorder_point'],
+										'restock_level' => $input['restock_level']
+									)
+								),
+									
+					);
+
+					$url = 'products';
+					
+					$result = $this->get('app.vend')->postVend($url, $data);
+					if ($result == null) {
+						$this->addFlash(
+								'danger',
+								'ERROR: Unable to post to Vend API.'
+								);
+						return $this->redirectToRoute('admin_product');
+					}
+					
+					$result = $result->product;
+
+					// images
+					$images = $item->getImages();
+					if (count($images) > 0) {
+						$ctr = 0;
+						foreach ($images as $image) {
+							// process image
+							$ctr ++;
+							$filename = $this->upload('product', 'products', $input['name'] .'-'. $ctr, $image->getFilename());
+							
+							$image
+								->setProduct($item)
+								->setFileName($filename);
+							$em->persist($image);
+						}
+					}
+					
+					$item
+						->setId($result->id)
+						->setName($result->name)
+						->setBaseName($input['name'])
+						->setBrandName($input['brand_name'])
+						->setSupplierName($input['supplier_name'])
+						->setProductType($input['product_type'])
+						->setTax($result->tax)
+						->setRetailPrice($result->price)
+						->setPrice(($result->price + $result->tax))
+						->setTaxId($tax[0])
+						->setOutletId($outlet_id)
+						->setCount($input['count'])
+						->setReorderPoint($input['reorder_point'])
+						->setRestockLevel($input['restock_level'])
+						->setVariantOptionOneName($input['variant_option_one_name'])
+						->setVariantOptionTwoName($input['variant_option_two_name'])
+						->setVariantOptionThreeName($input['variant_option_three_name'])
+						->setIsActive(1)
+					;
+					
+					$em->persist($item);
+					$em->flush();
+					
+					$this->addFlash('info','Product added.');
+				}
+				else
+					$this->addFlash('danger', 'ERROR: Please check your input.');
+			}
+		}
+			
+		// sort order
+		$allowed_fields = array('name', 'product_type', 'brand_name', 'supplier_name', 'is_active');
+		
+		if ($session->get('sort') != null) {
+			$sort = $session->get('sort');
+			if (!in_array($sort['name'], $allowed_fields))
+				$sort = array('name'=>'name','order'=>'asc');
+		}
+		else
+			$sort = array('name'=>'name','order'=>'asc');
+			
+		if (isset($data['sort'])) {
+			if (in_array($data['sort'], $allowed_fields))
+				$sort = array(
+						'name' => $data['sort'],
+						'order' => (isset($data['order']) && in_array(@$data['order'], array('asc','desc'))) ? $data['order'] : 'asc'
+				);
+		}
+			
+		$session->set('sort', $sort);
+			
+		// filters
+		$filters = $session->get('filters_product') != null ? $session->get('filters_product') : array();
+		
+		// textbox filter = name
+		if (isset($data['query'])) {
+			$filters['full_name'] = array(
+					'label' => '',
+					'field' => 'name',
+					'operator' => 'LIKE',
+					'value' => '%'. $data['query'] .'%'
+			);
+		}
+		
+		// dropdown filters
+		if (!empty($data['f']) && !empty($data['v'])) {
+			$allowed_fields = array('tags', 'product_type', 'brand_name', 'supplier_name', 'is_active');
+			if (in_array($data['f'], $allowed_fields)) {
+				
+				// field
+				$field = $data['f'];
+				
+				// operator
+				if ($field == 'tags') 
+					$operator = 'LIKE';
+				else
+					$operator = '=';
+				
+				// value
+				$value =  $field == 'tags' ? '%'. $data['v'] .'%' : $data['v'];
+				
+				// label
+				switch ($field) {
+					case 'tags':
+						$label = 'Tagged with '. $data['v'];
+						break;
+					case 'product_type':
+						$label = 'Product type is '. $data['v'];
+						break;
+					case 'brand_name':
+						$label = 'Brand name is '. $data['v'];
+						break;
+					case 'supplier_name':
+						$label = 'Supplier is '. $data['v'];
+						break;
+					case 'is_active':
+						$label = ($value == 1 ? 'Visible at store' : 'Not visible at store');
+						break;
+				}
+				
+				$filters[$label] = array(
+						'label' => $label,
+						'field' => $field,
+						'operator' => $operator,
+						'value' => $value,
+				);
+			}
+		}
+		
+		// if remove filter
+		if (isset($data['remove']))
+			unset($filters[$data['remove']]);
+		
+		$session->set('filters_product', $filters);
+		
+		$where = '';
+		foreach ($filters as $filter)
+			$where .= ' AND i.'. $filter['field'] .' '. $filter['operator'] .' :'. $filter['field'];
+			
+		$items = $items->createQueryBuilder('i')
+			->where('i.variant_parent_id IS NULL'. $where)
+			->orderBy('i.'. $sort['name'], $sort['order']);
+		
+		foreach ($filters as $filter)
+			$items->setParameter($filter['field'], $filter['value']);
+			
+		$items = $items
+			->getQuery()
+			->getResult();
+		
+		// pagination
+		!empty($data['page']) ? $pagenum = $data['page'] : $pagenum = 1;
+		$totalItems = count($items);
+		
+		$itemsPerPage = 50;
+		$urlPattern = $request->getPathInfo() .'?page=(:num)';
+		$paginator = new Paginator($totalItems, $itemsPerPage, $pagenum, $urlPattern);
+			
 		return $this->render('admin/'. $mode .'products.html.twig', array(
-			'items' => $items->findBy(array('variant_parent_id' => null))
+			'items' => array_slice($items, ($pagenum - 1) * $itemsPerPage, $itemsPerPage),
+			'paginator' => $paginator,
+			'form' => $form->createView(),
 		));
 	}
 
 	/**
-	 * @Route("/admin/product/view/{id}", name="admin_product_view")
+	 * @Route("/admin/product-edit/{id}", name="admin_product_edit")
 	 */
-	public function productView(Request $request, $id) {
-		// mode can be used to switch template to ajax
+	public function productEdit(Request $request, $id) {
 		$em = $this->getDoctrine()->getManager();
-		$items = $em->getRepository('AppBundle:ArchProduct');
+		$repository = $em->getRepository('AppBundle:ArchProduct');
+		if (($item = $repository->findOneBy(array('id' => $id))) == null) {
+			$this->addFlash('danger', 'Product not found or deleted.');
+			
+			return $this->redirectToRoute('admin_product');
+		}
 		
-		return $this->render('admin/products.html.twig', array(
-				'items' => $items->findAll()
+		$originalImages = array();
+		foreach ($item->getImages() as $image) {
+			$originalImages[] = array(
+					'id' => $image->getId(),
+					'filename' => $image->getFilename(),
+			);
+		}
+		
+		if ($item == null)
+			return new Response('ERROR: Product does not exist.');
+			
+		$form = $this->createForm(ArchProductsType::class, $item);
+		
+		if ($request->isMethod('POST')) {
+			
+			$data = $request->request->all();
+			
+			// delete / activate
+			if (!empty($data['item']))
+				if ($id == $data['item']) {
+					$item->setIsActive($data['active']);
+					$em->flush();
+					
+					$this->addFlash('info', "Product's Active status updated.");
+					
+					return $this->redirectToRoute('admin_product_edit', array('id' => $id));
+				}
+			
+			
+			// update
+			$form->handleRequest($request);
+			if ($form->isSubmitted() && $form->isValid()) {
+				$input = $request->request->get('arch_products');
+
+				// post to Vend
+				$tax = explode(':', $input['tax']);
+				
+				// use default outlet
+				$outlet_id = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
+				$data = array(
+						"id" => $id,
+						"handle" => $item->getHandle(),
+						"type" => $input['product_type'],
+						"tags" => $input['tags'],
+						"name" => $input['base_name'],
+						"description" => $input['description'],
+						"sku" => $input['sku'],
+						"variant_option_one_name" => $input['variant_option_one_name'],
+						"variant_option_one_value" => $input['variant_option_one_value'],
+						"variant_option_two_name" => $input['variant_option_two_name'],
+						"variant_option_two_value" => $input['variant_option_two_value'],
+						"variant_option_three_name" => $input['variant_option_three_name'],
+						"variant_option_three_value" => $input['variant_option_three_value'],
+						"supply_price" => $input['supply_price'],
+						"retail_price" => $input['price'],
+						"tax" => $tax[0],
+						"brand_name" => $input['brand_name'],
+						"supplier_name" => $input['supplier_name'],
+						"inventory" =>
+							array(
+								array(
+										'outlet_id' => $outlet_id,
+										'count' => $input['count'],
+										'reorder_point' => $input['reorder_point'],
+										'restock_level' => $input['restock_level']
+								)
+							),
+				);
+				
+				$url = 'products';
+				
+				$result = $this->get('app.vend')->postVend($url, $data);
+				
+				if ($result == null) {
+					$this->addFlash(
+							'danger',
+							'ERROR: Unable to post to Vend API.'
+							);
+					dump($result);die;
+					return $this->redirectToRoute('admin_product_edit', array('id' => $id));
+				}
+				
+				$result = $result->product;
+				
+				// images
+				$ctr_image = count($originalImages);
+				$imageList = $request->request->get('image') != null ? $request->request->get('image') : array();
+				
+				foreach ($originalImages as $image) {
+					if (!in_array($image['id'], $imageList)) {
+						if ($image['filename'] != '')
+							$this->deleteProductImage($image['filename']);
+							
+						$image = $em->getRepository('AppBundle:ProductItemImage')->find($image['id']);
+						$em->remove($image);
+						
+						$ctr_image--;
+					}
+				}
+					
+				$images = $item->getImages();
+				if (count($images) > 0) {
+					foreach ($images as $image) {
+						if (!is_null($image->getFilename())) {
+							// process image
+							$ctr_image ++;
+							$filename = $this->upload('product', 'products', $input['name'] .'-'. $ctr_image .'-'. rand(0,1000), $image->getFilename());
+							
+							$image
+								->setProduct($item)
+								->setFileName($filename);
+							$em->persist($image);
+						}
+						else {
+							if (is_null($image->getProduct()))
+								$item->getImages()->removeElement($image);
+							else {
+								foreach ($originalImages as $originalImage) {
+									if ($image->getId() == $originalImage['id']) {
+										$filename = $originalImage['filename'];
+										
+										$image->setFilename($filename);
+										$em->persist($image);
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				$item
+					->setName($result->name)
+					->setBaseName($result->base_name)
+					->setBrandName($input['brand_name'])
+					->setSupplierName($input['supplier_name'])
+					->setProductType($input['product_type'])
+					->setTax($result->tax)
+					->setRetailPrice($result->price)
+					->setPrice(($result->price + $result->tax))
+					->setTaxId($tax[0])
+					->setOutletId($outlet_id)
+					->setCount($input['count'])
+					->setReorderPoint($input['reorder_point'])
+					->setRestockLevel($input['restock_level'])
+					->setVariantOptionOneName($input['variant_option_one_name'])
+					->setVariantOptionTwoName($input['variant_option_two_name'])
+					->setVariantOptionThreeName($input['variant_option_three_name'])
+				;
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash('info', 'Product updated.');
+				$em->flush();
+			}
+		}
+			
+			
+		return $this->render('admin/products-edit.html.twig', array(
+				'item' => $item,
+				'form' => $form->createView(),
 		));
+	}
+	
+	/**
+	 * @Route("/admin/product-variant/{id}", name="admin_product_variant")
+	 */
+	public function productVariant(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = new ArchProduct();
+		
+		if ($parent = $em->getRepository('AppBundle:ArchProduct')->findOneBy(array('id' => $id)) == null) {
+			$this->addFlash('danger', 'Parent product does not exist.');
+			return $this->redirectToRoute('admin_product');
+		}
+			
+		
+		$form = $this->createForm(ArchProductsType::class, $item);
+		
+		$form->handleRequest($request);
+		if ($form->isSubmitted() && $form->isValid()) {
+			$input = $request->request->get('arch_products');
+			
+			// post to Vend
+			// use default outlet
+			$outlet_id = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
+			$data = array(
+					"variant_parent_id" => $parent->getId(),
+					"handle" => $parent->getHandle(),
+					"type" => $input['product_type'],
+					"tags" => $input['tags'],
+					"name" => $input['name'],
+					"description" => $input['description'],
+					"sku" => $input['sku'],
+					"variant_option_one_name" => $input['variant_option_one_name'],
+					"variant_option_one_value" => $input['variant_option_one_value'],
+					"variant_option_two_name" => $input['variant_option_two_name'],
+					"variant_option_two_value" => $input['variant_option_two_value'],
+					"variant_option_three_name" => $input['variant_option_three_name'],
+					"variant_option_three_value" => $input['variant_option_three_value'],
+					"supply_price" => $input['supply_price'],
+					"retail_price" => $input['retail_price'],
+					"tax" => $input['tax'],
+					"brand_name" => $input['brand_name'],
+					"supplier_name" => $input['supplier_name'],
+					"inventory" =>
+					array(
+							array(
+									'outlet_id' => $outlet_id,
+									'count' => $input['count'],
+									'reorder_point' => $input['reorder_point'],
+									'restock_level' => $input['restock_level']
+							)
+					),
+					
+			);
+			
+			$url = 'products';
+			
+			$result = $this->get('app.vend')->postVend($url, $data);
+			if ($result == null) {
+				$this->addFlash(
+						'danger',
+						'ERROR: Unable to post to Vend API.'
+						);
+				return $this->redirectToRoute('admin_product_edit', array('id' => $id));
+			}
+			
+			$result = $result->product;
+			
+			// images
+			$ctr_image = count($originalImages);
+			$imageList = $request->request->get('image') != null ? $request->request->get('image') : array();
+			
+			foreach ($originalImages as $image) {
+				if (!in_array($image['id'], $imageList)) {
+					if ($image['filename'] != '')
+						$this->deleteProductImage($image['filename']);
+						
+						$image = $em->getRepository('AppBundle:ProductItemImage')->find($image['id']);
+						$em->remove($image);
+						
+						$ctr_image--;
+				}
+			}
+			
+			$images = $item->getImages();
+			if (count($images) > 0) {
+				foreach ($images as $image) {
+					if (!is_null($image->getFilename())) {
+						// process image
+						$ctr_image ++;
+						$filename = $this->upload('product', 'products', $input['name'] .'-'. $ctr_image .'-'. rand(0,1000), $image->getFilename());
+						
+						$image
+						->setItem($item)
+						->setFileName($filename);
+						$em->persist($image);
+					}
+					else {
+						if (is_null($image->getItem()))
+							$item->getImages()->removeElement($image);
+							else {
+								foreach ($originalImages as $originalImage) {
+									if ($image->getId() == $originalImage['id']) {
+										$filename = $originalImage['filename'];
+										
+										$image->setFilename($filename);
+										$em->persist($image);
+										break;
+									}
+								}
+							}
+					}
+				}
+				
+				$item
+				->setName($result->name)
+				->setBaseName($input['name'])
+				->setBrandName($input['brand_name'])
+				->setSupplierName($input['supplier_name'])
+				->setProductType($input['product_type'])
+				->setTax($input['tax'])
+				->setOutletId($outlet_id)
+				->setCount($input['count'])
+				->setReorderPoint($input['reorder_point'])
+				->setRestockLevel($input['restock_level'])
+				->setVariantOptionOneName($input['variant_option_one_name'])
+				->setVariantOptionTwoName($input['variant_option_two_name'])
+				->setVariantOptionThreeName($input['variant_option_three_name'])
+				;
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash('info', 'Product updated.');
+				$em->flush();
+			}
+		}
+		
+		
+		return true;
+	}
+
+	/**
+	 * @Route("/admin/product-variant-edit/{id}", name="admin_product_variant_edit")
+	 */
+	public function productVariantEdit(Request $request, $id) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $id ? $em->getRepository('AppBundle:ArchProduct')->findOneBy(array('id' => $id)) : new ArchProduct();
+		dump($item);die;
+		
+		if ($item == null) {
+			$this->addFlash('danger', 'Product variant does not exist.');
+			return $this->redirect($request->headers->get('referer'));
+		}
+		$form = $this->createForm(ArchProductsType::class, $item);
+		
+		// update
+		$form->handleRequest($request);
+		if ($form->isSubmitted() && $form->isValid()) {
+			$input = $request->request->get('arch_products');
+			
+			// post to Vend
+			// use default outlet
+			$outlet_id = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
+			$data = array(
+					"id" => $id,
+					"handle" => str_replace(' ', '', $input['name']),
+					"type" => $input['product_type'],
+					"tags" => $input['tags'],
+					"name" => $input['name'],
+					"description" => $input['description'],
+					"sku" => $input['sku'],
+					"variant_option_one_name" => $input['variant_option_one_name'],
+					"variant_option_one_value" => $input['variant_option_one_value'],
+					"variant_option_two_name" => $input['variant_option_two_name'],
+					"variant_option_two_value" => $input['variant_option_two_value'],
+					"variant_option_three_name" => $input['variant_option_three_name'],
+					"variant_option_three_value" => $input['variant_option_three_value'],
+					"supply_price" => $input['supply_price'],
+					"retail_price" => $input['retail_price'],
+					"tax" => $input['tax'],
+					"brand_name" => $input['brand_name'],
+					"supplier_name" => $input['supplier_name'],
+					"inventory" =>
+					array(
+							array(
+									'outlet_id' => $outlet_id,
+									'count' => $input['count'],
+									'reorder_point' => $input['reorder_point'],
+									'restock_level' => $input['restock_level']
+							)
+					),
+					
+			);
+			
+			$url = 'products';
+			
+			$result = $this->get('app.vend')->postVend($url, $data);
+			if ($result == null) {
+				$this->addFlash(
+						'danger',
+						'ERROR: Unable to post to Vend API.'
+						);
+				return $this->redirectToRoute('admin_product_edit', array('id' => $id));
+			}
+			
+			$result = $result->product;
+			
+			// images
+			$ctr_image = count($originalImages);
+			$imageList = $request->request->get('image') != null ? $request->request->get('image') : array();
+			
+			foreach ($originalImages as $image) {
+				if (!in_array($image['id'], $imageList)) {
+					if ($image['filename'] != '')
+						$this->deleteProductImage($image['filename']);
+						
+						$image = $em->getRepository('AppBundle:ProductItemImage')->find($image['id']);
+						$em->remove($image);
+						
+						$ctr_image--;
+				}
+			}
+			
+			$images = $item->getImages();
+			if (count($images) > 0) {
+				foreach ($images as $image) {
+					if (!is_null($image->getFilename())) {
+						// process image
+						$ctr_image ++;
+						$filename = $this->upload('product', 'products', $input['name'] .'-'. $ctr_image .'-'. rand(0,1000), $image->getFilename());
+						
+						$image
+						->setItem($item)
+						->setFileName($filename);
+						$em->persist($image);
+					}
+					else {
+						if (is_null($image->getItem()))
+							$item->getImages()->removeElement($image);
+							else {
+								foreach ($originalImages as $originalImage) {
+									if ($image->getId() == $originalImage['id']) {
+										$filename = $originalImage['filename'];
+										
+										$image->setFilename($filename);
+										$em->persist($image);
+										break;
+									}
+								}
+							}
+					}
+				}
+				
+				$item
+				->setName($result->name)
+				->setBaseName($input['name'])
+				->setBrandName($input['brand_name'])
+				->setSupplierName($input['supplier_name'])
+				->setProductType($input['product_type'])
+				->setTax($input['tax'])
+				->setOutletId($outlet_id)
+				->setCount($input['count'])
+				->setReorderPoint($input['reorder_point'])
+				->setRestockLevel($input['restock_level'])
+				->setVariantOptionOneName($input['variant_option_one_name'])
+				->setVariantOptionTwoName($input['variant_option_two_name'])
+				->setVariantOptionThreeName($input['variant_option_three_name'])
+				;
+				
+				$em->persist($item);
+				$em->flush();
+				
+				$this->addFlash('info', 'Product updated.');
+				$em->flush();
+			}
+		}
+		
+		
+		return true;
 	}
 	
 	/**
@@ -351,6 +1028,8 @@ class AdminController extends Controller
 						$this->addFlash('danger', 'ERROR: Email address already in use.');
 				}
 				else {
+					// post to Vend
+					
 					$this->addFlash('info', 'Customer info updated.');
 					$em->flush();
 				}
@@ -1120,11 +1799,13 @@ class AdminController extends Controller
 			
 			// if has old_image, delete
 			if (!empty($old_image)) {
-				if ($mode == 'banner_thumb') 
-					$fs->remove($imagesDir .'/banner/'. $old_image);
-				else 
-					$fs->remove($imagesDir .'/'. $old_image);
+				switch ($mode) {
+					case 'banner_thumb': 
+						$fs->remove($imagesDir .'/banner/'. $old_image);
+						break;
+				}
 
+				$fs->remove($imagesDir .'/'. $old_image);
 				$fs->remove($imagesDir .'/thumb/'. $old_image);
 			}
 				
@@ -1134,20 +1815,73 @@ class AdminController extends Controller
 			
 			$source = $imagesDir . '/' . $filename;
 
-			if ($mode == 'banner_thumb') {
-				$resized = $imagesDir . '/banner/' . $filename;
-				$resizer->resize($source, null, 900, 368, false, $resized, false, false, 90);
-				
-				$resized = $imagesDir . '/thumb/' . $filename;
-				$resizer->resize($source, null, 600, 600, false, $resized, true, false, 90);
-			}
-			else 
-			{
-				$resized = $imagesDir . '/thumb/' . $filename;
-				$resizer->resize($source, null, 600, 600, true, $resized, false, false, 90);
+			switch ($mode) {
+				case 'product':
+					$resized = $imagesDir . '/full/' . $filename;
+					$resizer->resize($source, null, 590, 800, true, $resized, false, false, 90);
+					
+					$resized = $imagesDir . '/thumb/' . $filename;
+					$resizer->resize($source, null, 220, 240, false, $resized, false, false, 90);
+					break;
+				case 'banner_thumb':
+					$resized = $imagesDir . '/banner/' . $filename;
+					$resizer->resize($source, null, 900, 368, false, $resized, false, false, 90);
+					
+					$resized = $imagesDir . '/thumb/' . $filename;
+					$resizer->resize($source, null, 600, 600, false, $resized, false, false, 90);
+					break;
+				case 'thumb':
+					$resized = $imagesDir . '/thumb/' . $filename;
+					$resizer->resize($source, null, 600, 600, true, $resized, false, false, 90);
+					break;
 			}
 
 			return $filename;
+	}
+	
+	public function deleteProductImage($image) {
+		$fs = new Filesystem();
+		$rootDir = $this->container->getParameter('kernel.root_dir');
+		$resizer = $this->get('app.image_resizer');
+		$uploader = $this->get('app.file_uploader');
+		
+		if ($fs->exists($rootDir . '/../web/images/'. $folder))
+			$imagesDir = $rootDir . '/../web/images/'. $folder;
+			else
+				$imagesDir = $rootDir . '/../public_html/images/'. $folder;
+		
+		$fs->remove($imagesDir .'/products/'. $image['filename']);
+		$fs->remove($imagesDir .'/products/full/'. $image['filename']);
+		$fs->remove($imagesDir .'/products/thumb/'. $image['filename']);
+		
+	}
+	
+	/**
+	 * @Route("admin/get-select", name="admin_get_select")
+	 */
+	public function getSelect(Request $request) {
+		$field = $request->request->get('field');
+		$allowed_fields = array('product_type', 'brand_name', 'supplier_name');
+		if (!in_array($field, $allowed_fields))
+			die;
+		
+		switch ($field) {
+			case 'product_type':
+				$entity = 'ArchProductType';
+				break;
+			case 'brand_name':
+				$entity = 'ArchProductBrand';
+				break;
+			case 'supplier_name':
+				$entity = 'ArchSupplier';
+				break;
+		}
+		
+		$items = $this->getDoctrine()->getRepository('AppBundle:'. $entity)->findBy(array('is_active' => 1));
+		
+		return $this->render('admin/ajax_select_filters.html.twig', array(
+				'items' => $items
+		));
 	}
 }
 ?>

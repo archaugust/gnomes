@@ -1,16 +1,32 @@
-<form>
+{% set sort = app.session.get('sort') %}
+{% set filters = app.session.get('filters_product') %}
+<form method="get" id="filter-form">
 	<div class="btn-filter">
 		Filter products <i class="fa fa-caret-down"></i>
     	<div class="filter-box">
     		Show all products where:
-    		<select class="form-control" name="filter">
-    			<option>Select a filter...</option>
+    		<select class="form-control" name="f" id="filter-field">
+    			<option value="">Select a filter...</option>
+    			<option value="product_type">Product type</option>
+    			<option value="brand_name">Brand name</option>
+    			<option value="supplier_name">Supplier</option>
+    			<option value="tags">Tagged with</option>
+    			<option value="is_active">Visibility</option>
     		</select>
-    		<input type="submit" class="btn" value="Add Filter">
+    		<div id="filter-value"></div>
+    		</select>
+    		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
         </div>
     </div>
-	<span><input type="text" class="input-filter" name="search" placeholder="Start typing to search for products..." /></span>
+	<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for customers..." /></span>
 </form>
+<div class="filters">
+	{% for filter in filters %}
+		{% if filter['label'] != '' %}
+			<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+		{% endif %}
+	{% endfor %}
+</div>
 <table class="table table-striped">
 	<thead>
 		<tr>
@@ -31,12 +47,12 @@
 				<input type="checkbox" name="products[]" value="{{ item.id }}" />
 				<input type="hidden" value="{{ item.id }}" />
 			</td>
-			<td><img src="{{ asset('images/no-image.png') }}" alt="{{ item.name }}" /></td>
+			<td><img src="{% if item.image %}{{ item.image }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" alt="{{ item.name }}" /></td>
 			<td><a href="#">{{ item.baseName }}</a></td>
 			<td>-</td>
-			<td><a href="#">{{ item.productType }}</a></td>
-			<td><a href="#">{{ item.brandName }}</a></td>
-			<td><a href="#">{{ item.supplierName }}</a></td>
+			<td><a href="?f=product_type&v={{ item.productType }}">{{ item.productType }}</a></td>
+			<td><a href="?f=brand_name&v={{ item.brandName }}">{{ item.brandName }}</a></td>
+			<td><a href="?f=supplier_name&v={{ item.supplierName }}">{{ item.supplierName }}</a></td>
 			<td align="center">
 				{% if 'Deleted' not in item.name %}
 				<a href="javascript:;" class="toggle-active">
@@ -48,3 +64,5 @@
 		{% endfor %}
 	</tbody>
 </table>
+<script src="{{ asset('js/checkbox.js') }}"></script>
+<script src="{{ asset('js/ajax-products.js') }}"></script>

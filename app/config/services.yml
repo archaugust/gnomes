@@ -3,6 +3,7 @@
 parameters:
     #parameter_name: value
 
+
 services:
     #service_name:
     #    class: AppBundle\Directory\ClassName
@@ -17,4 +18,9 @@ services:
     app.vend:
         class: ShopBundle\Vend
         arguments: [ "@doctrine.orm.entity_manager" ]
-        
+    twig.extension:
+        class: ShopBundle\Extensions\TwigExtensions
+        arguments: 
+            doctrine : '@doctrine'
+        tags:
+          -  { name: twig.extension }        

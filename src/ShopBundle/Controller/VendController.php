@@ -79,6 +79,10 @@ class VendController extends Controller
 				$url = 'products';
 				$entity = 'ArchProduct';
 				break;
+			case 'product_edit':
+				$url = 'products/'. $data['get_id'];
+				$entity = 'ArchProduct';
+				break;
 			case 'customer':
 				$url = 'customers';
 				$entity = 'User';
@@ -119,16 +123,17 @@ class VendController extends Controller
 
 		$em = $this->getDoctrine()->getManager();
 		$repository = $em->getRepository('AppBundle:'. $entity);
-		$repository_inventory = $em->getRepository('AppBundle:ArchProductInventory');
 		switch ($mode) {
 			case 'product':
-				$msg = 'Products';
+			case 'product_edit':
+				$msg = 'Product';
+				if ($mode = 'product')
+					$msg .= 's';
 				$items = $result->products;
 				
 				$product_types = $product_tags = $product_brands = array();
 				foreach ($items as $item) {
 					// locally collect product_types, tags, brands *since they can't be directly pulled off API
-					
 					$product_types = $this->addToArray($item->type, $product_types);
 					$product_brands = $this->addToArray($item->brand_name, $product_brands);
 					
@@ -166,7 +171,8 @@ class VendController extends Controller
 						->setImage(@$item->image)
 						->setSku(@$item->sku)
 						->setSupplyPrice(@$item->supply_price)
-						->setRetailPrice(@$item->price) // retail_price = price when getting, retail_price = retail_price when posting
+						->setRetailPrice(@$item->price) // retail_price = price when getting, retail_price = retail_price when posting w/o tax
+						->setPrice((@$item->price + @$item->tax))
 						->setTax(@$item->tax)
 						->setTaxId(@$item->tax_id)
 					;
@@ -174,21 +180,16 @@ class VendController extends Controller
 					$em->persist($product);
 					
 					if (isset($item->inventory)) {
+						$default_outlet = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
 						foreach ($item->inventory as $inventory) {
-							$product_inventory = $repository_inventory->findOneBy(array('product_id' => $item->id, 'outlet_id' => $inventory->outlet_id));
-							
-							if ($product_inventory == null)
-								$product_inventory = new ArchProductInventory();
-							
-							$product_inventory
-								->setProduct($product)
-								->setOutletId($inventory->outlet_id)
-								->setCount(@$inventory->count)
-								->setReorderPoint(@$inventory->reorder_point)
-								->setRestockLevel(@$inventory->restock_level)
-							;
-								
-							$em->persist($product_inventory);
+							if ($inventory->outlet_id == $default_outlet) {
+								$product
+									->setOutletId($inventory->outlet_id)
+									->setCount(isset($inventory->count) ? $inventory->count : 0)
+									->setReorderPoint(isset($inventory->reorder_point) ? $inventory->reorder_point : 0)
+									->setRestockLevel(isset($inventory->restock_level) ? $inventory->restock_level : 0)
+								;
+							}
 						}
 					}
 					
@@ -205,10 +206,9 @@ class VendController extends Controller
 				break;
 			case 'customer':
 			case 'customer_view':
+				$msg = 'Customer';
 				if ($mode == 'customer')
-					$msg = 'Customers';
-				else 
-					$msg = 'Customer';
+					$msg .= 's';
 				$items = $result->customers;
 				
 				// pagination
@@ -490,7 +490,9 @@ class VendController extends Controller
 			$data = $request->request->all();
 			
 			switch ($data['mode']) {
+				
 				case 'product':
+				case 'product_edit':
 					$entity = 'ArchProduct';
 					break;
 				case 'product_type':

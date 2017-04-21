@@ -1,0 +1,6 @@
+<select name="v" class="form-control">
+	<option value="">Select a value...</option>
+	{% for item in items %}
+	<option>{{ item.name }}</option>
+	{% endfor %}
+</select>
