@@ -1,7 +1,7 @@
 Gnomes.co.nz
 ========================
 
-Ecommerce website built with Symfony 3.
+Ecommerce website built with Symfony 3.<br />
 Dev URL: http://gnomes.spinifextestsite.com
 
 What's inside?
