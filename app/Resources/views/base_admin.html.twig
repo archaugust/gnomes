@@ -8,7 +8,7 @@
     <title>{% block title %}{% endblock %} - Gnomes</title>
 
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style_admin.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_admin.css?id='~ 'now'|date('U')) }}" rel="stylesheet">
     <link href="{{ asset('css/animate.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
     <link href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet">
@@ -33,7 +33,7 @@
 				<i class="fa fa-fw fa-home"></i>
 				Home
 			</a>
-			<a href="{{ path('admin_product') }}" id="menu-products">
+			<a href="javascript:" class="menu-main-link" id="menu-products">
 				<i class="fa fa-fw fa-tags"></i>
 				Products
 			</a>
@@ -45,7 +45,7 @@
 				<i class="fa fa-fw fa-users"></i>
 				Customers
 			</a>
-			<a href="{{ path('admin_content') }}" id="menu-pages">
+			<a href="javascript:" class="menu-main-link" id="menu-pages">
 				<i class="fa fa-file-text"></i><br />
 				Pages
 			</a>
@@ -53,21 +53,39 @@
 				<i class="fa fa-fw fa-universal-access"></i>
 				Rentals
 			</a>
-			<a href="{{ path('admin_settings') }}" id="menu-settings">
+			<a href="javascript:" class="menu-main-link" id="menu-settings">
 				<i class="fa fa-fw fa-cogs"></i>
 				Settings
 			</a>
 		</div>
-		{% block menu_sub %}{% endblock %}
+		{% block menu_sub %}
+		    {% include('admin/submenu_products.html.twig') %}
+		    {% include('admin/submenu_settings.html.twig') %}
+		    {% include('admin/submenu_pages.html.twig') %}
+		{% endblock %}
 	</div>
 	{% block content %}{% endblock %}
 </section>
+
+<a href="javascript:" id="return-to-top"><i class="fa fa-chevron-up"></i></a>
 
 {% block javascripts %}
 <script src="{{ asset('js/jquery.js') }}"></script>
 <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/custom_admin.js') }}"></script>
+<script>
+	$('.menu-main-link').click(function(){
+		var id = '#sub-'+ $(this).attr('id');
+		console.log(id);
+		if ($(id).hasClass('hidden')) {
+			$('.menu-sub').fadeOut().addClass('hidden');
+			$(id).removeClass('hidden').fadeIn();
+		}
+		else
+			$('.menu-sub').fadeOut().addClass('hidden');
+	});
+</script>
 {% endblock %}
 </body>
 </html>

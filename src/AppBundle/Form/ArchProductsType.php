@@ -5,6 +5,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,16 +21,36 @@ class ArchProductsType extends AbstractType
         $builder
             ->add('name', TextType::class, array('label' => 'Name*'))
             ->add('base_name', TextType::class, array('label' => 'Name*'))
+            ->add('handle', TextType::class, array('label' => 'Handle*'))
             ->add('description', CKEditorType::class, array('label' => 'Description', 'required' => false))
             ->add('product_type',EntityType::class,
            		array(
-           				'label' => 'Type*',
+           				'label' => 'Type',
            				'class' => 'AppBundle:ArchProductType',
+           				'query_builder' => function (EntityRepository $er) {
+	           				return $er->createQueryBuilder('p')
+	           				->orderBy('p.name', 'ASC');
+           				},
            				'choice_label' => 'name',
            				'choice_value' => 'name',
-           				'placeholder' => 'Choose one'
+           				'placeholder' => 'Choose one',
+           				'required' => false,
            		)
             )
+            ->add('is_active', ChoiceType::class, array(
+            		'label' => 'Active',
+            		'choices' => array(
+            				'Yes' => true,
+            				'No' => false
+            		),
+            ))
+            ->add('pre_sell', ChoiceType::class, array(
+            		'label' => 'Pre-selling',
+            		'choices' => array(
+            				'No' => false,
+            				'Yes' => true,
+            		),
+            ))
             ->add('tags', TextType::class, array(
             		'required' => false,
             		'attr'=> array('class'=>'tags')
@@ -39,6 +60,14 @@ class ArchProductsType extends AbstractType
             		'label' => 'Video embed HTML'
             ))
             ->add('sku', TextType::class, array('required' => false, 'label' => 'SKU'))
+            ->add('meta_title', TextType::class, array(
+            		'label' => 'Meta Title',
+            		'required' => false
+            ))
+            ->add('meta_description', TextType::class, array(
+            		'label' => 'Meta Description',
+            		'required' => false
+            ))
             ->add('variant_option_one_name', EntityType::class, array(
             		'label' => 'Option 1',
             		'required' => false,
@@ -79,19 +108,30 @@ class ArchProductsType extends AbstractType
             		'choice_value' => 'nameRateValue',
             ))
             ->add('brand_name', EntityType::class, array(
-            		'label' => 'Brand Name*',
+            		'label' => 'Brand Name',
             		'class' => 'AppBundle:ArchProductBrand',
+            		'query_builder' => function (EntityRepository $er) {
+	            		return $er->createQueryBuilder('p')
+	            		->orderBy('p.name', 'ASC');
+            		},
             		'choice_label' => 'name',
             		'choice_value' => 'name',
             		'data' => $options['data']->getBrandName(),
-            		'placeholder' => 'Choose one'
+            		'placeholder' => 'Choose one', 
+            		'required' => false
             ))
             ->add('supplier_name', EntityType::class, array(
-            		'label' => 'Supplier Name*',
+            		'label' => 'Supplier Name',
             		'class' => 'AppBundle:ArchSupplier',
+            		'query_builder' => function (EntityRepository $er) {
+	            		return $er->createQueryBuilder('p')
+	            		->orderBy('p.name', 'ASC');
+            		},
             		'choice_label' => 'name',
             		'choice_value' => 'name',
-            		'placeholder' => 'Choose one'
+            		'data' => $options['data']->getSupplierName(),
+            		'placeholder' => 'Choose one',
+            		'required' => false
             ))
             ->add('count', NumberType::class, array(
             		'label' => 'Count*',
@@ -118,6 +158,7 @@ class ArchProductsType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => 'AppBundle\Entity\ArchProduct',
+        	'allow_extra_fields' => true
         ));
     }
 }

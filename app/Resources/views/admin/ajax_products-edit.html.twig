@@ -1,0 +1,30 @@
+				<div class="row">
+					<div class="col-md-10">
+						<div>{{ item.description|raw }}</div>
+						{% for tag in item.tags|split(', ') %}
+							<a href="javascript:void(0)" class="btn btn-xs btn-default">{{ tag }}</a>
+						{% endfor %}
+						<hr class="dotted" />
+						<div class="row pv-2">
+							<div class="col-md-1"><b>Type</b></div>
+							<div class="col-md-5">{{ item.productType }}</div>
+							{% if item.sku %}
+							<div class="col-md-1"><b>SKU</b></div>
+							<div class="col-md-5">{{ item.sku }}</div>
+							{% endif %}
+						</div>
+						<div class="row pv-2">
+							<div class="col-md-1"><b>Brand</b></div>
+							<div class="col-md-5">{{ item.brandName }}</div>
+							<div class="col-md-1"><b>Handle</b></div>
+							<div class="col-md-5">{{ item.handle }}</div>
+						</div>
+						<div class="row pv-2">
+							<div class="col-md-1"><b>Supplier</b></div>
+							<div class="col-md-5">{{ item.supplierName }}</div>
+						</div>
+					</div>
+					<div class="col-md-2">
+						<img src="{% if item.images|length %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ item.image }}{% endif %}" alt="{{ item.name }}" class="img-responsive" />
+					</div>
+				</div>

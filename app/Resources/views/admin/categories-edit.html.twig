@@ -1,0 +1,111 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Categories - Edit{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-tags"></i> <a href="{{ path('admin_product') }}">Products</a> / <a href="{{ path('admin_category') }}">Categories</a> / </span> {{ item.name }}
+		<div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+                {{ form_row(form.name) }}
+				<div class="row">
+          			<div class="col-md-6">
+                        {{ form_row(form.sort_order) }}
+          			</div>
+          			<div class="col-md-6">
+                        {{ form_row(form.is_active) }}
+          			</div>
+          		</div>
+          		<hr />
+                <label for="collections">Collections</label>
+                <fieldset class="form-group">
+                    <div class="clearfix"></div>
+                    <ul id="collections" class="list-unstyled" data-prototype="{{ form_widget(form.collections.vars.prototype)|e('html_attr') }}">
+                        {% for collection in form.collections %}
+                            <li class="select-collection">
+                                {{ form_row(collection.collection) }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </fieldset>
+          		<div class="row">
+          			<div class="col-md-12">
+          			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }} 
+          			    <a href="{{ path('admin_category') }}" class="btn btn-default">Close</a>
+          			</div>
+          		</div>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
+	$('#submenu-categories').addClass('active');
+
+	var $collectionHolder;
+
+	var $addItemLink = $('<a href="#" class="add_item_link btn btn-default">Add Collection</a>');
+	var $newLinkLi = $('<li></li>').append($addItemLink);
+
+	jQuery(document).ready(function() {
+	    $collectionHolder = $('ul#collections');
+
+	    $collectionHolder.find('li').each(function() {
+	        addItemFormDeleteLink($(this));
+	    });
+
+	    $collectionHolder.append($newLinkLi);
+
+	    $collectionHolder.data('index', $collectionHolder.find(':input').length);
+
+	    $addItemLink.on('click', function(e) {
+	        e.preventDefault();
+
+	        addItemForm($collectionHolder, $newLinkLi);
+	    });
+	});
+
+	function addItemForm($collectionHolder, $newLinkLi) {
+	    var prototype = $collectionHolder.data('prototype');
+
+	    var index = $collectionHolder.data('index');
+
+	    var newForm = prototype.replace(/__name__/g, index);
+
+	    $collectionHolder.data('index', index + 1);
+
+	    var $newFormLi = $('<li class="select-collection"></li>').append(newForm);
+	    $newLinkLi.before($newFormLi);
+
+	    addItemFormDeleteLink($newFormLi);
+	}
+
+	function addItemFormDeleteLink($itemFormLi) {
+	    var $removeFormA = $('<a href="#" class="btn btn-default select-collection-close"><i class="fa fa-close"></i></a>');
+	    $itemFormLi.append($removeFormA);
+
+	    $removeFormA.on('click', function(e) {
+	        // prevent the link from creating a "#" on the URL
+	        e.preventDefault();
+
+	        // remove the li for the tag form
+	        $itemFormLi.remove();
+	    });
+	}
+});
+</script>
+{% endblock %}

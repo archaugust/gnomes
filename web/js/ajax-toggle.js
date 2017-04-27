@@ -1,7 +1,6 @@
-$('.toggle-active').click(function (){
-	var e = $(this);
-	var msg, value;
-	var id = e.closest('tr').find('input').val();
+function toggleStar(e) {
+	var value;
+	
 	if (e.find('i').hasClass('fa-star')) {
 		value = 0;
 		e.find('i').removeClass('fa-star').addClass('fa-star-o');
@@ -10,6 +9,13 @@ $('.toggle-active').click(function (){
 		value = 1;
 		e.find('i').removeClass('fa-star-o').addClass('fa-star');
 	}
+	return value;
+}
+
+$('.toggle-active').click(function (){
+	var e = $(this), 
+		value = toggleStar(e),
+		id = e.closest('tr').find('input').val();
 	
     $.ajax({
         url: "/admin/vend-toggle",
@@ -23,9 +29,10 @@ $('.toggle-active').click(function (){
 });
 
 $('.toggle-default').click(function (){
-	var e = $(this);
-	var msg, value;
-	var id = e.closest('tr').find('input').val();
+	var e = $(this),
+		value,
+		id = e.closest('tr').find('input').val();
+	
 	if (e.find('i').hasClass('fa-star')) {
 		value = 0;
 		e.find('i').removeClass('fa-star').addClass('fa-star-o');
@@ -34,7 +41,7 @@ $('.toggle-default').click(function (){
 	else {
 		value = 1;
 		$('.toggle-default').each(function(){
-			$(this).find('i').removeClass('fa-star').addClass('fa-star-o');
+			e.find('i').removeClass('fa-star').addClass('fa-star-o');
 		});
 		e.find('i').removeClass('fa-star-o').addClass('fa-star');
 		$('#warning').slideUp();
@@ -43,6 +50,22 @@ $('.toggle-default').click(function (){
     $.ajax({
         url: "/admin/vend-toggle",
         data: 'mode='+ mode +'&action=default&id='+ id +'&value='+ value,
+        type: "POST",
+        cache: false,
+        success: function (data) {
+    	    $.notify(data,{style:'default'});
+        }
+    });
+});
+
+$('.toggle-pre_sell').click(function (){
+	var e = $(this),
+		value = toggleStar(e),
+		id = e.closest('tr').find('input').val();
+		
+    $.ajax({
+        url: "/admin/vend-toggle",
+        data: 'mode='+ mode +'&action=pre_sell&id='+ id +'&value='+ value,
         type: "POST",
         cache: false,
         success: function (data) {

@@ -2,6 +2,7 @@
 {% extends 'base_admin.html.twig' %}
 {% block title %}Customers{% endblock %}
 {% block menu_sub %}
+	{{ parent() }}
 	<div class="menu-sub animated slideInLeft">
 		<ul class="list-unstyled">
 			<li><a href="{{ path('admin_customer') }}" id="submenu-customers" class="active">Customers</a></li>
@@ -19,15 +20,17 @@
               	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
                 	<h4>Confirm</h4>
                 	<p>Re-download Customers data from Vend?</p>
-                	<p>NOTE: Deleted accounts with active Vend accounts will be reactivated.</p>
+                	<p>IMPORTANT: This process will take several minutes, keep this page open until Reload is confirmed.</p>
+                	<p>The process will pause every 20 pages. A 'Continue' button will be shown at pauses until all pages are loaded.</p>
                 	<a id="vendReload" class="btn btn-primary">Proceed</a>
               	</div>
             </div>
+            <a href="javascript:" id="vendContinue" class="btn btn-primary hidden">Continue</a>
         </div>
 	</div>
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
-		<div class="arch-table">
+		<div class="arch-table" id="details">
 			<div class="header">
 				<a href="#" class="active">All Customers</a>
 				<div class="pull-right paginator">
@@ -54,7 +57,7 @@
 				<form method="get" id="filter-form">
 					<div class="btn-filter">
 						Filter customers <i class="fa fa-caret-down"></i>
-                    	<div class="filter-box">
+                    	<div class="dropdown-box" id="filter-box">
                     		Show all customers where:
                     		<select class="form-control" name="f" id="filter-field">
                     			<option value="">Select a filter...</option>
@@ -75,13 +78,11 @@
 				</form>
             	<div class="filters">
             		{% for filter in filters %}
-            			{% if filter['label'] != '' %}
-            				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
-            			{% endif %}
+           				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
             		{% endfor %}
             	</div>
 				<form method="post">
-				<table class="table table-striped">
+				<table class="table table-hover">
 					<thead>
 						<tr>
     						<th class="check">
@@ -90,7 +91,7 @@
         							<div class="with-checked">
     	    							<div id="selected">0 customers selected</div>
                                 		<div class="dropdown delete">
-                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete selected</a>
+                                			<a id="deleteConfirm" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete selected</a>
                                           	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
                                             	<h4>Confirm</h4>
                                             	<p>Delete selected customers?</p>
@@ -123,7 +124,26 @@
 				</table>
 				</form>
 			</div>
-			
+			<div class="header">
+				<a href="#" class="active">All Customers</a>
+				<div class="pull-right paginator">
+                    {% if paginator.prevUrl %}
+                        <a href="{{ paginator.prevUrl }}"><i class="fa fa-chevron-left"></i></a>
+                    {% endif %}
+
+                    {% for page in paginator.pages %}
+                        {% if page.url %}
+                            <a href="{{ page.url }}" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+                        {% else %}
+                            <a class="disabled"><span>{{ page.num }}</span></a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginator.nextUrl %}
+                        <a href="{{ paginator.nextUrl }}"><i class="fa fa-chevron-right"></i></a></li>
+                    {% endif %}
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -230,6 +250,7 @@
   </div>
 </div>
 <input type="hidden" id="mode" value="customer" />
+<input type="hidden" id="vend_page" value="0" />
 
 {% endblock %}
 {% block javascripts %}

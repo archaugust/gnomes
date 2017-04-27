@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Ivory\CKEditorBundle\Form\Type\CKEditorType;
 
 class ArchProductBrandType extends AbstractType
 {
@@ -15,11 +16,19 @@ class ArchProductBrandType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, array('label' => 'Name*'))
+            ->add('handle', TextType::class, array('label' => 'Handle*'))
             ->add('is_active', ChoiceType::class, array(
             		'label' => 'Active',
             		'choices' => array(
             				'Yes' => true,
             				'No' => false
+            		),
+            ))
+            ->add('description', CKEditorType::class, array(
+            		'label' => 'Description', 
+            		'required' => false,
+            		'config' => array(
+            				'height' => '200px',
             		),
             ))
             ->add('image', FileType::class, array(

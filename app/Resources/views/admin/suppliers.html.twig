@@ -1,9 +1,6 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Suppliers{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_products.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
 	<div class="content-header">
@@ -23,8 +20,8 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
-				<table class="table table-striped">
+			<div class="details" id="details">
+				<table class="table table-hover">
 					<thead>
 						<tr>
     						<th>Name</th>
@@ -39,7 +36,7 @@
 							<td>{{ item.id }}</td>
 							<td align="center">
 								{% if 'Deleted' not in item.name %}
-								<a href="javascript:;" class="toggle-active">
+								<a href="javascript:void(0)" class="toggle-active">
 									<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
 								</a>
 								{% endif %}
@@ -84,6 +81,7 @@
 <script>
 $(function(){
 	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
 	$('#submenu-suppliers').addClass('active');
 });
 var mode = $('#mode').val();

@@ -20,7 +20,17 @@ class ArchProductBrand
      * @ORM\Column(type="string", length=50)
      */
     private $name;
-
+    
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $handle;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $description;
+    
     /**
      * @ORM\Column(type="boolean")
      */
@@ -74,6 +84,54 @@ class ArchProductBrand
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Set handle
+     *
+     * @param string $handle
+     *
+     * @return ArchProductBrand
+     */
+    public function setHandle($handle)
+    {
+        $this->handle = $handle;
+
+        return $this;
+    }
+
+    /**
+     * Get handle
+     *
+     * @return string
+     */
+    public function getHandle()
+    {
+        return $this->handle;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     *
+     * @return ArchProductBrand
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**

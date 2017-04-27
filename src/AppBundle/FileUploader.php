@@ -2,7 +2,6 @@
 namespace AppBundle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Session\Session;
 
 class FileUploader extends Controller
 {
@@ -25,7 +24,7 @@ class FileUploader extends Controller
 		else {
 			$this->addFlash(
 					'danger',
-					"File '". $fileName ."' not uploaded. Please upload images only."
+					"File '". $fileName ."' not uploaded. Please upload images or documents only."
 					);
 
 			return null;

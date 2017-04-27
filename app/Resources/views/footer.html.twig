@@ -1,8 +1,81 @@
+<section id="footer">
+    <div class="o-layout--center u-bg-blue u-flash u-pv-25 u-fs-15 u-mb-40">
+    	<img src="{{ asset('images/icon-shipping.png') }}" alt="Shipping" /> &nbsp; Free NZ shipping on orders over $99
+    </div>
+    <div class="o-wrapper o-box--flush">
+        <div class="o-layout--flush u-mh-52">
+        	<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-ph-52 u-pb-20">
+        		<a href="#" class="c-btn c-btn--tertiary c-btn--wide">Contact Us</a>
+        	</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-ph-52 u-pb-20">
+        		<a href="#" class="c-btn c-btn--tertiary c-btn--wide">Book Gear Rental</a>
+        	</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-ph-52 u-pb-20">
+        		<a href="#" class="c-btn c-btn--tertiary c-btn--wide">VIP Pricing</a>
+        	</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-ph-52 u-pb-20">
+        		<a href="#" class="c-btn c-btn--tertiary c-btn--wide">Tunes &amp; Repairs</a>
+        	</div>
+        </div>
+        
+        <div class="o-layout--flush u-pt-20">
+        	<div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/1@mobile">
+        		<b>Services</b>
+        		<ul class="o-list-bare">
+        			<li><a href="#">Ski & Board Rental</a></li>
+        			<li><a href="#">Ski Boot Fitting</a></li>
+        			<li><a href="#">Ski Workshop</a></li>
+        		</ul>
+        	</div><div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/1@mobile">
+        		<b>Useful Information</b>
+        		<ul class="o-list-bare">
+        			<li><a href="#">Shipping & Delivery</a></li>
+        			<li><a href="#">Returns Policy</a></li>
+        			<li><a href="#">Buying Guides</a></li>
+        			<li><a href="#">Sizing Charts</a></li>
+        			<li><a href="#">Employment</a></li>
+        			<li><a href="#">Useful Links</a></li>
+        		</ul>
+        	</div><div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/1@mobile">
+        		<b>Customer Service</b>
+        		<ul class="o-list-bare">
+        			<li><a href="#">Sign In</a></li>
+        			<li><a href="#">VIP Club</a></li>
+        			<li><a href="#">About Us</a></li>
+        			<li><a href="#">Contact Us</a></li>
+        			<li><a href="#">Terms & Conditions</a></li>
+        			<li><a href="#">Brands</a></li>
+        		</ul>
+        	</div><div class="o-layout__item u-2/5@desktop u-1/1@tablet u-1/1@mobile social">
+        		<div>
+        			<a href="https://www.facebook.com/gnomes.alpine.sports" target="_blank"><i class="fa fa-facebook"></i></a>
+        			<a href="https://twitter.com/Gnomes_Snow" target="_blank"><i class="fa fa-twitter"></i></a>
+        			<a href="#" target="_blank"><i class="fa fa-instagram"></i></a>
+        		</div>
+        	</div>
+        </div>
+
+       	<hr class="u-blue" />
+
+        <div class="o-layout--flush">
+        	<div class="o-layout__item u-1/5@desktop u-1/1@mobile u-fs-11 u-gray">
+        		© Gnomes Alpine Sports 2017
+        	</div><div class="o-layout__item u-1/5@desktop u-1/1@mobile u-fs-11">
+        		<a href="#">Privacy Policy</a> &nbsp; <a href="#">Terms &amp; Conditions</a>
+        	</div><div class="o-layout__item o-layout--center u-1/5@desktop u-1/1@mobile">
+        		<img src="{{ asset('images/icon-mastercard.png') }}" class="u-pr-20" alt="Mastercard" />
+        		<img src="{{ asset('images/icon-visa.png') }}" alt="Visa" />
+        	</div><div class="o-layout__item o-layout--right u-2/5@desktop u-1/1@mobile u-fs-11">
+        		<a href="http://spinifexnz.com" target="_blank" class="u-gray">Website by Spinifex</a>
+        	</div>
+        </div>
+    </div>
+    
+	<a href="javascript:" id="return-to-top"><i class="fa fa-chevron-up"></i></a>
+</section>
+
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-light">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="modal-header">
+                <button type="button" class="u-right" data-dismiss="modal" aria-label="Close"><i class="fa fa-close"></i></button>
                 <h4 class="modal-title" id="loginModalLabel">Login</h4>
             </div>
             <div class="modal-body">
@@ -10,11 +83,11 @@
                     <input type="hidden" name="_target_path" value="member">
                     <div class="form-group">
                         <label class="sr-only" for="username">Username</label>
-                        <input type="text" required class="form-control" placeholder="Username or Email" name="_username" id="username">
+                        <input type="text" required class="u-form-control" placeholder="Username or Email" name="_username" id="username">
                     </div>
                     <div class="form-group">
                         <label class="sr-only" for="password">Password</label>
-                        <input type="password" required class="form-control" placeholder="Password" name="_password" id="password">
+                        <input type="password" required class="u-form-control" placeholder="Password" name="_password" id="password">
                     </div>
                     <div class="checkbox">
                         <label for="remember_me">
@@ -22,7 +95,7 @@
                             Remember Me
                         </label>
                     </div>
-                    <button class="btn btn-primary" type="submit">Login</button>
+                    <button class="c-btn c-btn-primary" type="submit">Login</button>
                     <a href="/resetting/request" class="btn btn-default">Forgot your password?</a>
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 </form>

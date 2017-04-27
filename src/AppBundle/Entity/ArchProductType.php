@@ -42,17 +42,6 @@ class ArchProductType
      */
     private $meta_description;
     
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $collection_id;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="ArchProductCollection", inversedBy="product_types")
-     * @ORM\JoinColumn(name="collection_id", referencedColumnName="id")
-     */
-    private $collection;
-    
     public function __construct() {
     	$this->is_active = true;
     }
@@ -137,54 +126,6 @@ class ArchProductType
     public function getImage()
     {
         return $this->image;
-    }
-
-    /**
-     * Set collectionId
-     *
-     * @param integer $collectionId
-     *
-     * @return ArchProductType
-     */
-    public function setCollectionId($collectionId)
-    {
-        $this->collection_id = $collectionId;
-
-        return $this;
-    }
-
-    /**
-     * Get collectionId
-     *
-     * @return integer
-     */
-    public function getCollectionId()
-    {
-        return $this->collection_id;
-    }
-
-    /**
-     * Set collection
-     *
-     * @param \AppBundle\Entity\ArchProductCollection $collection
-     *
-     * @return ArchProductType
-     */
-    public function setCollection(\AppBundle\Entity\ArchProductCollection $collection = null)
-    {
-        $this->collection = $collection;
-
-        return $this;
-    }
-
-    /**
-     * Get collection
-     *
-     * @return \AppBundle\Entity\ArchProductCollection
-     */
-    public function getCollection()
-    {
-        return $this->collection;
     }
 
     /**

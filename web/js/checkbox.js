@@ -1,3 +1,15 @@
+$('#deleteConfirm').click(function(){
+	$('#list_action').val('delete');
+	$('#text_action').html('Delete')
+})
+$('#disableConfirm').click(function(){
+	$('#list_action').val('disable');
+	$('#text_action').html('Disable')
+})
+$('#enableConfirm').click(function(){
+	$('#list_action').val('enable');
+	$('#text_action').html('Enable')
+})
 $('#check-all').click(function(){
 	$(".item").prop('checked', this.checked);
 	if (this.checked) {

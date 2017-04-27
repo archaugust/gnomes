@@ -1,9 +1,6 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Product Types - Edit{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_products.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
     {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
@@ -17,48 +14,47 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
+			<div class="details" id="details">
 				<p>Name may be changed at Vend.</p>
-          		<div class="row">
-          			<div class="col-md-6">
-                        {{ form_row(form.name) }}
-          			</div>
-          			<div class="col-md-6">
-                        {{ form_row(form.collection) }}
-          			</div>
-          		</div>
-          		<div class="row">
-          			<div class="col-md-6">
+				<div class="row">
+					<div class="col-md-8">
+                  		<div class="row">
+                  			<div class="col-md-6">
+                                {{ form_row(form.name, {'attr':{'readonly':'readonly'}}) }}
+                  			</div>
+                  			<div class="col-md-6">
+                                {{ form_row(form.is_active) }}
+                  			</div>
+                  		</div>
                         {{ form_row(form.meta_title) }}
-          			</div>
-          			<div class="col-md-6">
                         {{ form_row(form.meta_description) }}
-          			</div>
-          		</div>
-          		<div class="row">
-          			<div class="col-md-6">
+                  		<div class="row">
+                  			<div class="col-md-12">
+                  			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }} 
+                  			    <a href="{{ path('admin_product_type') }}" class="btn btn-default">Close</a>
+                  			</div>
+                  		</div>
+					</div>
+					<div class="col-md-4">
                         {{ form_row(form.image) }}
-          			</div>
-          			<div class="col-md-6">
-                        {{ form_row(form.is_active) }}
-          			</div>
-          		</div>
-          		{% if item.image %}
-          		<div class="row">
-          			<div class="col-md-6">
-						<img src="{{ asset('images/product-types/banner/'~ item.image) }}" class="img-responsive mb-15" alt="{{ item.name }}" />
-          			</div>
-          		</div>
-          		{% endif %}
-          		<div class="row">
-          			<div class="col-md-12">
-          			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }} 
-          			    <a href="{{ path('admin_product_type') }}" class="btn btn-default">Cancel</a>
-          			</div>
-          		</div>
+                  		{% if item.image %}
+	   						<img src="{{ asset('images/product-types/'~ item.image) }}" class="img-responsive mb-15" alt="{{ item.name }}" />
+                  		{% endif %}
+					</div>
+				</div>
   			</div>
 		</div>
 	</div>
     {{ form_end(form) }}
 </div>
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
+	$('#submenu-product-types').addClass('active');
+});
+</script>
 {% endblock %}

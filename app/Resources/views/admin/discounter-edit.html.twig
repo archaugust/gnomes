@@ -1,0 +1,185 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Discount Group - Edit{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-tags"></i> <a href="{{ path('admin_product') }}">Products</a> / <a href="{{ path('admin_discounter') }}">Discount Groups</a> /</span> {{ item.name }}
+		<div class="pull-right">
+			<a href="?viewlist=1" class="btn btn-primary">View Products</a>
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+			    {% if items|length > 0 %}
+				<p><b>Initial Filter{% if items|length > 1 %}s{% endif %}</b></p>
+    			<div class="row">
+    			{% for filter in items %}
+                	<div class="col-md-2">
+                		<b>{{ filter.field }}</b>
+                	</div>
+                	<div class="col-md-10">
+                		{% if (filter.field == 'Tagged with') %}
+                			{{ filter.value|slice(1,-1) }}
+                		{% else %}
+                		    {{ filter.value }}
+                		{% endif %}
+                	</div>
+                {% endfor %}
+                </div>
+				<hr />
+			    {% endif %}
+				<div class="row">
+          			<div class="col-md-6">
+                        {{ form_row(form.name) }}
+          			</div>
+          			<div class="col-md-6">
+          				<label>Active</label>
+                        {{ form_row(form.is_active) }}
+          			</div>
+          		</div>
+          		<div class="row">
+          			<div class="col-md-6">
+                        {{ form_row(form.rate) }}
+          			</div>
+          			<div class="col-md-6">
+                        {{ form_row(form.suffix) }}
+          			</div>
+          		</div>
+                <hr />
+                {% if (item.products|length > 0) %}
+                	<table class="table table-hover">
+                		<thead>
+                			<tr>
+                				<th class="thumb">Products</th>
+                				<th></th>
+                				<th class="text-right th-number">Price</th>
+                				<th class="text-right th-number">If Discount Active</th>
+                				<th class="text-center th-toggle">Pre-sell</th>
+                				<th class="text-center th-toggle">Site</th>
+                				<th class="text-center th-toggle">Remove</th>
+                			</tr>
+                		</thead>
+                    {% for product in item.products %}
+                    	<tr class="product-item">
+                    		<td>
+                    			<input type="hidden" value="{{ product.product.id }}" />
+                    			<input type="hidden" class="price" value="{{ product.product.price }}" />
+                    			<img src="{% if product.product.images|length > 0 %}{{ asset('images/products/thumb/'~ product.product.images[0].filename) }}{% else %}{{ product.product.image }}{% endif %}" alt="{{ product.product.name }}" class="img-responsive" />
+                    		</td>
+                    		<td>
+                    			<a href="{{ path('admin_product_edit', {'id':product.product.id }) }}">{{ product.product.name }}</a>
+                    		</td>
+                    		<td align="right">{{ product.product.price|number_format(2,'.',',') }}</td>
+                    		<td align="right" class="discount-price"></td>
+                    		<td align="center">
+								<a href="javascript:void(0)" class="toggle-pre_sell">
+									<i class="fa fa-star{% if product.product.preSell != 1 %}-o{% endif %}"></i>
+								</a>
+                    		</td>
+                    		<td align="center">
+								<a href="javascript:void(0)" class="toggle-active">
+									<i class="fa fa-star{% if product.product.isActive == 0 %}-o{% endif %}"></i>
+								</a>
+                    		</td>
+                    		<td align="center">
+								<a href="javascript:void(0)" class="toggle-remove btn btn-default">
+									<i class="fa fa-close"></i>
+								</a>
+                    		</td>
+                    	</tr>
+                    {% endfor %}
+                	</table>
+                {% else %}
+                	Nothing to display.
+                {% endif %}
+		        </div>
+          		<br />
+  			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+   			    <a href="{{ path('admin_collection') }}" class="btn btn-default">Close</a>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+    <input type="hidden" id="mode" value="product" />
+    <input type="hidden" id="collection" value="{{ item.id }}" />
+</div>
+
+<div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lightboxLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">×</button>
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="" alt="" />
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
+	$('#submenu-collections').addClass('active');
+
+	$('#arch_product_discounter_is_active').removeClass('hidden');
+
+	function discountPreview() {
+		var rate = $('#arch_product_discounter_rate').val(),
+			suffix = $('#arch_product_discounter_suffix').val(),
+			price,
+			discounted_price;
+
+		$('.product-item').each(function(){
+			e = $(this);
+			price = e.find('.price').val();
+
+			discounted_price = Math.floor(price * (1 - (rate/100))) + (suffix/100);
+			e.find('.discount-price').html(discounted_price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'));
+		});
+	}
+	
+	$('#arch_product_discounter_rate').keyup(function (){
+		discountPreview();
+	});
+
+	$('#arch_product_discounter_suffix').keyup(function (){
+		discountPreview();
+	});
+
+	discountPreview();
+});
+
+var mode = $('#mode').val();
+
+$('.toggle-remove').click(function (){
+	var e = $(this);
+	var msg, value;
+	var tr = e.closest('tr');
+	var product = tr.find('input').val();
+	var collection = $('#collection').val(); 
+	e.fadeOut();
+    $.ajax({
+        url: "/admin/collection-remove-product",
+        data: 'collection='+ collection +'&product='+ product,
+        type: "POST",
+        cache: false,
+        success: function (data) {
+            tr.fadeOut();
+    	    $.notify(data,{style:'default'});
+        }
+    });
+});
+
+</script>
+<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

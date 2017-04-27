@@ -1,15 +1,15 @@
 $(function(){
 	$('#menu-sales').addClass('active');
 	$('.btn-filter').click(function (){
-		$('.filter-box').slideToggle();
+		$('#filter-box').slideToggle();
 	});
 	$('html').click(function() {
-		$('.filter-box').slideUp();
+		$('#filter-box').slideUp();
 	});
 	$('.btn-filter').click(function(event){
 		event.stopPropagation();
 	});
-	$('.filter-box').click(function(event){
+	$('#filter-box').click(function(event){
 		event.stopPropagation();
 	});
 	

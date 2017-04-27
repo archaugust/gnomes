@@ -1,8 +1,5 @@
 {% extends 'base_admin.html.twig' %}
 {% block title %}Shipping{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_settings.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
 	<div class="content-header">
@@ -13,7 +10,7 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
+			<div class="details" id="details">
 			</div>
 			
 		</div>
@@ -27,6 +24,7 @@
 <script>
 $(function(){
 	$('#menu-settings').addClass('active');
+	$('#sub-menu-settings').removeClass('hidden');
 	$('#submenu-shipping').addClass('active');
 });
 var mode = $('#mode').val();

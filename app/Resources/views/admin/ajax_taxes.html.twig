@@ -1,6 +1,6 @@
 <p>Set the default tax rate to use when adding new products.</p>
 <p id="warning"{% if default %} class="hidden"{% endif %}><b>Warning: </b>No default sales tax set.</p>
-<table class="table table-striped">
+<table class="table table-hover">
 	<thead>
 		<tr>
 			<th>Name</th>
@@ -16,7 +16,7 @@
 			<td>{{ item.rate * 100 }}%</td>
 			<td align="center">
 				{% if 'Deleted' not in item.name %}
-				<a href="javascript:;" class="toggle-default">
+				<a href="javascript:void(0)" class="toggle-default">
 					<i class="fa fa-star{% if item.isDefault == 0 %}-o{% endif %}"></i>
 				</a>
 				{% endif %}

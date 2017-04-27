@@ -5,16 +5,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{% block description %}{% endblock %}">
-    <title>{% block title %}{% endblock %} - Gnomes</title>
+    <title>{% block title %}{% endblock %} | Gnomes</title>
 	
-	<link href="https://fonts.googleapis.com/css?family=Biryani:300,400,600,700,900" rel="stylesheet"> 
+	<link href="https://fonts.googleapis.com/css?family=Biryani:200,300,400,600,700,900" rel="stylesheet"> 
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style-dev.css') }}" rel="stylesheet">
     <link href="{{ asset('css/animate.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet" type="text/css">
-
+    {% block stylesheets %}{% endblock %}
 </head>
 <body>
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    {% set logged = 1 %}
+{% else %}
+    {% set logged = 0 %}
+{% endif %}
 
 {% include 'header.html.twig' %}
 
@@ -36,12 +41,22 @@
     </div>
 </section>
 
+{% block banner %}{% endblock %}
+
+<section id="content">
+	<div class="o-wrapper o-box--flush">
+{% block content %}{% endblock %}
+    </div>
+</section>
+
 {% include 'footer.html.twig' %}
 
-{% block javascripts %}
 <script src="{{ asset('js/jquery.js') }}"></script>
-<script src="{{ asset('js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
-{% endblock %}
+<script src="{{ asset('js/carousel.js') }}"></script>
+<script src="{{ asset('js/transition.js') }}"></script>
+<script>
+</script>
+{% block javascripts %}{% endblock %}
 </body>
 </html>

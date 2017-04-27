@@ -1,9 +1,6 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}{{ header }}{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_pages.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
     {{ form_start(form) }}
@@ -16,7 +13,7 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
+			<div class="details" id="details">
                 {{ form_errors(form) }}
                 <div class="animated fadeInUp">
                     {{ form_row(form.title) }}
@@ -40,6 +37,7 @@
 <script>
 $(function(){
 	$('#menu-pages').addClass('active');
+	$('#sub-menu-pages').addClass('active');
 	$('#submenu-page').addClass('active');
 });
 {% if form.vars.value.core != 1 %}

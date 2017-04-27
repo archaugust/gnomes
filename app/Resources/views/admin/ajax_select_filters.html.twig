@@ -1,6 +1,1 @@
-<select name="v" class="form-control">
-	<option value="">Select a value...</option>
-	{% for item in items %}
-	<option>{{ item.name }}</option>
-	{% endfor %}
-</select>
+<select name="{% if field_name != '' %}{{ field_name }}{% else %}v{% endif %}" class="form-control" required="required"><option value="">Select a value...</option>{% for item in items %}<option>{{ item.name }}</option>{% endfor %}</select>

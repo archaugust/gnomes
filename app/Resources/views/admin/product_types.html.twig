@@ -1,24 +1,19 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Product Types{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_products.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
 	<div class="content-header">
 		<span><i class="fa fa-fw fa-tags"></i> <a href="{{ path('admin_product') }}">Products</a> / </span> Product Types
-		<div class="pull-right">
-            <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Product Type</a>
-        </div>
 	</div>
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
+			<div class="details" id="details">
+				<p>Product types are taken from Vend product info. To add a new product type, reload a Vend product with the new product type.</p>
 				<p>Only active product types are shown in menus.</p>
 				<form method="post">
-				<table class="table table-striped">
+				<table class="table table-hover">
 					<thead>
 						<tr>
     						<th class="check">
@@ -26,20 +21,18 @@
    	    							<input type="checkbox" id="check-all" />
         							<div class="with-checked">
     	    							<div id="selected"></div>
-                                		<div class="dropdown delete">
-                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Disable selected</a>
-                                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
-                                            	<h4>Confirm</h4>
-                                            	<p>Disable selected Product Types?</p>
-                                            	<input type="submit" class="btn btn-primary" value="Proceed" />
-                                          	</div>
+                                		<div class="dropdown">
+                                			<div class="btn btn-sm btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Actions <i class="fa fa-caret-down"></i></div>
+                                      		<ul class="dropdown-menu option-box">
+                                      			<li><a id="disableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Disable</a></li>
+                                      			<li><a id="enableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Enable</a></li>
+                                      		</ul>
                                         </div>
         							</div>
     							</div>
     						</th>
     						<th class="thumb"></th>
     						<th>Name</th>
-    						<th>Collection</th>
     						<th class="th-toggle">Active</th>
 						</tr>
 					</thead>
@@ -47,13 +40,12 @@
 					{% for item in items %}
 						<tr>
 							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
-							<td><img src="{% if item.image %}{{ asset('images/product-types/thumb/'~ item.image) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" class="img-responsive" alt="{{ item.name }}" /></td>
+							<td><img src="{% if item.image %}{{ asset('images/product-types/'~ item.image) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" class="img-responsive" alt="{{ item.name }}" /></td>
 							<td>
 								<a href="{{ path('admin_product_type_edit',{'id':item.id})}}">{{ item.name }}</a>
 							</td>
-							<td>{% if item.collectionId != null %}<a href="{{ path('admin_collection_view', {'id':item.collection.id})}}">{{ item.collection.name }}</a>{% else %}-{% endif %}</td>
 							<td align="center">
-								<a href="javascript:;" class="toggle-active">
+								<a href="javascript:void(0)" class="toggle-active">
 									<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
 								</a>
 							</td>
@@ -61,57 +53,33 @@
 					{% endfor %}
 					</tbody>
 				</table>
+				
+				<input type="hidden" name="list_action" id="list_action" value="" />
+
+                <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4>Confirm</h4>
+                      </div>
+                      <div class="modal-body">
+                    	<p><span id="text_action"></span> selected items?</p>
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Proceed" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
 				</form>
 			</div>
 		</div>
 	</div>
 </div>
 
-<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
-  <div class="modal-dialog" role="document">
-    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
-    {{ form_errors(form) }}
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="addModalLabel">Add Product Type</h4>
-      </div>
-      <div class="modal-body">
-  		<div class="row">
-  			<div class="col-md-6">
-                {{ form_row(form.name) }}
-  			</div>
-  			<div class="col-md-6">
-                {{ form_row(form.collection) }}
-  			</div>
-  		</div>
-  		<div class="row">
-  			<div class="col-md-12">
-                {{ form_row(form.meta_title) }}
-  			</div>
-  		</div>
-  		<div class="row">
-  			<div class="col-md-12">
-                {{ form_row(form.meta_description) }}
-  			</div>
-  		</div>
-  		<div class="row">
-  			<div class="col-md-6">
-                {{ form_row(form.image) }}
-  			</div>
-  			<div class="col-md-6">
-                {{ form_row(form.is_active) }}
-  			</div>
-  		</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
-      </div>
-    </div>
-    {{ form_end(form) }}
-  </div>
-</div>
 <input type="hidden" id="mode" value="product_type" />
 {% endblock %}
 
@@ -121,50 +89,12 @@
 <script>
 $(function(){
 	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
 	$('#submenu-product-types').addClass('active');
 });
 
-$('#check-all').click(function(){
-	$(".item").prop('checked', this.checked);
-	if (this.checked) {
-		$('thead').addClass('active');
-		$('.with-checked').show();
-		countSelected();
-	}
-	else {
-		$('thead').removeClass('active');
-		$('.with-checked').hide();
-	}
-});
-
-$(".item").click(function(){
-	countSelected();
-});
-
-function countSelected() {
-	var ctr = 0;
-	var item = ' product type';
-
-	$(".item").each(function(){
-		if (this.checked) 
-			ctr++;
-	});
-
-	if (ctr > 0) {
-		if (ctr > 1) 
-			item += 's';
-		$('#selected').html(ctr + item + ' selected');
-		$('thead').addClass('active');
-		$('.with-checked').show();
-	}
-	else {
-		$('thead').removeClass('active');
-		$('.with-checked').hide();
-	}
-}
-
-
 var mode = $('#mode').val();
 </script>
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
 <script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
 {% endblock %}

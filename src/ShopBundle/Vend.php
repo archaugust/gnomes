@@ -63,6 +63,10 @@ class Vend
 		$this->vendToken = $access_token;
 	}
 	
+	public function getToken() {
+		return $this->vendToken;
+	}
+	
 	public function postVend($url, $data) {
 		$options = array(
 			'http' => array(
@@ -81,6 +85,25 @@ class Vend
 		return json_decode($result);
 	}
 	
+	public function postVendWebhook($url, $data) {
+		$data = array('data' => json_encode($data));
+		
+		$options = array(
+				'http' => array(
+					'header'  =>
+						"Authorization: Bearer " . $this->vendToken ."\r\n".
+						"Content-type: application/x-www-form-urlencoded\r\n",
+						'method'  => 'POST',
+						'content' => http_build_query($data)
+				)
+		);
+		
+		$context  = stream_context_create($options);
+		@$result = file_get_contents($this->vendURL .'/'. $url, false, $context);
+		
+		return json_decode($result);
+	}
+	
 	public function getVend($url, $data = false) {
 		$options = array(
 			'http' => array(
@@ -93,6 +116,22 @@ class Vend
 
 		$context = stream_context_create($options);
 		
+		@$result = file_get_contents($this->vendURL .'/'. $url, false, $context);
+		
+		return json_decode($result);
+	}
+
+	public function deleteVend($url) {
+		$options = array(
+				'http' => array(
+					'header'  =>
+						"Authorization: Bearer " . $this->vendToken ."\r\n".
+						"Accept: application/json\r\n",
+						'method'  => 'DELETE',
+				)
+		);
+		
+		$context  = stream_context_create($options);
 		@$result = file_get_contents($this->vendURL .'/'. $url, false, $context);
 		
 		return json_decode($result);

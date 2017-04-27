@@ -16,7 +16,6 @@ use AppBundle\Entity\ArchOrderProduct;
 use AppBundle\Entity\ArchProductBrand;
 use AppBundle\Entity\ArchProductType;
 use AppBundle\Entity\ArchProductTag;
-use AppBundle\Entity\ArchProductInventory;
 use AppBundle\Entity\ArchSupplier;
 
 class VendController extends Controller
@@ -28,7 +27,7 @@ class VendController extends Controller
 		$get = $request->query->all();
 		$em = $this->getDoctrine()->getManager();
 		
-		$config = $em->getRepository('ShopBundle:ArchConfig');
+		$config = $em->getRepository('AppBundle:ArchConfig');
 		$vendURL = 'https://'. $config->findOneBy(array('name' => 'vend_prefix'))->getValue() .'.vendhq.com/api';
 		
 		if ($get['state'] == 'getCode') {
@@ -62,7 +61,7 @@ class VendController extends Controller
 			$refresh_token->setValue($result->refresh_token);
 			
 			$em->flush();
-			
+			dump($result);die;
 			return new Response($result);
 		}
 	}
@@ -77,6 +76,10 @@ class VendController extends Controller
 		switch ($mode) {
 			case 'product':
 				$url = 'products';
+				if (isset($data['page']))
+					$url .= '?page='. $data['page'];
+				if (isset($data['id']))
+					$url .= '/'. $data['id'];
 				$entity = 'ArchProduct';
 				break;
 			case 'product_edit':
@@ -85,6 +88,8 @@ class VendController extends Controller
 				break;
 			case 'customer':
 				$url = 'customers';
+				if (isset($data['page']))
+					$url .= '?page='. $data['page'];
 				$entity = 'User';
 				break;
 			case 'customer_view':
@@ -116,8 +121,9 @@ class VendController extends Controller
 				$entity = 'ArchPaymentType';
 				break;
 		}
-		$result = $this->get('app.vend')->getVend($url);
 		
+		$result = $this->get('app.vend')->getVend($url);
+
 		if (!$result) // failed
 			return new Response('Error connecting to Vend API');
 
@@ -127,156 +133,68 @@ class VendController extends Controller
 			case 'product':
 			case 'product_edit':
 				$msg = 'Product';
-				if ($mode = 'product')
+				if ($mode == 'product')
 					$msg .= 's';
-				$items = $result->products;
 				
-				$product_types = $product_tags = $product_brands = array();
-				foreach ($items as $item) {
-					// locally collect product_types, tags, brands *since they can't be directly pulled off API
-					$product_types = $this->addToArray($item->type, $product_types);
-					$product_brands = $this->addToArray($item->brand_name, $product_brands);
+				if (isset($result->pagination)) {
+					$pagination = $result->pagination;
 					
-					if (!empty($item->tags)) {
-						$tags = explode(', ', $item->tags);
-						foreach ($tags as $tag) 
-							if (!in_array($tag, $product_tags))
-								$product_tags[] = $tag;
-					}
-					
-					$product = $repository->findOneBy(array('id' => $item->id));
-					
-					if ($product == null) {
-						$product = new ArchProduct();
-						$product->setId(@$item->id);
-					}
+					while ($pagination->page < $pagination->pages) {
+						set_time_limit(120);
+						$items = $result->products;
 						
-					$product
-						->setProductType(@$item->type)
-						->setHandle(@$item->handle)
-						->setIsActive(@$item->active)
-						->setName(@$item->name)
-						->setBaseName(@$item->base_name)
-						->setTags(@$item->tags)
-						->setDescription(@$item->description)
-						->setBrandName(@$item->brand_name)
-						->setSupplierName(@$item->supplier_name)
-						->setVariantParentId(empty($item->variant_parent_id) ? null : $item->variant_parent_id)
-						->setVariantOptionOneName(@$item->variant_option_one_name)
-						->setVariantOptionOneValue(@$item->variant_option_one_value)
-						->setVariantOptionTwoName(@$item->variant_option_two_name)
-						->setVariantOptionTwoValue(@$item->variant_option_two_value)
-						->setVariantOptionThreeName(@$item->variant_option_three_name)
-						->setVariantOptionThreeValue(@$item->variant_option_three_value)
-						->setImage(@$item->image)
-						->setSku(@$item->sku)
-						->setSupplyPrice(@$item->supply_price)
-						->setRetailPrice(@$item->price) // retail_price = price when getting, retail_price = retail_price when posting w/o tax
-						->setPrice((@$item->price + @$item->tax))
-						->setTax(@$item->tax)
-						->setTaxId(@$item->tax_id)
-					;
-					
-					$em->persist($product);
-					
-					if (isset($item->inventory)) {
-						$default_outlet = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
-						foreach ($item->inventory as $inventory) {
-							if ($inventory->outlet_id == $default_outlet) {
-								$product
-									->setOutletId($inventory->outlet_id)
-									->setCount(isset($inventory->count) ? $inventory->count : 0)
-									->setReorderPoint(isset($inventory->reorder_point) ? $inventory->reorder_point : 0)
-									->setRestockLevel(isset($inventory->restock_level) ? $inventory->restock_level : 0)
-								;
-							}
+						$this->saveProducts($items, $repository, $em);
+						
+						$next_page = $pagination->page + 1;
+						
+						// throttle, 20 pages at a time
+						if ($next_page % 20 == 0) {
+							return new Response($next_page .'|'. $pagination->pages);
+							die;
 						}
+						
+						$result = $this->get('app.vend')->getVend('products?page='. $next_page);
+						
+						$pagination = $result->pagination;
 					}
-					
-					$em->flush();
 				}
-
-				$em->clear();
-				
-				// save product types, tags, brands
-				$this->saveProductData('ArchProductType', $product_types);
-				$this->saveProductData('ArchProductBrand', $product_brands);
-				$this->saveProductData('ArchProductTag', $product_tags);
-
+				else {
+					$items = $result->products;
+					$this->saveProducts($items, $repository, $em);
+				}
 				break;
 			case 'customer':
 			case 'customer_view':
 				$msg = 'Customer';
 				if ($mode == 'customer')
 					$msg .= 's';
-				$items = $result->customers;
 				
-				// pagination
 				if (isset($result->pagination)) {
+					$pagination = $result->pagination;
 					
-				}
-				
-				foreach ($items as $item) {
-					if (isset($item->email)) {
-						$customer = $repository->findOneBy(array('email' => $item->email));
-						
-						$name = explode(' ', $item->name);
-						$fname = array_shift($name);
-						$lname = implode(' ', $name);
-						if (count($customer) == 0) {
-							$customer = new User();
+					while ($pagination->page < $pagination->pages) {
 
-							$password_raw = $this->get('app.misc_functions')->generatePassword();
-							$factory = $this->get('security.encoder_factory');
-							
-							$encoder = $factory->getEncoder($customer);
-							$password = $encoder->encodePassword($password_raw, $customer->getSalt());
-							
-							$customer
-								->setUsername($item->email)
-								->setPassword($password)
-								->setEmail($item->email)
-								->setAccountType('Customer')
-							;
-							
+						set_time_limit(120);
+
+						$items = $result->customers;
+						$this->saveCustomers($items, $repository, $em);
+						
+						$next_page = $pagination->page + 1;
+						
+						// throttle, 20 pages at a time
+						if ($next_page % 20 == 0) {
+							return new Response($next_page .'|'. $pagination->pages);
+							die;
 						}
 						
-						$customer
-							->setCustomerId($item->id)
-							->setFirstName($fname)
-							->setLastName($lname)
-							->setFullName($item->name)
-							->setCompanyName(isset($item->company_name) ? $item->company_name : '')
-							->setCustomerCode(isset($item->customer_code) ? $item->customer_code : '')
-							->setUpdatedAt(empty($item->updated_at) ? \DateTime::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s")) : \DateTime::createFromFormat('Y-m-d H:i:s', $item->updated_at))
-							->setDeletedAt(empty($item->deleted_at) ? null : \DateTime::createFromFormat('Y-m-d H:i:s', $item->deleted_at))
-							->setDateOfBirth(empty($item->date_of_birth) ? null : \DateTime::createFromFormat('Y-m-d', $item->date_of_birth))
-							->setSex(@$item->sex)
-							->setBalance(@$item->balance)
-							->setYearToDate(@$item->year_to_date)
-							->setPhone(@$item->phone)
-							->setMobile(@$item->mobile)
-							->setFax(@$item->fax)
-							->setWebsite(@$item->website)
-							->setPhysicalAddress1(@$item->physical_address1)
-							->setPhysicalAddress2(@$item->physical_address2)
-							->setPhysicalSuburb(@$item->physical_suburb)
-							->setPhysicalCity(@$item->physical_city)
-							->setPhysicalState(@$item->physical_state)
-							->setPhysicalCountryId(@$item->physical_country_id)
-							->setPhysicalPostcode(@$item->physical_postcode)
-							->setPostalAddress1(@$item->physical_address1)
-							->setPostalAddress2(@$item->physical_address2)
-							->setPostalSuburb(@$item->physical_suburb)
-							->setPostalCity(@$item->physical_city)
-							->setPostalState(@$item->physical_state)
-							->setPostalCountryId(@$item->physical_country_id)
-							->setPostalPostcode(@$item->physical_postcode)
-						;
-					
-						$em->persist($customer);
-						$em->flush();
+						$result = $this->get('app.vend')->getVend('customers?page='. $next_page);
+						
+						$pagination = $result->pagination;
 					}
+				}
+				else {
+					$items = $result->customers;
+					$this->saveCustomers($items, $repository, $em);
 				}
 				break;
 			case 'sales':
@@ -400,22 +318,31 @@ class VendController extends Controller
 				break;
 			case 'supplier':
 				$msg = 'Suppliers';
-				$items = $result->suppliers;
-				foreach ($items as $item) {
-					$supplier = $repository->findOneBy(array('id' => $item->id));
+
+				$pages = (isset($result->pages)) ? $result->pages : 1;
+				
+				if ($pages > 1) {
+					$page = $result->page;
 					
-					if ($supplier == null)
-						$supplier = new ArchSupplier();
+					while ($page <= $result->pages) {
 						
-						$supplier
-							->setId($item->id)
-							->setName($item->name)
-							->setDescription(@$item->description)
-						;
+						set_time_limit(120);
+						$items = $result->suppliers;
+
+						$this->saveSuppliers($items, $repository, $em);
 						
-						$em->persist($supplier);
-						$em->flush();
+						$next_page = $page + 1;
+						
+						$result = $this->get('app.vend')->getVend('supplier?page='. $next_page);
+						
+						$page = $result->page;
+					}
 				}
+				else {
+					$items = $result->suppliers;
+					$this->saveSuppliers($items, $repository, $em);
+				}
+				
 				break;
 			case 'outlet':
 				$msg = 'Outlets';
@@ -501,6 +428,12 @@ class VendController extends Controller
 				case 'collection':
 					$entity = 'ArchProductCollection';
 					break;
+				case 'category':
+					$entity = 'ArchProductCategory';
+					break;
+				case 'discounter':
+					$entity = 'ArchProductDiscounter';
+					break;
 				case 'brand':
 					$entity = 'ArchProductBrand';
 					break;
@@ -534,7 +467,36 @@ class VendController extends Controller
 			switch ($data['action']) {
 				case 'active':
 					$item->setIsActive($data['value']);
+					
+					// discounter product discounts
+					if ($data['mode'] == 'discounter') {
+						if ($data['value'] == 1) {
+							// apply discount
+							$rate = $item->getRate();
+							$suffix = $item->getSuffix();
+							
+							foreach ($item->getProducts() as $product) {
+								$archProduct = $product->getProduct();
+								
+								$price = $archProduct->getPrice();
+								$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
+								$archProduct->setDiscountPrice($discounted_price);
+							}
+						}
+						else {
+							// remove discount
+							foreach ($item->getProducts() as $product) {
+								$archProduct = $product->getProduct();
+								$archProduct->setDiscountPrice(null);
+							}
+						}
+					}
+					
 					$data['value'] ? $msg .= ' enabled' : $msg .= ' disabled';
+					break;
+				case 'pre_sell':
+					$item->setPreSell($data['value']);
+					$data['value'] ? $msg .= ' pre-selling enabled' : $msg .= ' pre-selling disabled';
 					break;
 				case 'default':
 					if ($data['value'] == 1)
@@ -586,6 +548,169 @@ class VendController extends Controller
 		}
 		
 		$em->flush();
+	}
+
+	private function saveProducts($items, $repository, $em) {
+		$product_types = $product_tags = $product_brands = array();
+		
+		foreach ($items as $item) {
+			// locally collect product_types, tags, brands *since they can't be directly pulled off API
+			$product_types = $this->addToArray($item->type, $product_types);
+			$product_brands = $this->addToArray($item->brand_name, $product_brands);
+			
+			if (!empty($item->tags)) {
+				$tags = explode(', ', $item->tags);
+				foreach ($tags as $tag)
+					if (!in_array($tag, $product_tags))
+						$product_tags[] = $tag;
+			}
+			
+			$product = $repository->findOneBy(array('id' => $item->id));
+			
+			if ($product == null) {
+				$product = new ArchProduct();
+				$product
+					->setId(@$item->id)
+					->setIsActive(0)
+				;
+			}
+			
+			$product
+				->setProductType(@$item->type)
+				->setHandle(@$item->handle)
+				->setName(@$item->name)
+				->setVendActive(@$item->active)
+				->setBaseName(@$item->base_name)
+				->setTags(@$item->tags)
+				->setDescription(@$item->description)
+				->setBrandName(@$item->brand_name)
+				->setSupplierName(@$item->supplier_name)
+				->setVariantParentId(empty($item->variant_parent_id) ? null : $item->variant_parent_id)
+				->setVariantOptionOneName(@$item->variant_option_one_name)
+				->setVariantOptionOneValue(@$item->variant_option_one_value)
+				->setVariantOptionTwoName(@$item->variant_option_two_name)
+				->setVariantOptionTwoValue(@$item->variant_option_two_value)
+				->setVariantOptionThreeName(@$item->variant_option_three_name)
+				->setVariantOptionThreeValue(@$item->variant_option_three_value)
+				->setImage(@$item->image)
+				->setSku(@$item->sku)
+				->setSupplyPrice(@$item->supply_price)
+				->setRetailPrice(@$item->price) // retail_price = price when getting, retail_price = retail_price when posting w/o tax
+				->setPrice((@$item->price + @$item->tax))
+				->setTax(@$item->tax)
+				->setTaxId(@$item->tax_id)
+				->setUpdatedAt(empty($item->updated_at) ? \DateTime::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s")) : \DateTime::createFromFormat('Y-m-d H:i:s', $item->updated_at))
+				->setDeletedAt(empty($item->deleted_at) ? null : \DateTime::createFromFormat('Y-m-d H:i:s', $item->deleted_at))
+			;
+			
+			$em->persist($product);
+			
+			if (isset($item->inventory)) {
+				$default_outlet = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
+				foreach ($item->inventory as $inventory) {
+					if ($inventory->outlet_id == $default_outlet) {
+						$product
+							->setOutletId($inventory->outlet_id)
+							->setCount(isset($inventory->count) ? $inventory->count : 0)
+							->setReorderPoint(isset($inventory->reorder_point) ? $inventory->reorder_point : 0)
+							->setRestockLevel(isset($inventory->restock_level) ? $inventory->restock_level : 0)
+						;
+					}
+				}
+			}
+			
+			$em->flush();
+		}
+		
+		$em->clear();
+		
+		// save product types, tags, brands
+		$this->saveProductData('ArchProductType', $product_types);
+		$this->saveProductData('ArchProductBrand', $product_brands);
+		$this->saveProductData('ArchProductTag', $product_tags);
+	}
+	
+	private function saveCustomers($items, $repository, $em) {
+		foreach ($items as $item) {
+			if (isset($item->email)) {
+				$customer = $repository->findOneBy(array('email' => $item->email));
+				
+				$name = explode(' ', $item->name);
+				$fname = array_shift($name);
+				$lname = implode(' ', $name);
+				if (count($customer) == 0) {
+					$customer = new User();
+					
+					$password_raw = $this->get('app.misc_functions')->generatePassword();
+					$factory = $this->get('security.encoder_factory');
+					
+					$encoder = $factory->getEncoder($customer);
+					$password = $encoder->encodePassword($password_raw, $customer->getSalt());
+					
+					$customer
+					->setUsername($item->email)
+					->setPassword($password)
+					->setEmail($item->email)
+					->setAccountType('Customer')
+					;
+					
+				}
+				
+				$customer
+					->setCustomerId($item->id)
+					->setFirstName($fname)
+					->setLastName($lname)
+					->setFullName($item->name)
+					->setCompanyName(isset($item->company_name) ? $item->company_name : '')
+					->setCustomerCode(isset($item->customer_code) ? $item->customer_code : '')
+					->setUpdatedAt(empty($item->updated_at) ? \DateTime::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s")) : \DateTime::createFromFormat('Y-m-d H:i:s', $item->updated_at))
+					->setDeletedAt(empty($item->deleted_at) ? null : \DateTime::createFromFormat('Y-m-d H:i:s', $item->deleted_at))
+					->setDateOfBirth(empty($item->date_of_birth) ? null : \DateTime::createFromFormat('Y-m-d', $item->date_of_birth))
+					->setSex(@$item->sex)
+					->setBalance(@$item->balance)
+					->setYearToDate(@$item->year_to_date)
+					->setPhone(@$item->phone)
+					->setMobile(@$item->mobile)
+					->setFax(@$item->fax)
+					->setWebsite(@$item->website)
+					->setPhysicalAddress1(@$item->physical_address1)
+					->setPhysicalAddress2(@$item->physical_address2)
+					->setPhysicalSuburb(@$item->physical_suburb)
+					->setPhysicalCity(@$item->physical_city)
+					->setPhysicalState(@$item->physical_state)
+					->setPhysicalCountryId(@$item->physical_country_id)
+					->setPhysicalPostcode(@$item->physical_postcode)
+					->setPostalAddress1(@$item->physical_address1)
+					->setPostalAddress2(@$item->physical_address2)
+					->setPostalSuburb(@$item->physical_suburb)
+					->setPostalCity(@$item->physical_city)
+					->setPostalState(@$item->physical_state)
+					->setPostalCountryId(@$item->physical_country_id)
+					->setPostalPostcode(@$item->physical_postcode)
+				;
+				
+				$em->persist($customer);
+				$em->flush();
+			}
+		}
+	}
+	
+	private function saveSuppliers($items, $repository, $em) {
+		foreach ($items as $item) {
+			$supplier = $repository->findOneBy(array('id' => $item->id));
+			
+			if ($supplier == null)
+				$supplier = new ArchSupplier();
+				
+			$supplier
+				->setId($item->id)
+				->setName($item->name)
+				->setDescription(@$item->description)
+			;
+				
+			$em->persist($supplier);
+			$em->flush();
+		}
 	}
 }
 ?>

@@ -11,8 +11,9 @@ services:
     app.file_uploader:
         class: AppBundle\FileUploader
         arguments: ['%root_directory%']
-    app.image_resizer:
-        class: AppBundle\ImageResizer
+    app.image_functions:
+        class: AppBundle\ImageFunctions
+        arguments: ['%root_directory%', '@app.misc_functions']
     app.misc_functions:
         class: AppBundle\MiscFunctions
     app.vend:

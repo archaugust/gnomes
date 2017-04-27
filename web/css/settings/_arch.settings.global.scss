@@ -1,0 +1,30 @@
+///* ========================================================================
+//   #GLOBAL
+//   ======================================================================== */
+// The global settings file contains any project-wide variables; things that
+// need to be made available to the entire codebase.
+
+// Standardise some UI treatments.
+$global-radius: 0;
+$global-transition: (1/3) + s;
+
+$global-primary-color: #00b7eb;
+$global-primary-color-hover: #000;
+$global-secondary-color: #ededed;
+
+$global-font-family-1: 'Biryani', sans-serif;
+$global-font-weight: 300;
+$global-font-color: #262626;
+
+$inuit-global-font-size:   12px;
+$inuit-global-line-height: 18px;
+$inuit-wrapper-width: 1180px;
+
+$inuit-font-size-h1:  46px !default;
+$inuit-font-size-h2:  31px !default;
+$inuit-font-size-h3:  26px !default;
+$inuit-font-size-h4:  20px !default;
+$inuit-font-size-h5:  18px !default;
+$inuit-font-size-h6:  16px !default;
+
+$inuit-fractions: 1 2 3 4 5 6;

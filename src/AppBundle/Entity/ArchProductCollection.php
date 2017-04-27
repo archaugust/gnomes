@@ -22,6 +22,11 @@ class ArchProductCollection
      * @ORM\Column(type="string", length=50)
      */
     private $name;
+
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $handle;
     
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -42,6 +47,21 @@ class ArchProductCollection
     /**
      * @ORM\Column(type="text", nullable=true)
      */
+    private $banner_text;
+    
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $banner_text_color;
+    
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $banner_overlay;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
     private $meta_title;
     
     /**
@@ -50,12 +70,19 @@ class ArchProductCollection
     private $meta_description;
     
     /**
-     * @ORM\OneToMany(targetEntity="ArchProductType", mappedBy="collection")
+     * @ORM\OneToMany(targetEntity="ArchProductCollectionFilter", mappedBy="collection")
      */
-    private $product_types;
+    private $filters;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="ArchProductCollectionProduct", mappedBy="collection")
+     */
+    private $products;
     
     public function __construct() {
-    	$this->categories = new ArrayCollection();
+    	$this->is_active = 1;
+    	$this->filters = new ArrayCollection();
+    	$this->products = new ArrayCollection();
     }
 
     /**
@@ -93,6 +120,30 @@ class ArchProductCollection
     }
 
     /**
+     * Set handle
+     *
+     * @param string $handle
+     *
+     * @return ArchProductCollection
+     */
+    public function setHandle($handle)
+    {
+        $this->handle = $handle;
+
+        return $this;
+    }
+
+    /**
+     * Get handle
+     *
+     * @return string
+     */
+    public function getHandle()
+    {
+        return $this->handle;
+    }
+
+    /**
      * Set description
      *
      * @param string $description
@@ -114,40 +165,6 @@ class ArchProductCollection
     public function getDescription()
     {
         return $this->description;
-    }
-
-    /**
-     * Add productType
-     *
-     * @param \AppBundle\Entity\ArchProductType $productType
-     *
-     * @return ArchProductCollection
-     */
-    public function addProductType(\AppBundle\Entity\ArchProductType $productType)
-    {
-        $this->product_types[] = $productType;
-
-        return $this;
-    }
-
-    /**
-     * Remove productType
-     *
-     * @param \AppBundle\Entity\ArchProductType $productType
-     */
-    public function removeProductType(\AppBundle\Entity\ArchProductType $productType)
-    {
-        $this->product_types->removeElement($productType);
-    }
-
-    /**
-     * Get productTypes
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getProductTypes()
-    {
-        return $this->product_types;
     }
 
     /**
@@ -199,6 +216,54 @@ class ArchProductCollection
     }
 
     /**
+     * Set bannerText
+     *
+     * @param string $bannerText
+     *
+     * @return ArchProductCollection
+     */
+    public function setBannerText($bannerText)
+    {
+        $this->banner_text = $bannerText;
+
+        return $this;
+    }
+
+    /**
+     * Get bannerText
+     *
+     * @return string
+     */
+    public function getBannerText()
+    {
+        return $this->banner_text;
+    }
+
+    /**
+     * Set bannerOverlay
+     *
+     * @param boolean $bannerOverlay
+     *
+     * @return ArchProductCollection
+     */
+    public function setBannerOverlay($bannerOverlay)
+    {
+        $this->banner_overlay = $bannerOverlay;
+
+        return $this;
+    }
+
+    /**
+     * Get bannerOverlay
+     *
+     * @return boolean
+     */
+    public function getBannerOverlay()
+    {
+        return $this->banner_overlay;
+    }
+
+    /**
      * Set metaTitle
      *
      * @param string $metaTitle
@@ -244,5 +309,97 @@ class ArchProductCollection
     public function getMetaDescription()
     {
         return $this->meta_description;
+    }
+
+    /**
+     * Add filter
+     *
+     * @param \AppBundle\Entity\ArchProductCollectionFilter $filter
+     *
+     * @return ArchProductCollection
+     */
+    public function addFilter(\AppBundle\Entity\ArchProductCollectionFilter $filter)
+    {
+        $this->filters[] = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Remove filter
+     *
+     * @param \AppBundle\Entity\ArchProductCollectionFilter $filter
+     */
+    public function removeFilter(\AppBundle\Entity\ArchProductCollectionFilter $filter)
+    {
+        $this->filters->removeElement($filter);
+    }
+
+    /**
+     * Get filters
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    /**
+     * Add product
+     *
+     * @param \AppBundle\Entity\ArchProductCollectionProduct $product
+     *
+     * @return ArchProductCollection
+     */
+    public function addProduct(\AppBundle\Entity\ArchProductCollectionProduct $product)
+    {
+        $this->products[] = $product;
+
+        return $this;
+    }
+
+    /**
+     * Remove product
+     *
+     * @param \AppBundle\Entity\ArchProductCollectionProduct $product
+     */
+    public function removeProduct(\AppBundle\Entity\ArchProductCollectionProduct $product)
+    {
+        $this->products->removeElement($product);
+    }
+
+    /**
+     * Get products
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getProducts()
+    {
+        return $this->products;
+    }
+
+    /**
+     * Set bannerTextColor
+     *
+     * @param boolean $bannerTextColor
+     *
+     * @return ArchProductCollection
+     */
+    public function setBannerTextColor($bannerTextColor)
+    {
+        $this->banner_text_color = $bannerTextColor;
+
+        return $this;
+    }
+
+    /**
+     * Get bannerTextColor
+     *
+     * @return boolean
+     */
+    public function getBannerTextColor()
+    {
+        return $this->banner_text_color;
     }
 }

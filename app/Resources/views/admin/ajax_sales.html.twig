@@ -3,7 +3,7 @@
 <form method="get" id="filter-form">
 	<div class="btn-filter">
 		Filter sales <i class="fa fa-caret-down"></i>
-    	<div class="filter-box">
+    	<div class="dropdown-box" id="filter-box">
     		<p>Show all sales where:</p>
     		<input type="text" name="date_from" placeholder="Dated after" class="form-control datepicker" />
     		<input type="text" name="date_to" placeholder="Dated before" class="form-control datepicker" />
@@ -19,7 +19,7 @@
 		{% endif %}
 	{% endfor %}
 </div>
-<table class="table table-striped">
+<table class="table table-hover">
 	<thead>
 		<tr>
 			<th class="sort"><a href="?sort=o.sale_date{% if sort['name'] == 'o.sale_date' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Date <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Date{% endif %}</a></th>

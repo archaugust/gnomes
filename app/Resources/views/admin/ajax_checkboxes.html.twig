@@ -1,0 +1,7 @@
+<div class="checkboxes">
+{% for item in items %}
+	<label for="{{ item.id }}">
+		<input type="checkbox" name="{{ field_name }}[]" value="{{ item.id }}" id="{{ item.id }}"> {{ item.name }}
+	</label>
+{% endfor %}
+</div>

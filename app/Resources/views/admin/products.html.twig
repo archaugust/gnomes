@@ -1,28 +1,51 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Products{% endblock %}
-{% block menu_sub %}
-    {% include('admin/submenu_products.html.twig') %}
-{% endblock %}
 {% block content %}
 <div class="content">
 	<div class="content-header">
 		<span><i class="fa fa-fw fa-tags"></i></span> Products
 		<div class="pull-right">
             <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Product</a>
+			<div class="btn-dropdown btn-collection">
+				<div class="btn btn-primary">Add Collection</div>
+            	<div class="dropdown-box" id="collection-box">
+    	            <form method="post">
+                		<p>Create a collection from currently filtered products:</p>
+                		<input type="text" name="collection_name" placeholder="Collection name" class="form-control" required="required">
+                		<input type="submit" class="btn btn-primary" value="Add Collection">
+    	            </form>
+                </div>
+            </div>
+			<div class="btn-dropdown btn-discounter">
+				<div class="btn btn-primary">Add Discount Group</div>
+            	<div class="dropdown-box" id="discounter-box">
+    	            <form method="post">
+                		<p>Create a discount group from currently filtered products:</p>
+                		<input type="text" name="discounter_name" placeholder="Discount Group name" class="form-control" required="required">
+                		<input type="text" name="rate" placeholder="Rate(%)*" class="form-control" required="required">
+                		<label for="suffix">Cents override</label>
+                		<input type="text" name="suffix" id="suffix" placeholder="Cents override" class="form-control" required="required" value="90">
+                		<input type="submit" class="btn btn-primary" value="Add Discount Group">
+    	            </form>
+                </div>
+            </div>
     		<div class="dropdown">
     			<a class="btn btn-default" id="vendConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Vend Reload</a>
               	<div class="dropdown-menu caption-box" aria-labelledby="vendConfirm">
                 	<h4>Confirm</h4>
                 	<p>Re-download Products data from Vend?</p>
+                	<p>IMPORTANT: This process will take several minutes, keep this page open until Reload is confirmed.</p>
+                	<p>The process will pause every 20 pages. A 'Continue' button will be shown at pauses until all pages are loaded.</p>
                 	<a id="vendReload" class="btn btn-primary">Proceed</a>
               	</div>
             </div>
+            <a href="javascript:" id="vendContinue" class="btn btn-primary hidden">Continue</a>
         </div>
 	</div>
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
-		<div class="arch-table">
+		<div class="arch-table" id="details">
 			<div class="header">
 				<a href="#" class="active">All Products</a>
 				<div class="pull-right paginator">
@@ -49,7 +72,7 @@
 				<form method="get" id="filter-form">
 					<div class="btn-filter">
 						Filter products <i class="fa fa-caret-down"></i>
-                    	<div class="filter-box">
+                    	<div class="dropdown-box" id="filter-box">
                     		Show all products where:
                     		<select class="form-control" name="f" id="filter-field">
                     			<option value="">Select a filter...</option>
@@ -57,10 +80,11 @@
                     			<option value="brand_name">Brand name</option>
                     			<option value="supplier_name">Supplier</option>
                     			<option value="tags">Tagged with</option>
-                    			<option value="is_active">Visibility</option>
+                    			<option value="pre_sell">Pre-selling</option>
+                    			<option value="is_active">Site Visibility</option>
+                    			<option value="vend_active">Vend Status</option>
                     		</select>
                     		<div id="filter-value"></div>
-                    		</select>
                     		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
 	                    </div>
                     </div>
@@ -68,13 +92,13 @@
 				</form>
             	<div class="filters">
             		{% for filter in filters %}
-            			{% if filter['label'] != '' %}
-            				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
-            			{% endif %}
+           				<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
             		{% endfor %}
             	</div>
+               	
 				<form method="post">
-				<table class="table table-striped">
+				
+				<table class="table table-hover">
 					<thead>
 						<tr>
     						<th class="check">
@@ -82,14 +106,18 @@
    	    							<input type="checkbox" id="check-all" />
         							<div class="with-checked">
     	    							<div id="selected"></div>
-                                		<div class="dropdown delete">
-                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Disable selected</a>
-                                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
-                                            	<h4>Confirm</h4>
-                                            	<p>Disable selected products?</p>
-                                            	<p>This will NOT disable product at Vend.</p>
-                                            	<input type="submit" class="btn btn-primary" value="Proceed" />
-                                          	</div>
+                                		<div class="dropdown">
+                                			<div class="btn btn-sm btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Actions <i class="fa fa-caret-down"></i></div>
+                                      		<ul class="dropdown-menu option-box">
+                                      			<li><a id="disableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Disable</a></li>
+                                      			<li><a id="enableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Enable</a></li>
+                                      			<li role="separator" class="divider"></li>
+                                      			<li><a id="addCollectionConfirm" type="button" data-toggle="modal" data-target="#selectModal">Add to Collection</a></li>
+                                      			<li><a id="removeCollectionConfirm" type="button" data-toggle="modal" data-target="#selectModal">Remove from Collection</a></li>
+                                      			<li role="separator" class="divider"></li>
+                                      			<li><a id="addDiscounterConfirm" type="button" data-toggle="modal" data-target="#selectModal">Add to Discount Group</a></li>
+                                      			<li><a id="removeDiscounterConfirm" type="button" data-toggle="modal" data-target="#selectModal">Remove from Discount Group</a></li>
+                                      		</ul>
                                         </div>
         							</div>
     							</div>
@@ -100,7 +128,9 @@
     						<th class="sort"><a href="?sort=product_type{% if sort['name'] == 'product_type' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Type <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Type{% endif %}</a></th>
     						<th class="sort"><a href="?sort=brand_name{% if sort['name'] == 'brand_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Brand <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Brand{% endif %}</a></th>
     						<th class="sort"><a href="?sort=supplier_name{% if sort['name'] == 'supplier_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Supplier <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Supplier{% endif %}</a></th>
-    						<th class="sort text-center"><a href="?sort=is_active{% if sort['name'] == 'is_active' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Active <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Active{% endif %}</a></th>
+    						<th class="sort text-center"><a href="?sort=pre_sell{% if sort['name'] == 'pre_sell' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Pre-sell <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Pre-sell{% endif %}</a></th>
+    						<th class="sort text-center"><a href="?sort=is_active{% if sort['name'] == 'is_active' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Site <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Site{% endif %}</a></th>
+							<th class="sort text-center"><a href="?sort=vend_active{% if sort['name'] == 'vend_active' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Vend <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Vend{% endif %}</a></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -120,29 +150,97 @@
                 			<td>
                 				<input type="checkbox" class="item" name="products[]" value="{{ item.id }}" />
                 			</td>
-                			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" alt="{{ item.name }}" /></td>
+                			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ item.image }}{% endif %}" alt="{{ item.name }}" /></td>
                 			<td><a href="{{ path('admin_product_edit', {'id':item.id}) }}">{{ item.baseName }}</a></td>
                 			<td align="center">{{ stock ~' in '~ (variantsCount + 1) ~' variant'~ s }}</td>
                 			<td><a href="?f=product_type&v={{ item.productType }}">{{ item.productType }}</a></td>
                 			<td><a href="?f=brand_name&v={{ item.brandName }}">{{ item.brandName }}</a></td>
                 			<td><a href="?f=supplier_name&v={{ item.supplierName }}">{{ item.supplierName }}</a></td>
                 			<td align="center">
+                				<a href="javascript:void(0)" class="toggle-pre_sell">
+                					<i class="fa fa-star{% if item.preSell != 1 %}-o" title="{% else %}" title="Not{% endif %} Pre-selling"></i>
+                				</a>
+                			</td>
+                			<td align="center">
                 				{% if 'Deleted' not in item.name %}
-                				<a href="javascript:;" class="toggle-active">
-                					<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
+                				<a href="javascript:void(0)" class="toggle-active">
+                					<i class="fa fa-star{% if item.isActive != 1 %}-o" title="Active{% else %}" title="Disabled{% endif %} at online store"></i>
                 				</a>
                 				{% endif %}
+                			</td>
+                			<td align="center">
+                				<i class="fa fa-star{% if item.vendActive != 1 %}-o" title="Active{% else %}" title="Disabled{% endif %} at Vend"></i>
                 			</td>
                 		</tr>
 						{% endfor %}
 					</tbody>
 				</table>
-				</form>
+
+				<input type="hidden" name="list_action" id="list_action" value="" />
+
+                <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4>Confirm</h4>
+                      </div>
+                      <div class="modal-body">
+                    	<p><span id="text_action"></span> selected items?</p>
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Proceed" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal fade" id="selectModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4><span id="select_title"></span></h4>
+                      </div>
+                      <div class="modal-body" id="select_list">
+                    	
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Save" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                </form>
 			</div>
-			
+			<div class="header">
+				<a href="#" class="active">All Products</a>
+				<div class="pull-right paginator">
+                    {% if paginator.prevUrl %}
+                        <a href="{{ paginator.prevUrl }}"><i class="fa fa-chevron-left"></i></a>
+                    {% endif %}
+
+                    {% for page in paginator.pages %}
+                        {% if page.url %}
+                            <a href="{{ page.url }}" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+                        {% else %}
+                            <a class="disabled"><span>{{ page.num }}</span></a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if paginator.nextUrl %}
+                        <a href="{{ paginator.nextUrl }}"><i class="fa fa-chevron-right"></i></a></li>
+                    {% endif %}
+				</div>
+			</div>
 		</div>
+		<br /><br />
 	</div>
 </div>
+
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -157,10 +255,18 @@
         {{ form_widget(form.base_name, {'attr':{'class':'hidden'}}) }}
         <div class="row">
         	<div class="col-md-6">
-                {{ form_row(form.brand_name) }}
+                {{ form_row(form.handle) }}
         	</div>
         	<div class="col-md-6">
-                {{ form_row(form.supplier_name) }}
+                {{ form_row(form.sku) }}
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.is_active) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.pre_sell) }}
         	</div>
         </div>
         <div class="row">
@@ -168,9 +274,15 @@
                 {{ form_row(form.product_type) }}
         	</div>
         	<div class="col-md-6">
-                {{ form_row(form.sku) }}
+                {{ form_row(form.brand_name) }}
         	</div>
         </div>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.supplier_name) }}
+        	</div>
+		</div>        
+        {{ form_row(form.tags) }}
         <hr />
         <label for="images">Images</label>
         <fieldset class="form-group">
@@ -185,8 +297,9 @@
                 {% endfor %}
             </ul>
         </fieldset>
+        {{ form_row(form.meta_title) }}
+        {{ form_row(form.meta_description) }}
         {{ form_row(form.description) }}
-        {{ form_row(form.tags) }}
         {{ form_row(form.video) }}
         <hr />
         <h4>Pricing</h4>
@@ -263,6 +376,7 @@
   </div>
 </div>
 <input type="hidden" id="mode" value="product" />
+<input type="hidden" id="vend_page" value="0" />
 {% endblock %}
 {% block stylesheets %}
     {{ parent() }}
@@ -270,9 +384,19 @@
 {% endblock %}
 {% block javascripts %}
 {{ parent() }}
+
 <script src="{{ asset('js/tags.js') }}"></script>
 <script src="{{ asset('js/notify.min.js') }}"></script>
 <script>
+$(function(){
+	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
+	$('#submenu-products').addClass('active');
+	$('.btn-dropdown').click(function (){
+		$(this).find('.dropdown-box').slideToggle();
+	});
+})
+
 $('#arch_products_name').change(function(){
 	$('#arch_products_base_name').val($(this).val());
 });
@@ -370,7 +494,7 @@ $(function() {
 
 </script>
 <script src="{{ asset('js/ajax-reload.js?id='~ 'now'|date('U')) }}"></script>
-<script src="{{ asset('js/ajax-products.js') }}"></script>
-<script src="{{ asset('js/checkbox.js') }}"></script>
+<script src="{{ asset('js/ajax-products.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
 <script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
 {% endblock %}

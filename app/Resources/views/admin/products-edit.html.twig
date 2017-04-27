@@ -1,9 +1,6 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Products - {{ item.baseName }}{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_products.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
 	<div class="content-header">
@@ -37,35 +34,67 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
+			<div class="details" id="details">
 				<div class="row">
 					<div class="col-md-10">
 						<div>{{ item.description|raw }}</div>
-						{% for tag in item.tags|split(', ') %}
+						{% for tag in item.tags|split(',') %}
 							<a href="javascript:" class="btn btn-xs btn-default">{{ tag }}</a>
 						{% endfor %}
 						<hr class="dotted" />
-						<div class="row pv-2">
-							<div class="col-md-1"><b>Type</b></div>
-							<div class="col-md-5">{{ item.productType }}</div>
-							{% if item.sku %}
-							<div class="col-md-1"><b>SKU</b></div>
-							<div class="col-md-5">{{ item.sku }}</div>
-							{% endif %}
-						</div>
-						<div class="row pv-2">
-							<div class="col-md-1"><b>Brand</b></div>
-							<div class="col-md-5">{{ item.brandName }}</div>
-							<div class="col-md-1"><b>Handle</b></div>
-							<div class="col-md-5">{{ item.handle }}</div>
-						</div>
-						<div class="row pv-2">
-							<div class="col-md-1"><b>Supplier</b></div>
-							<div class="col-md-5">{{ item.supplierName }}</div>
+						<div class="row">
+							<div class="col-md-8">
+        						<div class="row pv-2">
+        							<div class="col-md-2"><b>Type</b></div>
+        							<div class="col-md-4">{{ item.productType }}</div>
+        							{% if item.sku %}
+        							<div class="col-md-2"><b>SKU</b></div>
+        							<div class="col-md-4">{{ item.sku }}</div>
+        							{% endif %}
+        						</div>
+        						<div class="row pv-2">
+        							<div class="col-md-2"><b>Brand</b></div>
+        							<div class="col-md-4">{{ item.brandName }}</div>
+        							<div class="col-md-2"><b>Handle</b></div>
+        							<div class="col-md-4">{{ item.handle }}</div>
+        						</div>
+        						<div class="row pv-2">
+        							<div class="col-md-2"><b>Supplier</b></div>
+        							<div class="col-md-4">{{ item.supplierName }}</div>
+        							{% if item.preSell == 1 %}
+        							<div class="col-md-2"><b>Pre-selling</b></div>
+        							<div class="col-md-4">Active</div>
+        							{% endif %}
+        						</div>
+        					</div>
+        					<div class="col-md-4">
+        						{% if collections|length > 0 %}
+        							<b>Collections</b>
+    								{% for collection in collections %}
+    								<div class="pv-2">
+    									<a href="{{ path('admin_collection_edit', {'id':collection.collection.id}) }}">{{ collection.collection.name }}</a>
+    								</div>
+    								{% endfor %}
+        						{% endif %}
+        					</div>
 						</div>
 					</div>
 					<div class="col-md-2">
-						<img src="{% if item.images|length %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" alt="{{ item.name }}" class="img-responsive" />
+						{% if item.images|length > 0 %}
+						<div class="row">
+							{% for image in item.images %}
+								<div class="col-md-{% if loop.first %}12{% else %}6 col-xs-6{% endif %}">
+									<a href="#" data-toggle="modal" data-target="#lightbox">
+										<img src="{{ asset('images/products/thumb/'~ image.filename) }}" alt="{{ item.name }}" class="img-responsive" />
+									</a>
+								</div>
+							{% endfor %}
+						</div>
+						{% else %}
+							<a href="#" data-toggle="modal" data-target="#lightbox">
+								<img src="{{ item.image }}" alt="{{ item.name }}" class="img-responsive" />
+							</a>
+						{% endif %}
 					</div>
 				</div>
 			</div>
@@ -75,7 +104,7 @@
 			<h3><i class="fa fa-fw fa-book"></i> Inventory</h3>
     		<div class="arch-table">
     			<div class="extra">
-    				<table class="table table-striped">
+    				<table class="table table-hover">
     					<thead>
     						<tr>
     							<th class="check"></th>
@@ -90,6 +119,7 @@
         					{% endif %}
         						<th class="sort">SKU</a></th>
         						<th class="sort text-right">Price</a></th>
+        						<th class="sort text-right">Discounted</a></th>
         						<th class="sort text-right">In stock</th>
         						<th class="sort text-center">Active</th>
     						</tr>
@@ -109,7 +139,8 @@
     							<td>{{ item.variantOptionThreeValue }}</td>
         					{% endif %}
     							<td>{{ item.sku }}</td>
-    							<td align="right">{{ (item.retailPrice + item.tax)|number_format(2,'.',',') }}</td>
+    							<td align="right">{{ item.Price|number_format(2,'.',',') }}</td>
+    							<td align="right">{% if item.discountPrice > 0 %}{{ item.discountPrice|number_format(2,'.',',') }}{% else %}-{% endif %}</td>
     							<td align="right">{{ item.count }}</td>
     							<td align="center">Default</td>
     						</tr>
@@ -133,7 +164,7 @@
     							<td align="right">{{ (variant.retailPrice + variant.tax)|number_format(2,'.',',') }}</td>
     							<td align="right">{{ variant.count }}</td>
     							<td align="center">
-        							<a href="javascript:;" {% if item.isActive %}class="toggle-active"{% else %}data-toggle="tooltip" data-placement="left" title="Parent product is disabled"{% endif %}>
+        							<a href="javascript:void(0)" {% if item.isActive %}class="toggle-active"{% else %}data-toggle="tooltip" data-placement="left" title="Parent product is disabled"{% endif %}>
                     					<i class="fa fa-star{% if variant.isActive == 0 %}-o{% endif %}"></i>
                     				</a>
                     			</td>
@@ -159,10 +190,18 @@
         {{ form_widget(form.name, {'attr':{'class':'hidden'}}) }}
         <div class="row">
         	<div class="col-md-6">
-                {{ form_row(form.brand_name) }}
+                {{ form_row(form.handle) }}
         	</div>
         	<div class="col-md-6">
-                {{ form_row(form.supplier_name) }}
+                {{ form_row(form.sku) }}
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.is_active) }}
+        	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.pre_sell) }}
         	</div>
         </div>
         <div class="row">
@@ -170,9 +209,15 @@
                 {{ form_row(form.product_type) }}
         	</div>
         	<div class="col-md-6">
-                {{ form_row(form.sku) }}
+                {{ form_row(form.brand_name) }}
         	</div>
         </div>
+        <div class="row">
+        	<div class="col-md-6">
+                {{ form_row(form.supplier_name) }}
+        	</div>
+		</div>        
+        {{ form_row(form.tags) }}
         <hr />
         <label for="images">Images</label>
         <fieldset class="form-group">
@@ -180,15 +225,24 @@
             <ul id="images" class="images list-unstyled" data-prototype="{{ form_widget(form.images.vars.prototype)|e('html_attr') }}">
                 {% for image in form.images %}
                     <li class="tag-group col-md-3">
-                        <img src="{{ asset('images/products/thumb/'~ image.vars.value.filename) }}" class="img-responsive mb-15" />
-                        <div class="hidden">{{ form_row(image.filename) }}</div>
+                        <a href="#" data-toggle="modal" data-target="#lightbox">
+                        	<img src="{{ asset('images/products/thumb/'~ image.vars.value.filename) }}" class="img-responsive mb-15" />
+                        </a>
+                        {{ image.vars.value.description }}
+                        <div class="hidden">{{ form_row(image.filename) }}{{ form_row(image.description) }}</div>
                         <input type="hidden" name="image[]" value="{{ image.vars.value.id }}" />
                     </li>
                 {% endfor %}
             </ul>
         </fieldset>
+        <hr />
+        <div>
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+        <hr />
         {{ form_row(form.description) }}
-        {{ form_row(form.tags) }}
+        {{ form_row(form.meta_title) }}
+        {{ form_row(form.meta_description) }}
         {{ form_row(form.video) }}
         <hr />
         <h4>Pricing</h4>
@@ -267,6 +321,16 @@
 <input type="hidden" id="mode" value="product_edit" />
 <input type="hidden" id="get_id" value="{{ item.id }}" />
 
+<div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lightboxLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">×</button>
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="" alt="" />
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% block stylesheets %}
     {{ parent() }}
@@ -280,19 +344,8 @@
 $(function(){
 
 	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
 	$('#submenu-products').addClass('active');
-	$('.btn-filter').click(function (){
-		$('.filter-box').slideToggle();
-	});
-	$('html').click(function() {
-		$('.filter-box').slideUp();
-	});
-	$('.btn-filter').click(function(event){
-		event.stopPropagation();
-	});
-	$('.filter-box').click(function(event){
-		event.stopPropagation();
-	});
 
 	$('#arch_products_brand_name').val('{{ item.brandName }}');
 	$('#arch_products_supplier_name').val('{{ item.supplierName }}');
@@ -371,7 +424,7 @@ function addImageForm($collectionHolder, $newLinkLi) {
 
     $collectionHolder.data('index', index + 1);
 
-    var $newFormLi = $('<li class="tag-group"></li>').append(newForm);
+    var $newFormLi = $('<li class="tag-group col-md-12"></li>').append(newForm);
     $newLinkLi.before($newFormLi);
 
     addImageFormDeleteLink($newFormLi);

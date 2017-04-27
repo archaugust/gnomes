@@ -8,7 +8,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 class ArchProductTypeType extends AbstractType
 {
@@ -28,15 +27,6 @@ class ArchProductTypeType extends AbstractType
             		'required' => false,
             		'label' => 'Image',
             ))
-            ->add('collection', EntityType::class,
-            		array(
-            				'class' => 'AppBundle:ArchProductCollection',
-            				'choice_label' => 'name',
-            				'choice_value' => 'id',
-            				'placeholder' => 'Select Collection',
-            				'required' => false
-            		)
-            )
             ->add('meta_title', TextType::class, array(
             		'label' => 'Meta Title',
             		'required' => false

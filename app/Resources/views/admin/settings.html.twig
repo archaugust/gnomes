@@ -1,8 +1,5 @@
 {% extends 'base_admin.html.twig' %}
 {% block title %}Settings / Vend API Integragtion{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_settings.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
    	<form method="POST">
@@ -15,7 +12,7 @@
     	<div class="row">
     		<div class="col-md-6">
             	<div class="arch-table">
-            		<div class="details">
+            		<div class="details" id="details">
                     {% if mode == 'vend-api' %}<p class="mb-15"><b>WARNING: </b>Incorrect settings can break the site's connection to the Vend API.</p>{% endif %}
                 	{% for field in config %}
                 		<div class="mb-15">
@@ -40,6 +37,7 @@
 <script>
 $(function(){
 	$('#menu-settings').addClass('active');
+	$('#sub-menu-settings').removeClass('hidden');
 	$('#submenu-{{ mode }}').addClass('active');
 })
 </script>

@@ -1,24 +1,19 @@
 {% form_theme form 'bootstrap_3_layout.html.twig' %}
 {% extends 'base_admin.html.twig' %}
 {% block title %}Collections{% endblock %}
-{% block menu_sub %}
-	{{ include('admin/submenu_products.html.twig') }}
-{% endblock %}
 {% block content %}
 <div class="content">
 	<div class="content-header">
 		<span><i class="fa fa-fw fa-tags"></i> <a href="{{ path('admin_product') }}">Products</a> / </span> Collections
-		<div class="pull-right">
-            <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Collection</a>
-        </div>
+		<div class="pull-right"><a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Collection</a></div>
 	</div>
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
-				<p>Collections are categories of product types. Only active collections are shown in menus.</p>
+			<div class="details" id="details">
+				<p>Only active collections are shown in menus.</p>
 				<form method="post">
-				<table class="table table-striped">
+				<table class="table table-hover">
 					<thead>
 						<tr>
     						<th class="check">
@@ -26,20 +21,23 @@
    	    							<input type="checkbox" id="check-all" />
         							<div class="with-checked">
     	    							<div id="selected"></div>
-                                		<div class="dropdown delete">
-                                			<a id="deleteConfirm" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Disable selected</a>
-                                          	<div class="dropdown-menu delete-box" aria-labelledby="deleteConfirm">
-                                            	<h4>Confirm</h4>
-                                            	<p>Disable selected Collections?</p>
-                                            	<input type="submit" class="btn btn-primary" value="Proceed" />
-                                          	</div>
+                                		<div class="dropdown">
+                                			<div class="btn btn-sm btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Actions <i class="fa fa-caret-down"></i></div>
+                                      		<ul class="dropdown-menu option-box">
+                                      			<li><a id="disableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Disable</a></li>
+                                      			<li><a id="enableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Enable</a></li>
+                                      			<li role="separator" class="divider"></li>
+                                      			<li><a id="deleteConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Delete</a></li>
+                                      		</ul>
                                         </div>
         							</div>
     							</div>
     						</th>
     						<th class="thumb"></th>
     						<th>Name</th>
-    						<th class="th-toggle">Active</th>
+    						<th>Filters</th>
+    						<th class="text-center">Products</th>
+    						<th class="text-center th-toggle">Active</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -47,21 +45,39 @@
 						<tr class="order">
 							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
 							<td><img src="{% if item.image %}{{ asset('images/collections/thumb/'~ item.image) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" class="img-responsive" alt="{{ item.name }}" /></td>
-							<td>
-								<a href="#" class="more-info" id="{{ item.id }}"><i class="fa fa-caret-right"></i>{{ item.name }}</a> 
-							</td>
+							<td><a href="{{ path('admin_collection_edit', {'id': item.id}) }}">{{ item.name }}</a></td>
+							<td>{{ render(controller('ShopBundle:Action:filters', {'mode':'collection','id':item.id})) }}</td>
+							<td align="center">{{ item.products|length }}</td>
 							<td align="center">
-								<a href="javascript:;" class="toggle-active">
+								<a href="javascript:void(0)" class="toggle-active">
 									<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
 								</a>
 							</td>
 						</tr>
-						<tr class="order-details {{ item.id }}">
-							<td colspan="5" class="ajax-content"></td>
-						</tr>
 					{% endfor %}
 					</tbody>
 				</table>
+
+				<input type="hidden" name="list_action" id="list_action" value="" />
+
+                <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4>Confirm</h4>
+                      </div>
+                      <div class="modal-body">
+                    	<p><span id="text_action"></span> selected items?</p>
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Proceed" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
 				</form>
 			</div>
 		</div>
@@ -70,38 +86,32 @@
 
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
   <div class="modal-dialog" role="document">
-    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
-    {{ form_errors(form) }}
     <div class="modal-content">
+      {{ form_start(form, { attr: {'id':'form'} }) }}
+      {{ form_errors(form) }}
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="addModalLabel">Add Collection</h4>
       </div>
       <div class="modal-body">
-  		<div class="row">
-  			<div class="col-md-6">
-                {{ form_row(form.name) }}
-  			</div>
-  			<div class="col-md-6">
-                {{ form_row(form.is_active) }}
-  			</div>
-  		</div>
-        {{ form_row(form.meta_title) }}
-        {{ form_row(form.meta_description) }}
-  		<div class="row">
-  			<div class="col-md-6">
-                {{ form_row(form.image) }}
-  			</div>
-  		</div>
-      </div>
+        {{ form_row(form.name) }}
+  		<hr />
+        <label for="filters">Filters</label>
+        <fieldset class="form-group">
+            <div class="clearfix"></div>
+            <ul id="filters" class="list-unstyled" data-prototype="{{ form_widget(form.filters.vars.prototype)|e('html_attr') }}">
+            </ul>
+        </fieldset>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
       </div>
+      {{ form_end(form) }}
     </div>
-    {{ form_end(form) }}
   </div>
 </div>
+
+
 <input type="hidden" id="mode" value="collection" />
 {% endblock %}
 
@@ -111,30 +121,106 @@
 <script>
 $(function(){
 	$('#menu-products').addClass('active');
+	$('#sub-menu-products').removeClass('hidden');
 	$('#submenu-collections').addClass('active');
 });
 
-$('.more-info').click(function(){
-	$(this).find('i').toggleClass('fa-caret-down').toggleClass('fa-caret-right');
+var mode = $('#mode').val();
 
-	id = $(this).attr('id');
-	$('.'+ id).fadeToggle();
-	ajax_content = $('.'+ id).find('.ajax-content');
+var $collectionHolder;
 
-	if (ajax_content.html() == '') {
-    	ajax_content.html('<i class="fa fa-2x fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>')
-        $.ajax({
-            url: "/admin/collection-list/"+ id,
-            data: "mode="+ mode,
-            success: function (data) {
-                ajax_content.hide().html(data).slideDown();
-            }
-        });
-	}
+var $addItemLink = $('<a href="#" class="add_item_link btn btn-default">Add Filter</a>');
+var $newLinkLi = $('<li></li>').append($addItemLink);
+
+jQuery(document).ready(function() {
+    $collectionHolder = $('ul#filters');
+
+    $collectionHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $collectionHolder.append($newLinkLi);
+
+    $collectionHolder.data('index', $collectionHolder.find(':input').length);
+
+    $addItemLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($collectionHolder, $newLinkLi);
+    });
 });
 
-var mode = $('#mode').val();
+function addItemForm($collectionHolder, $newLinkLi) {
+    var prototype = $collectionHolder.data('prototype');
+
+    var index = $collectionHolder.data('index');
+
+    var newForm = prototype.replace(/__name__/g, index);
+
+    $collectionHolder.data('index', index + 1);
+
+    var $newFormLi = $('<li></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+
+    addItemFormDeleteLink($newFormLi);
+
+    $('select.form-control').change(function(){
+        li = $(this).closest('li');
+    	var field = li.find('select').val();
+    	var id = li.find('div:eq(0)').attr('id').split('_').pop();
+
+    	if (field != '') {
+    		switch (field) {
+    			case 'tags':
+    				li.find('.form-control:eq(1)').replaceWith('<input name="arch_product_collection_new[filters]['+ id +'][value]" type="text" class="form-control" required="required">').slideDown();
+    				break;
+    			case 'is_active':
+    				li.find('.form-control:eq(1)').replaceWith('<select name="arch_product_collection_new[filters]['+ id +'][value]" class="form-control" required="required"><option value="">Select a value...</option><option value="1">visible in store</option><option value="0">not visible in store</option></select>').slideDown();
+    				break;
+    			case 'pre_sell':
+    				li.find('.form-control:eq(1)').replaceWith('<select name="arch_product_collection_new[filters]['+ id +'][value]" class="form-control" required="required"><option value="">Select a value...</option><option value="1">enabled</option><option value="0">disabled</option></select>').slideDown();
+    				break;
+    			case 'vend_active':
+    				li.find('.form-control:eq(1)').replaceWith('<select name="arch_product_collection_new[filters]['+ id +'][value]" class="form-control" required="required"><option value="">Select a value...</option><option value="1">active</option><option value="0">not active</option></select>').slideDown();
+    				break;
+    			case 'product_type':
+    			case 'brand_name':
+    			case 'supplier_name':
+    			    $.ajax({
+    			        url: "/admin/get-select",
+    			        type: 'POST',
+    			        data: 'field='+ field +'&name=arch_product_collection_new[filters]['+ id +'][value]',
+    			        cache: false,
+    			        success: function (data) {
+    			        	li.find('.form-control:eq(1)').replaceWith(data).slideDown();
+    			        }
+    			    });
+    				break;
+    		}
+    		$('#filter-submit').hide().removeClass('hidden').slideDown();
+    	}
+    	else {
+    		$('#filter-value').slideUp();
+    		$('#filter-submit').slideUp();
+    	}
+    });
+
+}
+
+function addItemFormDeleteLink($itemFormLi) {
+    var $removeFormA = $('<a href="#" class="btn btn-default btn-sm mb-15">Remove this Filter</a>');
+    $itemFormLi.append($removeFormA);
+
+    $removeFormA.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // remove the li for the tag form
+        $itemFormLi.remove();
+    });
+}
+
 </script>
-<script src="{{ asset('js/checkbox.js') }}"></script>
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
 <script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
 {% endblock %}

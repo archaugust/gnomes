@@ -11,7 +11,7 @@
 {% block content %}
 <div class="content">
 	<div class="content-header">
-		<span><i class="fa fa-fw fa-users"></i> Customers /</span> {{ item.fullName }}
+		<span><i class="fa fa-fw fa-users"></i> <a href="{{ path('admin_customer') }}">Customers</a> /</span> {{ item.fullName }}
 		<div class="pull-right">
             <a class="btn btn-primary" data-toggle="modal" data-target="#addModal">Edit Customer</a>
     		<div class="dropdown">
@@ -39,7 +39,7 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details">
+			<div class="details" id="details">
 				<div class="row">
 					<div class="col-md-6">
 						<div class="row">
@@ -80,7 +80,7 @@
 						{% if item.sex != null %}
 						<div class="row">
 							<div class="col-md-4"><b>Sex</b></div>
-							<div class="col-md-8">{{ render(controller('ShopBundle:Default:getSex', { 'code': item.sex })) }}</div>
+							<div class="col-md-8">{{ render(controller('ShopBundle:Action:getSex', { 'code': item.sex })) }}</div>
 						</div>
 						{% endif %}
 						<hr />
@@ -106,7 +106,7 @@
 							        {{ item.physicalPostcode }}<br />
 							    {% endif %}
 								{% if item.physicalCountryId != null %}
-							        {{ render(controller('ShopBundle:Default:getCountryName', { 'code': item.physicalCountryId })) }}<br />
+							        {{ render(controller('ShopBundle:Action:getCountryName', { 'code': item.physicalCountryId })) }}<br />
 							    {% endif %}
 							</div>
 						</div>
@@ -133,7 +133,7 @@
 							        {{ item.postalPostcode }}<br />
 							    {% endif %}
 								{% if item.postalCountryId != null %}
-							        {{ render(controller('ShopBundle:Default:getCountryName', { 'code': item.postalCountryId })) }}<br />
+							        {{ render(controller('ShopBundle:Action:getCountryName', { 'code': item.postalCountryId })) }}<br />
 							    {% endif %}
 							</div>
 						</div>
@@ -160,7 +160,7 @@
 			<h3><i class="fa fa-fw fa-book"></i> Sales History</h3>
     		<div class="arch-table">
     			<div class="extra">
-    				<table class="table table-striped">
+    				<table class="table table-hover">
     					<thead>
     						<tr>
         						<th class="sort">Date</th>
@@ -306,18 +306,6 @@
 $(function(){
 	$(function(){
 		$('#menu-customers').addClass('active');
-		$('.btn-filter').click(function (){
-			$('.filter-box').slideToggle();
-		});
-		$('html').click(function() {
-			$('.filter-box').slideUp();
-		});
-		$('.btn-filter').click(function(event){
-			event.stopPropagation();
-		});
-		$('.filter-box').click(function(event){
-			event.stopPropagation();
-		});
 
 		// country dropdown fix
 	    $('#user_admin_physical_country_id').val('{{ item.physicalCountryId }}');

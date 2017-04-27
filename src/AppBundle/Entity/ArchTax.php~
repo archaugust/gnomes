@@ -34,6 +34,16 @@ class ArchTax
      */
     private $is_default;
 
+    public function getNameRateLabel()
+    {
+    	return $this->name .' ('. $this->rate * 100 .'%)';
+    }
+    
+    public function getNameRateValue()
+    {
+    	return $this->name .':'. $this->rate;
+    }
+    
     /**
      * Set id
      *
