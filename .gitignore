@@ -18,4 +18,4 @@
 /web/images
 /web/bundles
 /app/config/parameters.yml.dist
-/src/ShopBundle/Controllers/VendWebhookController.php
+/src/ShopBundle/Controller/VendWebhookController.php
