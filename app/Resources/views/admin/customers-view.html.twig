@@ -2,6 +2,7 @@
 {% extends 'base_admin.html.twig' %}
 {% block title %}Customers - {{ item.fullName }}{% endblock %}
 {% block menu_sub %}
+	{{ parent() }}
 	<div class="menu-sub animated slideInLeft">
 		<ul class="list-unstyled">
 			<li><a href="{{ path('admin_customer') }}" id="submenu-customers" class="active">Customers</a></li>

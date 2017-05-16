@@ -15,7 +15,7 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details" id="details">
+			<div class="details">
 			    {% if items|length > 0 %}
 				<p><b>Initial Filter{% if items|length > 1 %}s{% endif %}</b></p>
     			<div class="row">
@@ -34,9 +34,17 @@
                 </div>
 				<hr />
 			    {% endif %}
+                {{ form_row(form.name) }}
+                <div class="hidden">
+                	{% for filter in form.filters %}
+                		{{ form_row(filter.field) }}
+                		{{ form_row(filter.value) }}
+                	{% endfor %}
+                </div>
 				<div class="row">
           			<div class="col-md-6">
-                        {{ form_row(form.name) }}
+          				<label for="arch_product_discounter_discount_type">Discount Type</label>
+          				{{ form_widget(form.discount_type) }}
           			</div>
           			<div class="col-md-6">
           				<label>Active</label>
@@ -52,7 +60,6 @@
           			</div>
           		</div>
                 <hr />
-                {% if (item.products|length > 0) %}
                 	<table class="table table-hover">
                 		<thead>
                 			<tr>
@@ -61,10 +68,12 @@
                 				<th class="text-right th-number">Price</th>
                 				<th class="text-right th-number">If Discount Active</th>
                 				<th class="text-center th-toggle">Pre-sell</th>
+                				<th class="text-center th-toggle">Template</th>
                 				<th class="text-center th-toggle">Site</th>
                 				<th class="text-center th-toggle">Remove</th>
                 			</tr>
                 		</thead>
+                    {% if (item.products|length > 0) %}
                     {% for product in item.products %}
                     	<tr class="product-item">
                     		<td>
@@ -82,6 +91,14 @@
 									<i class="fa fa-star{% if product.product.preSell != 1 %}-o{% endif %}"></i>
 								</a>
                     		</td>
+                    		<td>
+                    			<select class="pre-sell-text" class="form-control" {% if product.product.preSell != 1 %}disabled="disabled"{% endif %}>
+                    				<option value="">&nbsp;</option>
+                    				{% for ctr in 1..6 %}
+                    				<option{% if ctr == product.product.preSellTextId %} selected{% endif %}>{{ ctr }}</option>
+                    				{% endfor %}
+                    			</select>
+                    		</td>
                     		<td align="center">
 								<a href="javascript:void(0)" class="toggle-active">
 									<i class="fa fa-star{% if product.product.isActive == 0 %}-o{% endif %}"></i>
@@ -94,25 +111,131 @@
                     		</td>
                     	</tr>
                     {% endfor %}
+                    {% else %}
+                    	<tr><td colspan="7">Nothing to display.</td></tr>
+                    {% endif %}
                 	</table>
-                {% else %}
-                	Nothing to display.
-                {% endif %}
-		        </div>
           		<br />
   			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
-   			    <a href="{{ path('admin_collection') }}" class="btn btn-default">Close</a>
+   			    <a href="{{ path('admin_discounter') }}" class="btn btn-default">Close</a>
   			</div>
 		</div>
 	</div>
     {{ form_end(form) }}
+
+
+	<div class="content-body">
+        <h3 id="add-products">Search Products</h3>
+		<div class="arch-table" id="details">
+			<div class="header">
+				<a href="#" class="active">Add Products</a>
+				<div class="pull-right paginator">
+				</div>
+			</div>
+			<div class="details">
+			    {% set sort = app.session.get('sort') %}
+				<form method="get" id="filter-form">
+					<div class="btn-filter">
+						Filter products <i class="fa fa-caret-down"></i>
+                    	<div class="dropdown-box" id="filter-box">
+                    		Show all products where:
+                    		<select class="form-control" name="f" id="filter-field">
+                    			<option value="">Select a filter...</option>
+                    			<option value="product_type">Product type</option>
+                    			<option value="brand_name">Brand name</option>
+                    			<option value="supplier_name">Supplier</option>
+                    			<option value="tags">Tagged with</option>
+                    			<option value="pre_sell">Pre-selling</option>
+                    			<option value="is_active">Site Visibility</option>
+                    			<option value="vend_active">Vend Status</option>
+                    			<option value="collection">Collection</option>
+                    		</select>
+                    		<div id="filter-value"></div>
+                    		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
+	                    </div>
+                    </div>
+					<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for products..." /></span>
+				</form>
+               	
+				<form method="post">
+				
+				<table class="table table-hover">
+					<thead>
+						<tr>
+    						<th class="check">
+    							<div class="check-box">
+   	    							<input type="checkbox" id="check-all" />
+        							<div class="with-checked">
+    	    							<div id="selected"></div>
+    	    							<a id="addDiscountConfirm" type="button" data-toggle="modal" data-target="#selectModal">Add to Discount Group</a>
+        							</div>
+    							</div>
+    						</th>
+            				<th class="thumb"></th>
+            				<th class="sort">Name</a></th>
+            				<th class="sort text-center">Inventory</th>
+            				<th class="sort">Type</a></th>
+            				<th class="sort">Brand</a></th>
+            				<th class="sort">Supplier</a></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><td colspan="7">Add filters to show some products.</td></tr>
+					</tbody>
+				</table>
+
+				<input type="hidden" name="list_action" id="list_action" value="" />
+
+                <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4>Confirm</h4>
+                      </div>
+                      <div class="modal-body">
+                    	<p><span id="text_action"></span> selected items?</p>
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Proceed" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal fade" id="selectModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4><span id="select_title"></span></h4>
+                      </div>
+                      <div class="modal-body" id="select_list">
+                    	
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Save" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                </form>
+			</div>
+		</div>
+    </div>
+    <br /><br /><br /><br />
+
     <input type="hidden" id="mode" value="product" />
-    <input type="hidden" id="collection" value="{{ item.id }}" />
+    <input type="hidden" id="discounter" value="{{ item.id }}" />
+    <input type="hidden" id="return" value="{{ app.request.uri }}" />
 </div>
 
 <div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lightboxLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">×</button>
+        <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">ﾃ�</button>
         <div class="modal-content">
             <div class="modal-body">
                 <img src="" alt="" />
@@ -128,9 +251,9 @@
 $(function(){
 	$('#menu-products').addClass('active');
 	$('#sub-menu-products').removeClass('hidden');
-	$('#submenu-collections').addClass('active');
+	$('#submenu-discounter').addClass('active');
 
-	$('#arch_product_discounter_is_active').removeClass('hidden');
+	$('#arch_product_discounter_discount_type').removeClass('hidden');
 
 	function discountPreview() {
 		var rate = $('#arch_product_discounter_rate').val(),
@@ -165,11 +288,11 @@ $('.toggle-remove').click(function (){
 	var msg, value;
 	var tr = e.closest('tr');
 	var product = tr.find('input').val();
-	var collection = $('#collection').val(); 
+	var discounter = $('#discounter').val(); 
 	e.fadeOut();
     $.ajax({
-        url: "/admin/collection-remove-product",
-        data: 'collection='+ collection +'&product='+ product,
+        url: "/admin/discounter-remove-product",
+        data: 'discounter='+ discounter +'&product='+ product,
         type: "POST",
         cache: false,
         success: function (data) {
@@ -180,6 +303,9 @@ $('.toggle-remove').click(function (){
 });
 
 </script>
-<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
 <script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-products-search.js?id='~ 'now'|date('U')) }}"></script>
 {% endblock %}

@@ -1,0 +1,59 @@
+/* footer */
+#footer {
+	background: #ededed;
+	
+	.c-btn--wide {
+		padding: 15px 0 0!important;
+	}
+
+	color: #000;
+	line-height: 25px;
+	
+	.main-links a {
+		width: 100%;
+		font-weight: 400;
+	}
+
+	b {
+		font-size: 12.5px;
+		text-transform: uppercase;
+		font-weight: 400;
+	}
+	ul {
+		margin-top: 12px;
+
+		a {
+			color: #000;
+			line-height: 25px;
+			
+			&:hover {
+				color: $global-primary-color;
+			}
+		}	
+	}
+	
+	.o-layout--flush {
+		position: relative;
+	}
+
+	.social {
+		font-size: 28px;
+		
+		a {
+			color: #555656;
+			margin-left: $inuit-global-spacing-unit;
+			
+			&:hover {
+				color: $global-primary-color;
+			}
+		}
+		
+		& > div {
+			position: absolute;
+			display: block;
+			bottom: 20px;
+			right: 0;
+		}
+	}
+}
+

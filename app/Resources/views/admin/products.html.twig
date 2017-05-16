@@ -23,6 +23,11 @@
     	            <form method="post">
                 		<p>Create a discount group from currently filtered products:</p>
                 		<input type="text" name="discounter_name" placeholder="Discount Group name" class="form-control" required="required">
+                		<select name="discount_type" class="form-control" required="require">
+                			<option value="">Discount Type</option>
+                			<option>VIP</option>
+                			<option>Discount</option>
+                		</select>
                 		<input type="text" name="rate" placeholder="Rate(%)*" class="form-control" required="required">
                 		<label for="suffix">Cents override</label>
                 		<input type="text" name="suffix" id="suffix" placeholder="Cents override" class="form-control" required="required" value="90">
@@ -83,6 +88,7 @@
                     			<option value="pre_sell">Pre-selling</option>
                     			<option value="is_active">Site Visibility</option>
                     			<option value="vend_active">Vend Status</option>
+                    			<option value="collection">Collection</option>
                     		</select>
                     		<div id="filter-value"></div>
                     		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
@@ -137,11 +143,15 @@
 						{% for item in items %}
 							{% set stock = item.count %}
 							{% set variants = productVariants(item.id) %}
-							{% set variantsCount = variants|length %}
-							{% if variantsCount > 0 %}
+							{% set variantsRawCount = variants|length %}
+							{% set variantsCount = 0 %}
+							{% if variantsRawCount > 0 %}
 								{% set s = 's' %}
     							{% for variant in variants %}
+    								{% if variant.deletedAt is null %}
     								{% set stock = stock + variant.count %}
+    								{% set variantsCount = variantsCount + 1 %}
+    								{% endif %}
     							{% endfor %}
     						{% else %}
     							{% set s = '' %}
@@ -150,7 +160,7 @@
                 			<td>
                 				<input type="checkbox" class="item" name="products[]" value="{{ item.id }}" />
                 			</td>
-                			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ item.image }}{% endif %}" alt="{{ item.name }}" /></td>
+                			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{% if item.image %}{{ item.image }}{% endif %}{% endif %}" alt="{{ item.name }}" /></td>
                 			<td><a href="{{ path('admin_product_edit', {'id':item.id}) }}">{{ item.baseName }}</a></td>
                 			<td align="center">{{ stock ~' in '~ (variantsCount + 1) ~' variant'~ s }}</td>
                 			<td><a href="?f=product_type&v={{ item.productType }}">{{ item.productType }}</a></td>
@@ -237,7 +247,6 @@
 				</div>
 			</div>
 		</div>
-		<br /><br />
 	</div>
 </div>
 
@@ -297,9 +306,10 @@
                 {% endfor %}
             </ul>
         </fieldset>
+        {{ form_row(form.description) }}
+        {{ form_row(form.features) }}
         {{ form_row(form.meta_title) }}
         {{ form_row(form.meta_description) }}
-        {{ form_row(form.description) }}
         {{ form_row(form.video) }}
         <hr />
         <h4>Pricing</h4>
@@ -386,7 +396,7 @@
 {{ parent() }}
 
 <script src="{{ asset('js/tags.js') }}"></script>
-<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
 <script>
 $(function(){
 	$('#menu-products').addClass('active');

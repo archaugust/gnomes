@@ -19,13 +19,14 @@
 .c-btn {
   display: inline-block; /* [1] */
   vertical-align: middle; /* [2] */
-  font: inherit; /* [3] */
+  font-family: $global-font-family-1!important; /* [3] */
   text-align: center; /* [4] */
   margin: 0; /* [4] */
   cursor: pointer; /* [5] */
   padding: $inuit-global-spacing-unit-small $inuit-global-spacing-unit;
   transition: $global-transition;
   border-radius: $global-radius;
+  border: 0;
 }
 
 
@@ -35,8 +36,38 @@
 /* Style variants
    ========================================================================== */
 
+.c-btn--default {
+  background-color: #f4f4f4;
+  border: 1px solid #efefef;
+  color: $global-font-color;
+
+  &,
+  &:hover,
+  &:active,
+  &:focus {
+    text-decoration: none; /* [4] */
+  }
+
+  &:hover,
+  &:focus {
+    background: #efefef;
+  }
+
+}
+
+.c-btn--gray {
+  background-color: #8c8c8c;
+  color: #fff;
+
+  &:hover,
+  &:focus {
+    background: $global-primary-color;
+  }
+
+}
+
 .c-btn--primary {
-  background-color: #00b7eb;
+  background-color: $global-primary-color;
   border: 0;
 
   &,
@@ -68,8 +99,8 @@
 
   &:hover,
   &:focus {
-    background: #00b7eb;
-    border: 1px solid #00b7eb;
+    background: $global-primary-color;
+    border: 1px solid $global-primary-color;
     font-weight: 900;
   }
 
@@ -104,9 +135,17 @@
 /* Size variants
    ========================================================================== */
 
+.c-btn--md {
+  padding: 10px 10px 5px;
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: .07em;
+  margin: 5px 0;
+}
+
 .c-btn--small {
   height: 37px;
-  padding: inuit-rem(12px) inuit-rem(15px);
+  padding: inuit-rem(13px) inuit-rem(15px);
   font-size: 15px;
   font-weight: 400;
 }
@@ -117,6 +156,7 @@
 
 .c-btn--wide {
   min-width: 217px;
+  letter-spacing: .07em;
   height: 39px;
   padding: 6px 0 0 0;
   font-size: 13px;
@@ -124,7 +164,7 @@
   text-transform: uppercase; }
   
 a.c-btn--wide {
-	padding-top: 15px;
+	padding-top: 14px;
 }
 
 

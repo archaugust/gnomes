@@ -5,11 +5,19 @@
 <div class="content">
 	<div class="content-header">
 		<span><i class="fa fa-fw fa-tags"></i> <a href="{{ path('admin_product') }}">Products</a> / </span> Discount Groups
-		<div class="pull-right"><a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Discount Group</a></div>
+		<div class="pull-right">
+			<a href="{{ path('admin_discounter', {'mode':'vip'}) }}" class="btn btn-default">VIP</a>
+			<a href="{{ path('admin_discounter', {'mode':'discount'}) }}" class="btn btn-default">Discount</a>
+			<a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Discount Group</a>
+		</div>
 	</div>
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
+			<div class="header">
+				<a href="{{ path('admin_discounter', {'mode':'vip'}) }}"{% if (mode == 'vip') %} class="active"{% endif %}>VIP</a>
+				<a href="{{ path('admin_discounter', {'mode':'discount'}) }}"{% if (mode == 'discount') %} class="active"{% endif %}>Discount</a>
+			</div>
 			<div class="details" id="details">
 				<p>Only active discount groups have discounts applied.</p>
 				<form method="post">
@@ -44,8 +52,8 @@
 						<tr class="order">
 							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
 							<td><a href="{{ path('admin_discounter_edit', {'id': item.id}) }}">{{ item.name }}</a></td>
-							<td>{{ render(controller('ShopBundle:Action:filters', {'mode':'discounter','id':item.id})) }}</td>
-							<td align="center">{{ item.products|length }}</td>
+							<td>{{ item.filters }}</td>
+							<td align="center">{{ item.products }}</td>
 							<td align="center">
 								<a href="javascript:void(0)" class="toggle-active">
 									<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
@@ -53,6 +61,9 @@
 							</td>
 						</tr>
 					{% endfor %}
+					{% if items|length == 0 %}
+						<tr><td colspan="5">Nothing to display.</td></tr>
+					{% endif %}
 					</tbody>
 				</table>
 
@@ -62,7 +73,7 @@
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-close"></i></span></button>
                     	<h4>Confirm</h4>
                       </div>
                       <div class="modal-body">
@@ -89,10 +100,18 @@
       {{ form_errors(form) }}
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="addModalLabel">Add Discounter</h4>
+        <h4 class="modal-title" id="addModalLabel">Add Discount Group</h4>
       </div>
       <div class="modal-body">
-        {{ form_row(form.name) }}
+        <div class="row">
+  			<div class="col-md-6">
+		        {{ form_row(form.name) }}
+		    </div>
+  			<div class="col-md-6">
+  				<label for="arch_product_discounter_discount_type">Discount Type</label>
+  				{{ form_widget(form.discount_type) }}
+  			</div>
+  		</div>
         <div class="row">
         	<div class="col-md-6">
 		        {{ form_row(form.rate) }}
@@ -123,12 +142,14 @@
 
 {% block javascripts %}
 {{ parent() }}
-<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
 <script>
 $(function(){
 	$('#menu-products').addClass('active');
 	$('#sub-menu-products').removeClass('hidden');
 	$('#submenu-discounter').addClass('active');
+
+	$('#arch_product_discounter_discount_type').removeClass('hidden');
 });
 
 var mode = $('#mode').val();

@@ -1,0 +1,127 @@
+{% extends 'base.html.twig' %}
+{% block title %}Checkout - Shipping | Gnomes Alpine Sports{% endblock %}
+{% block description %}Review you shopping cart.{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/checkout.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+{% set wishlist = app.session.get('wishlist') %}
+<div class="o-layout--flush c-page c-page--checkout">
+	<div class="c-breadcrumbs">
+		<a href="{{ path('checkout') }}">Cart</a> / Shipping
+	</div>
+    {% include('flash.html.twig') %}
+	<div class="o-layout__item u-1/2@desktop u-1/1@tablet u-col-left u-mt-40">
+		<h1>1. SHIPPING <span>(Step 1 of 3)</span></h1>
+		{% if user %}
+			You're currently logged in as {{ user.firstName ~' '~ user.lastName }} ({{ user.email }}) <a href="/logout">Logout</a>
+		{% else %}
+			You're not logged in. <a href="#" data-toggle="modal" data-target="#loginModal">Sign in for VIP pricing.</a>
+		{% endif %}
+		{{ form_start(form) }}
+		<div class="u-pt-25 u-pb-20"><b>YOUR DETAILS</b></div>
+		<div class="o-layout--flush u-ml-60">
+			<div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.first_name, {'attr':{'class':'u-form-control'}}) }}
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.last_name, {'attr':{'class':'u-form-control'}}) }}
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.email, {'attr':{'class':'u-form-control'}}) }}
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.phone, {'attr':{'class':'u-form-control'}}) }}
+			</div>
+		</div>
+		<div class="u-pt-25 u-pb-20"><b>SHIPPING DETAILS</b></div>
+		<div class="o-layout--flush u-ml-60">
+			<div class="o-layout__item u-1/1@mobile u-pl-60">
+				{{ form_row(form.address, {'attr':{'class':'u-form-control'}}) }}
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.city, {'attr':{'class':'u-form-control'}}) }}
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+                {{ form_label(form.region) }}
+				 <div id="regionDiv">
+				     {{ form_widget(form.region, {'attr':{'class':'u-form-control','required':'required'}}) }}
+				 </div>
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.country, {'attr':{'class':'u-form-control'}}) }}
+			</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60">
+				{{ form_row(form.postcode, {'attr':{'class':'u-form-control'}}) }}
+			</div>
+		</div>
+		<div class="u-pt-25 u-pb-20"><b>SHIPPING METHOD</b></div>
+		<div class="o-layout--flush u-ml-60" id="shippingMethods">
+		</div>
+		<div class="u-pt-20">
+			{{ form_row(form.send, {'attr':{'class':'c-btn c-btn--gray c-btn--wide u-tooltip', 'title':'This will take you to our secure payment processor, Payment Express.'}}) }}
+		</div>
+		{{ form_end(form) }}
+		<div class="u-pt-20">
+			<a href="/pages/terms-conditions">Terms & Conditions</a> | <a href="/pages/terms-conditions#privacy">Privacy Policy</a>
+		</div>
+	</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-col-right u-mt-40">
+		<div class="u-center">
+			<h3>CART SUMMARY</h3>
+			<a href="/checkout">Change something</a>
+			<hr />
+		</div>
+		{% for product in items %}
+		<div class="o-summary-item">
+			<input type="hidden" class="o-cart-price" value="{% if logged and product.discount_price > 0 %}{{ product.discount_price }}{% else %}{{ product.price }}{% endif %}" />
+			<input type="hidden" class="o-cart-item-qty" value="{{ product.qty }}" />
+       		<div class="o-summary-item-image">
+       			<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></a>
+       		</div>
+       		<div class="o-summary-item-details">
+    			<a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}{% if product.qty > 1 %} x {{ product.qty }}{% endif %}</a>
+    			<div>
+    				PRICE: ${{ product.price|number_format(2,'.',',') }} 
+    				{% if (product.discount_price > 0) %}
+    					<span class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</span>
+    				{% endif %}
+    			</div>
+				{% for variant in product.variant %}
+					<div>{{ variant.name ~': '~ variant.value }}</div>
+				{% endfor %}
+				<div>QTY: {{ product.qty }}</div>
+    		</div>
+		</div>
+		{% endfor %}
+		<div class="clear"></div>
+		<div class="o-summary-shipping u-mt-35">
+			<h3 class="u-center">ORDER SUMMARY</h3>
+			<div class="o-layout--flush u-pt-30">
+				<div class="o-layout__item u-1/2@desktop u-1/1@mobile">
+					SUBTOTAL
+				</div><div class="o-layout__item u-1/2@desktop u-1/1@mobile">
+					<b>${{ total|number_format(2,'.',',') }}</b>
+				</div><div class="o-layout__item u-1/2@desktop u-1/1@mobile">
+					SHIPPING
+				</div><div class="o-layout__item u-1/2@desktop u-1/1@mobile" id="shippingDiv">
+		            <b>{% if shipping == 0 %}FREE{% else %}${{ shipping|number_format(2,'.',',') }}{% endif %}</b>
+				</div>
+				<hr />
+				<div class="o-layout__item u-1/2@desktop u-1/1@mobile">
+					TOTAL
+				</div><div class="o-layout__item u-1/2@desktop u-1/1@mobile total" id="grandTotalDiv">
+					<b>${{ (total + shipping)|number_format(2,'.',',') }}</b>
+				</div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="o-help u-mb-40">Need help? <span>Just get on the blower (03 318 8433) or shoot us an email: {{ render(controller('AppBundle:Action:hideEmail', {'email':email})) }}</span></div>
+</div>
+<input type="hidden" class="shipping-cost" value="{{ shipping }}" />
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(function(){
+	$('#form_country').trigger('change');	
+});
+</script>
+	<script src="{{ asset('js/checkout_shipping.js') }}"></script>
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+{% endblock %}

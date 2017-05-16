@@ -114,16 +114,17 @@ class ArchProductCategoryController extends Controller
 						$em->persist($collection);
 					}
 				}
-				
-				// remove collection
-				foreach ($originalCollections as $collection) {
-					if (false === $item->getCollections()->contains($collection)) {
-						$item->getCollections()->removeElement($collection);
-						$em->remove($collection);
-					}
+			}
+			
+			// remove collection
+			foreach ($originalCollections as $collection) {
+				if (false === $item->getCollections()->contains($collection)) {
+					$item->getCollections()->removeElement($collection);
+					$em->remove($collection);
 				}
 			}
-				
+			
+			
 			$em->flush();
 		
 			$this->addFlash(

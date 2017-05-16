@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}{{ item.name }} | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.teaser }}{% endif %}{% endblock %}
+{% block stylesheets %}<link href="{{ asset('css/blog.css') }}" rel="stylesheet" />{% endblock %}
+{% block content %}
+<div class="o-layout--flush">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / 
+		{% for breadcrumb in breadcrumbs %}
+			{% if not loop.last %}<a href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a> / {% else %}{{ breadcrumb.text }}{% endif %}
+		{% endfor %}
+	</div>
+	<div class="c-blog-page c-page-padded">
+       	<h1>{{ item.name }}</h1>
+       	<div class="date">{{ item.displayDate|date('F Y') }}</div>
+       	<div class="social">
+			<a href="https://www.facebook.com/sharer.php?u={{ app.request.uri }}&title={{ item.name|replace(' ', '+') }}+|+Gnomes+Alpine+Sports" target="_blank"><i class="fa fa-facebook"></i></a>
+			<a href="https://twitter.com/Gnomes_Snow" target="_blank"><i class="fa fa-twitter"></i></a>
+			<a href="#" target="_blank"><i class="fa fa-instagram"></i></a>
+       	</div>
+       	<hr />
+       	<div class="teaser">
+       		{{ item.teaser }}
+       	</div>
+    	<figure class="c-banner">
+    		<img src="{{ asset('images/blog/main/'~ item.imageMain) }}" alt="{{ item.name }}" />
+    	</figure>
+    	<div class="caption">
+    		{{ item.imageMainCaption }}
+    	</div>
+    	<div class="content u-pv-40">
+    		{{ item.contentMain|raw }}
+    	</div>
+    	<hr />
+    	<h2>{{ item.contentBottomTitle }}</h2>
+    	<figure class="c-banner">
+    		<img src="{{ asset('images/blog/middle/'~ item.imageMiddle) }}" alt="{{ item.name }}" />
+    	</figure>
+    	<div class="caption">
+    		{{ item.imageMiddleCaption }}
+    	</div>
+    	<div class="content u-pt-40">
+    		{{ item.contentBottom|raw }}
+    	</div>
+       	<div class="social-bottom">
+			<a href="https://www.facebook.com/sharer.php?u={{ app.request.uri }}&title={{ item.name|replace(' ', '+') }}+|+Gnomes+Alpine+Sports" target="_blank"><i class="fa fa-facebook"></i></a>
+			<a href="https://twitter.com/Gnomes_Snow" target="_blank"><i class="fa fa-twitter"></i></a>
+			<a href="#" target="_blank"><i class="fa fa-instagram"></i></a>
+       	</div>
+       	<hr />
+       	<div class="o-layout--large u-pt-20 u-mb-55 pagination">
+       		<div class="o-layout__item u-1/2@tablet u-1/1@mobile">
+       			<a href="{{ path('blog') }}" class="c-btn c-btn--blog c-btn--wide u-right"><i class="fa fa-angle-left"></i> Back to Blogs</a></div><div class="o-layout__item u-1/2@tablet u-1/1@mobile">
+       			<a href="{{ path('blog_page', {'handle':next}) }}" class="c-btn c-btn--blog c-btn--wide">Next Story <i class="fa fa-angle-right"></i></a></div>
+       	</div>
+	</div>
+</div>
+
+{% include 'subscribe.html.twig' %} 
+
+{% endblock %}

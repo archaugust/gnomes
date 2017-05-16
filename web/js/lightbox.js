@@ -8,9 +8,11 @@ $('[data-target="#lightbox"]').on('click', function(event) {
             'maxWidth': $(window).width() - 100,
             'maxHeight': $(window).height() - 100
         };
-
+    if ($img.hasClass('large'))
+    	src = src.replace('/full','');
     $lightbox.find('.close').addClass('hidden');
-    $lightbox.find('img').attr('src');
+    $lightbox.find('img').attr('src', src);
+    $lightbox.find('a').attr('href', src);
     $lightbox.find('img').attr('alt', alt);
     $lightbox.find('img').css(css);
 });
@@ -18,6 +20,6 @@ $('[data-target="#lightbox"]').on('click', function(event) {
 $lightbox.on('shown.bs.modal', function (e) {
     var $img = $lightbox.find('img');
         
-    $lightbox.find('.modal-dialog').css({'width': $img.width()});
+    $lightbox.find('.modal-dialog').css({'width': $img.width() + 40});
     $lightbox.find('.close').removeClass('hidden');
 });

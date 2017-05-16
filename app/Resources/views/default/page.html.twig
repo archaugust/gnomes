@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}{{ item.name }} | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.content|striptags|slice(0,160) }}{% endif %}{% endblock %}
+{% block banner %}
+{% if item.banner %}
+<section id="banner">
+	<div class="o-wrapper o-box--flush">
+		<figure class="c-banner">
+			<img src="{{ asset('images/pages/'~ item.banner) }}" alt="{{ item.bannerText }}" />
+			{% if item.bannerOverlay == 1 %}<img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />{% endif %}
+			<figcaption>
+				<h1 class="u-ls-110{% if item.bannerTextColor == 1 %} u-black{% endif %}">{{ item.bannerText }}</h1>
+			</figcaption>
+		</figure>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page">
+	<div class="c-page-padded">
+    	<h1>{{ item.name }}</h1>
+       	{{ item.content|raw }}
+	</div>
+</div>
+
+{% endblock %}

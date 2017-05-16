@@ -1,7 +1,28 @@
 <div class="checkboxes">
-{% for item in items %}
-	<label for="{{ item.id }}">
-		<input type="checkbox" name="{{ field_name }}[]" value="{{ item.id }}" id="{{ item.id }}"> {{ item.name }}
-	</label>
-{% endfor %}
+{% if field_name == 'collection' %}
+    {% for item in items %}
+    	<label for="{{ item.id }}">
+    		<input type="checkbox" name="{{ field_name }}[]" value="{{ item.id }}" id="{{ item.id }}"> {{ item.name }}
+    	</label>
+    {% endfor %}
+{% else %}
+	<div class="row">
+		<div class="col-md-6">
+        	<b>VIP Type</b>
+            {% for item in items_vip %}
+            	<label for="{{ item.id }}">
+            		<input type="checkbox" name="{{ field_name }}[]" value="{{ item.id }}" id="{{ item.id }}"> {{ item.name }}
+            	</label>
+            {% endfor %}
+		</div>
+		<div class="col-md-6">
+            <b>Discount Type</b>
+            {% for item in items_discount %}
+            	<label for="{{ item.id }}">
+            		<input type="checkbox" name="{{ field_name }}[]" value="{{ item.id }}" id="{{ item.id }}"> {{ item.name }}
+            	</label>
+            {% endfor %}
+            {% endif %}
+		</div>
+	</div>
 </div>

@@ -1,0 +1,33 @@
+    <div class="c-header">
+    	<div class="o-wrapper">
+    		<a href="/"><img class="c-logo" src="{{ asset('images/logo.png') }}" alt="Gnomes Alpine Sports" /></a>
+    		<img class="c-main-menu-mobile u-visible-xs" src="{{ asset('images/icon-menu.png') }}" alt="Menu" />
+    		<div class="c-main-menu u-hidden-xs">
+        		<a href="#" class="visible-xs"><i class="fa fa-close"></i></a>
+        		<ul class="o-list-inline">
+        			<li><a class="menu-link no-link" id="shop" href="#">Shop</a></li>
+        			<li><a class="menu-link" href="/pages/ski-snowboard-hire">Rental</a></li>
+        			<li><a class="menu-link" href="/pages/boot-fitting">Ski Boot Fitting</a></li>
+        			<li><a class="menu-link" href="{{ path('brands') }}">Brands</a></li>
+        			<li><a class="menu-link" href="{{ path('blog') }}">Blog</a></li>
+        			<li><a class="menu-link" href="{{ path('about') }}">About</a></li>
+        			<li><a class="menu-link" href="/pages/contact">Contact</a></li>
+        		</ul>
+    		</div>
+    	</div>
+    </div>
+    <div class="o-wrapper c-menu-popups">
+    	<div class="c-menu-popup" id="popup-shop">
+    		<a href="#" class="u-visible-xs close-popup"><i class="fa fa-close"></i></a>
+    		<div class="o-layout--flush">
+{% for item in menu %}<div class="o-layout__item{% if loop.first %} first{% endif %} u-1/5@tablet u-1/1@mobile">
+    				<b>{{ item.name }}</b>
+    				<ul class="o-list-bare">
+{% for collection in item.collections %}
+    					<li><a href="/collections/{{ collection.handle }}">{{ collection.name }}</a></li>
+{% endfor %}
+    				</ul>
+    			</div>{% endfor %}
+    		</div>
+    	</div>
+    </div>

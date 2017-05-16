@@ -39,6 +39,7 @@
 @import "generic/generic.box-sizing";
 @import "generic/generic.normalize";
 @import "generic/generic.shared";
+@import "generic/generic.input";
 
 
 
@@ -75,10 +76,6 @@
 
 
 
-// COMPONENTS
-//
-// Build and include your project’s UI Compoments here.
-@import "components/arch.components.buttons";
 
 
 
@@ -93,4 +90,21 @@
 @import "utilities/utilities.print";
 @import "utilities/utilities.hide";
 
+// COMPONENTS
+//
+// Build and include your project’s UI Compoments here.
+@import "components/arch.components.header";
+@import "components/arch.components.main-menu";
+@import "components/arch.components.breadcrumbs";
+@import "components/arch.components.badge";
+@import "components/arch.components.flash";
+@import "components/arch.components.lightbox";
+@import "components/arch.components.buttons";
+@import "components/arch.components.figure";
+@import "components/arch.components.transitions";
+@import "components/arch.components.call-to-action";
 @import "components/arch.components.misc";
+@import "components/arch.components.modal";
+@import "components/arch.components.page";
+@import "components/arch.components.footer";
+@import "components/arch.components.responsive";

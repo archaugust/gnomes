@@ -316,6 +316,10 @@ hr.dotted {
 .light {
 	color: #a6b3bd;
 }
+.table-spacer {
+	height: 15px!important;
+	border: none!important;
+}
 
 /* bootstrap overrides */
 .modal-content, .btn {

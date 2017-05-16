@@ -1,0 +1,48 @@
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    {% set logged = 1 %}
+{% else %}
+    {% set logged = 0 %}
+{% endif %}
+
+{% if items|length == 0 %}
+	<div class="u-pl-40 u-pb-40">Your shopping bag is empty.</div>
+{% else %}
+	{% for key, product in items %}
+	<div class="o-cart-item">
+		<input type="hidden" class="o-cart-key" value="{{ key }}" />
+		<input type="hidden" class="o-cart-price" value="{% if logged and product.discount_price > 0 %}{{ product.discount_price * product.qty }}{% else %}{{ product.price * product.qty }}{% endif %}" />
+		<div class="o-cart-item-image"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></div>
+		<div class="o-cart-item-details">
+			<b><a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}{% if product.qty > 1 %} x {{ product.qty }}{% endif %}</a></b>
+			<div>
+				PRICE: ${{ product.price|number_format(2,'.',',') }} 
+				{% if (product.discount_price > 0) %}
+					<span class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</span>
+				{% endif %}
+			</div>
+			{% for variant in product.variant %}
+				<div>{{ variant.name ~': '~ variant.value }}</div>
+			{% endfor %}
+		</div>
+		<div class="o-cart-item-remove">
+			<img src="{{ asset('images/icon-cart-remove.png') }}" alt="Remove" title="Remove" />
+		</div>
+	</div>
+	{% endfor %}
+{% endif %}
+<script>
+$('.o-cart-item-remove').click(function(){
+	var parent = $(this).closest('.o-cart-item'),
+		product = parent.find('.o-cart-key').val(),
+		in_cart;
+    $.ajax({
+        url: "/cart/remove",
+        data: 'product='+ product,
+        type: "POST",
+        success: function (data) {
+        	parent.remove();
+        	setTimeout(recalculateCart, 1000);
+        }
+    });
+});
+</script>

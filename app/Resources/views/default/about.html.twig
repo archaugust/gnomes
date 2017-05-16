@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}About Us | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.content|striptags|slice(0,160) }}{% endif %}{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ asset('css/about.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block banner %}
+<section id="banner">
+	<div class="o-wrapper o-box--flush">
+		<figure class="c-banner">
+			<img src="{{ asset('images/about/'~ item.banner) }}" alt="{{ item.bannerText }}" />
+			{% if item.bannerOverlay == 1 %}<img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />{% endif %}
+			<figcaption>
+				<h1 class="u-ls-110{% if item.bannerTextColor == 1 %} u-black{% endif %}">{{ item.bannerText }}</h1>
+			</figcaption>
+		</figure>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="o-box--flush">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / About Us
+	</div>
+	<div class="o-about o-layout--flush">
+    	<div class="o-layout__item u-1/3@desktop u-1/1@tablet o-about-left">
+    	</div><div class="o-layout__item u-2/3@desktop u-1/1@tablet">
+    		<h1>{{ item.name }}</h1>
+    	</div><div class="o-layout__item u-1/3@desktop u-1/1@tablet o-about-left">
+    		<img src="{{ asset('images/about/thumb/'~ item.thumbnail) }}" alt="{{ item.name }}" />
+        </div><div class="o-layout__item u-2/3@desktop u-1/1@tablet">
+        	{{ item.content|raw }}
+        </div>
+        {% for item in item.sections %}
+        	<hr />
+    	    <div class="o-layout__item u-1/3@desktop u-1/1@tablet o-about-left">
+    		<img src="{{ asset('images/about/thumb/'~ item.filename) }}" alt="{{ item.name }}" />
+        	</div><div class="o-layout__item u-2/3@desktop u-1/1@tablet">
+        		<h2>{{ item.name }}</h2>
+        	    {{ item.content|raw }}
+    	    </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include 'subscribe.html.twig' %} 
+{% endblock %}

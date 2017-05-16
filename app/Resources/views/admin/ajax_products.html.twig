@@ -32,9 +32,10 @@
         			<option value="brand_name">Brand name</option>
         			<option value="supplier_name">Supplier</option>
         			<option value="tags">Tagged with</option>
-           			<option value="pre_sell">Pre-selling</option>
+        			<option value="pre_sell">Pre-selling</option>
         			<option value="is_active">Site Visibility</option>
         			<option value="vend_active">Vend Status</option>
+        			<option value="collection">Collection</option>
         		</select>
         		<div id="filter-value"></div>
         		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
@@ -80,6 +81,7 @@
 				<th class="sort"><a href="?sort=product_type{% if sort['name'] == 'product_type' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Type <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Type{% endif %}</a></th>
 				<th class="sort"><a href="?sort=brand_name{% if sort['name'] == 'brand_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Brand <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Brand{% endif %}</a></th>
 				<th class="sort"><a href="?sort=supplier_name{% if sort['name'] == 'supplier_name' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Supplier <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Supplier{% endif %}</a></th>
+				<th class="sort text-center"><a href="?sort=pre_sell{% if sort['name'] == 'pre_sell' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Pre-sell <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Pre-sell{% endif %}</a></th>
 				<th class="sort text-center"><a href="?sort=is_active{% if sort['name'] == 'is_active' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Site <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Site{% endif %}</a></th>
 				<th class="sort text-center"><a href="?sort=vend_active{% if sort['name'] == 'vend_active' %}{% if sort['order'] == 'asc' %}&order=desc{% endif %}">Vend <i class="fa fa-caret-{% if sort['order'] == 'asc' %}up{% else %}down{% endif %}"></i> {% else %}">Vend{% endif %}</a></th>
 			</tr>
@@ -101,21 +103,26 @@
     			<td>
     				<input type="checkbox" class="item" name="products[]" value="{{ item.id }}" />
     			</td>
-    			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{{ item.image }}{% endif %}" alt="{{ item.name }}" /></td>
+    			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{% if item.image %}{{ item.image }}{% endif %}{% endif %}" alt="{{ item.name }}" /></td>
     			<td><a href="{{ path('admin_product_edit', {'id':item.id}) }}">{{ item.baseName }}</a></td>
     			<td align="center">{{ stock ~' in '~ (variantsCount + 1) ~' variant'~ s }}</td>
     			<td><a href="?f=product_type&v={{ item.productType }}">{{ item.productType }}</a></td>
     			<td><a href="?f=brand_name&v={{ item.brandName }}">{{ item.brandName }}</a></td>
     			<td><a href="?f=supplier_name&v={{ item.supplierName }}">{{ item.supplierName }}</a></td>
     			<td align="center">
+    				<a href="javascript:void(0)" class="toggle-pre_sell">
+    					<i class="fa fa-star{% if item.preSell != 1 %}-o" title="{% else %}" title="Not{% endif %} Pre-selling"></i>
+    				</a>
+    			</td>
+    			<td align="center">
     				{% if 'Deleted' not in item.name %}
     				<a href="javascript:void(0)" class="toggle-active">
-    					<i class="fa fa-star{% if item.isActive == 0 %}-o" title="Active{% else %}" title="Disabled{% endif %} at online store"></i>
+    					<i class="fa fa-star{% if item.isActive != 1 %}-o" title="Active{% else %}" title="Disabled{% endif %} at online store"></i>
     				</a>
     				{% endif %}
     			</td>
     			<td align="center">
-    				<i class="fa fa-star{% if item.vendActive == 0 %}-o" title="Active{% else %}" title="Disabled{% endif %} at Vend"></i>
+    				<i class="fa fa-star{% if item.vendActive != 1 %}-o" title="Active{% else %}" title="Disabled{% endif %} at Vend"></i>
     			</td>
     		</tr>
 			{% endfor %}
@@ -182,6 +189,8 @@
         {% endif %}
 	</div>
 </div>
+<br /><br />
+
 <script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
 <script src="{{ asset('js/ajax-products.js?id='~ 'now'|date('U')) }}"></script>
 <script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>

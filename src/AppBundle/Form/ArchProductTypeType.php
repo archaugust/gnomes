@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ArchProductTypeType extends AbstractType
 {
@@ -31,7 +32,7 @@ class ArchProductTypeType extends AbstractType
             		'label' => 'Meta Title',
             		'required' => false
             ))
-            ->add('meta_description', TextType::class, array(
+            ->add('meta_description', TextareaType::class, array(
             		'label' => 'Meta Description',
             		'required' => false
             ))

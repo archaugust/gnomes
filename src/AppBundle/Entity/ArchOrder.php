@@ -17,7 +17,7 @@ class ArchOrder
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $user_id;
     
@@ -28,7 +28,7 @@ class ArchOrder
     private $customer;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $user;
     
@@ -53,7 +53,7 @@ class ArchOrder
     private $tax_name;
     
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $short_code;
     
@@ -63,7 +63,7 @@ class ArchOrder
     private $status;
     
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $invoice_number;
     
@@ -73,9 +73,35 @@ class ArchOrder
     private $note;
     
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $auth_code;
+    
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $card_holder_name;
+    
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $client_info;
+    
+    /**
      * @ORM\OneToMany(targetEntity="ArchOrderProduct", mappedBy="order")
      */
     private $products;
+    
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $shipping_id;
+    
+    /**
+     * @ORM\OneToOne(targetEntity="ArchOrderShipping")
+     * @ORM\JoinColumn(name="shipping_id", referencedColumnName="id")
+     */
+    private $shipping;
     
     public function __construct()
     {
@@ -128,6 +154,30 @@ class ArchOrder
     public function getUserId()
     {
         return $this->user_id;
+    }
+
+    /**
+     * Set user
+     *
+     * @param string $user
+     *
+     * @return ArchOrder
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return string
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 
     /**
@@ -323,6 +373,102 @@ class ArchOrder
     }
 
     /**
+     * Set authCode
+     *
+     * @param string $authCode
+     *
+     * @return ArchOrder
+     */
+    public function setAuthCode($authCode)
+    {
+        $this->auth_code = $authCode;
+
+        return $this;
+    }
+
+    /**
+     * Get authCode
+     *
+     * @return string
+     */
+    public function getAuthCode()
+    {
+        return $this->auth_code;
+    }
+
+    /**
+     * Set cardHolderName
+     *
+     * @param string $cardHolderName
+     *
+     * @return ArchOrder
+     */
+    public function setCardHolderName($cardHolderName)
+    {
+        $this->card_holder_name = $cardHolderName;
+
+        return $this;
+    }
+
+    /**
+     * Get cardHolderName
+     *
+     * @return string
+     */
+    public function getCardHolderName()
+    {
+        return $this->card_holder_name;
+    }
+
+    /**
+     * Set clientInfo
+     *
+     * @param string $clientInfo
+     *
+     * @return ArchOrder
+     */
+    public function setClientInfo($clientInfo)
+    {
+        $this->client_info = $clientInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get clientInfo
+     *
+     * @return string
+     */
+    public function getClientInfo()
+    {
+        return $this->client_info;
+    }
+
+    /**
+     * Set shippingId
+     *
+     * @param integer $shippingId
+     *
+     * @return ArchOrder
+     */
+    public function setShippingId($shippingId)
+    {
+        $this->shipping_id = $shippingId;
+
+        return $this;
+    }
+
+    /**
+     * Get shippingId
+     *
+     * @return integer
+     */
+    public function getShippingId()
+    {
+        return $this->shipping_id;
+    }
+
+    /**
      * Set customer
      *
      * @param \AppBundle\Entity\User $customer
@@ -381,26 +527,26 @@ class ArchOrder
     }
 
     /**
-     * Set user
+     * Set shipping
      *
-     * @param string $user
+     * @param \AppBundle\Entity\ArchOrderShipping $shipping
      *
      * @return ArchOrder
      */
-    public function setUser($user)
+    public function setShipping(\AppBundle\Entity\ArchOrderShipping $shipping = null)
     {
-        $this->user = $user;
+        $this->shipping = $shipping;
 
         return $this;
     }
 
     /**
-     * Get user
+     * Get shipping
      *
-     * @return string
+     * @return \AppBundle\Entity\ArchOrderShipping
      */
-    public function getUser()
+    public function getShipping()
     {
-        return $this->user;
+        return $this->shipping;
     }
 }

@@ -1,0 +1,87 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Blog - Edit{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i> Pages / <a href="{{ path('admin_blog') }}">Blog</a> /</span> {{ item.name }}
+		<div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+                {{ form_row(form.name) }}
+                <label for="arch_blog_handle">Handle*</label>
+                {{ form_widget(form.handle) }}
+                {{ form_row(form.teaser) }}
+                <div class="row">
+                	<div class="col-md-6">
+                	    {{ form_row(form.display_date) }}
+                	</div>
+                	<div class="col-md-6">
+                	    {{ form_row(form.is_active) }}
+                	</div>
+                </div>
+                <hr />
+                <p><b>Main Content</b></p>
+                {{ form_row(form.image_main) }}
+                {% if item.imageMain %}
+                	<img src="{{ asset('images/blog/main/'~ item.imageMain ~'?id='~ 'now'|date('U')) }}" class="img-responsive mb-15" alt="{{ item.name }}" />
+                {% endif %}
+                {{ form_row(form.image_main_caption) }}
+                {{ form_row(form.content_main) }}
+                <hr />
+                <p><b>Sub-content</b></p>
+                {{ form_row(form.content_bottom_title) }}
+                {{ form_row(form.image_middle) }}
+                {% if item.imageMiddle %}
+                	<img src="{{ asset('images/blog/middle/'~ item.imageMiddle ~'?id='~ 'now'|date('U')) }}" class="img-responsive mb-15" alt="{{ item.name }}" />
+                {% endif %}
+                {{ form_row(form.image_middle_caption) }}
+                {{ form_row(form.content_bottom) }}
+                <hr />
+                {{ form_row(form.meta_title) }}
+                {{ form_row(form.meta_description) }}
+  			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+   			    <a href="{{ path('admin_blog') }}" class="btn btn-default">Cancel</a>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+</div>
+
+<div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lightboxLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">ﾃ�</button>
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="" alt="" />
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#sub-menu-pages').removeClass('hidden');
+	$('#submenu-blog').addClass('active');
+
+	$('#arch_blog_handle').removeClass('hidden');
+
+	$('#arch_blog_display_date').datepicker({
+	    dateFormat: 'yy-mm-dd',
+	    changeMonth: true, 
+	    changeYear: true, 
+    });
+});
+</script>
+{% endblock %}

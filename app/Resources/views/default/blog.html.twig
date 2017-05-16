@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ blog.metaTitle }}{% endblock %}
+{% block description %}{{ blog.metaDescription }}{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/blog.css') }}" rel="stylesheet" />
+	{% if mobile %}<link href="{{ asset('css/mobile.css') }}" rel="stylesheet">{% endif %}
+{% endblock %}
+{% block banner %}
+<section id="banner">
+	<div class="o-wrapper o-box--flush">
+		<figure class="c-banner">
+			<img src="{{ asset('images/blog/'~ blog.filename) }}" alt="{{ blog.bannerText }}" />
+			{% if blog.bannerOverlay == 1 %}<img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />{% endif %}
+			<figcaption>
+				<h1 class="u-ls-110{% if blog.bannerTextColor == 1 %} u-black{% endif %}">{{ blog.bannerText }}</h1>
+			</figcaption>
+		</figure>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / Blog
+	</div>
+	<div class="c-blog-text u-pt-40">
+    	<h2>{{ blog.header }}</h2>
+    	<div>{{ blog.intro }}</div>
+	</div>
+	
+	<div class="o-layout--center u-mt-55 u-ml-56">
+		{% for item in items %}<div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-pl-56">
+			<figure class="c-blog">
+				<img src="{{ asset('images/blog/thumb/'~ item.imageMain) }}" alt="{{ item.name }}" />
+				<a href="{{ path('blog_page', {'handle':item.handle}) }}">
+				<figcaption>
+					<h3>{{ item.name|upper }}</h3>
+					<div>{{ item.teaser }} <b>Read more.</b></div>
+				</figcaption>
+				</a>
+			</figure>
+		</div>{% endfor %}
+	</div>
+</div>
+
+{% include 'subscribe.html.twig' %}
+
+{% endblock %}

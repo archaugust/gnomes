@@ -51,6 +51,16 @@ class ArchProductBrand
      * @ORM\Column(type="text", nullable=true)
      */
     private $meta_description;
+    
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $hits;
+    
+    public function __construct() {
+    	$this->hits = 0;
+    }
+    
 
     /**
      * Get id
@@ -228,5 +238,29 @@ class ArchProductBrand
     public function getMetaDescription()
     {
         return $this->meta_description;
+    }
+
+    /**
+     * Set hits
+     *
+     * @param integer $hits
+     *
+     * @return ArchProductBrand
+     */
+    public function setHits($hits)
+    {
+        $this->hits = $hits;
+
+        return $this;
+    }
+
+    /**
+     * Get hits
+     *
+     * @return integer
+     */
+    public function getHits()
+    {
+        return $this->hits;
     }
 }

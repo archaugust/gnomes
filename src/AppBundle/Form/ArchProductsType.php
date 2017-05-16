@@ -13,6 +13,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Ivory\CKEditorBundle\Form\Type\CKEditorType;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class ArchProductsType extends AbstractType
 {
@@ -23,6 +24,7 @@ class ArchProductsType extends AbstractType
             ->add('base_name', TextType::class, array('label' => 'Name*'))
             ->add('handle', TextType::class, array('label' => 'Handle*'))
             ->add('description', CKEditorType::class, array('label' => 'Description', 'required' => false))
+            ->add('features', CKEditorType::class, array('label' => 'Features', 'required' => false))
             ->add('product_type',EntityType::class,
            		array(
            				'label' => 'Type',
@@ -64,7 +66,7 @@ class ArchProductsType extends AbstractType
             		'label' => 'Meta Title',
             		'required' => false
             ))
-            ->add('meta_description', TextType::class, array(
+            ->add('meta_description', TextareaType::class, array(
             		'label' => 'Meta Description',
             		'required' => false
             ))
@@ -142,6 +144,12 @@ class ArchProductsType extends AbstractType
             ->add('restock_level', NumberType::class, array(
             		'required' => false
             ))
+            ->add('size_guide', FileType::class, array(
+            		'data_class' => null,
+            		'required' => false,
+            		'label' => 'Sizing Chart Image',
+            ))
+            
             ->add('images', CollectionType::class, array(
             		'entry_type'    => ArchProductImageType::class,
             		'by_reference' => false,

@@ -1,14 +1,25 @@
 {% extends 'base.html.twig' %}
-{% block body %}
-    {{ parent() }}
-    {% for type, messages in app.session.flashBag.all %}
-        {% for message in messages %}
-            <div class="{{ type }}">
-                {{ message|trans({}, 'FOSUserBundle') }}
-            </div>
-        {% endfor %}
-    {% endfor %}
-
-    {% block fos_user_content %}
-    {% endblock fos_user_content %}
+{% block stylesheets %}
+<link href="{{ asset('css/fosuser.css') }}" rel="stylesheet" />
 {% endblock %}
+
+{% block content %}
+    {{ parent() }}
+<div class="o-layout--flush c-page u-pv-25">
+
+    {% if app.request.hasPreviousSession %}
+        {% for type, messages in app.session.flashbag.all() %}
+            {% for message in messages %}
+                <div class="flash-{{ type }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    {% include('flash.html.twig') %}
+
+    {% block fos_user_content %}{% endblock fos_user_content %}
+</div>
+{% endblock %}
+

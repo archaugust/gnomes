@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}{{ item.name }} | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.description|striptags|slice(0,160) }}{% endif %}{% endblock %}
+{% block stylesheets %}<link href="{{ asset('css/collections.css') }}" rel="stylesheet" />{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / <a href="{{ path('brands') }}">Brands</a> / {{ item.name }}
+	</div>
+	<div class="u-pt-30">{{ item.description|raw }}</div>
+</div>
+<form method="post">
+<div class="o-layout--flush o-collection">
+	<div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/1@mobile u-pb-40">
+    		<b>REFINE BY</b>
+    		<div class="filter-group">Gender</div>
+			<div class="filter">
+				<input class="check-tag" type="checkbox" id="tag-Male" value="Male" /><label for="tag-Male"><div>Male</div></label>
+			</div>
+			<div class="filter">
+				<input class="check-tag" type="checkbox" id="tag-Female" value="Female" /><label for="tag-Female"><div>Female</div></label>
+			</div>
+			<div class="filter">
+				<input class="check-tag" type="checkbox" id="tag-Youth" value="Youth" /><label for="tag-Youth"><div>Youth</div></label>
+			</div>
+			<hr />
+			<div class="filter-group">Price</div>
+{% for i in range(0, 150, 50) %}
+			<div class="filter">
+				<input class="check-price" type="checkbox" id="price-{{ i }}" value="{{ i }}-{{ i+50 }}" /><label for="price-{{ i }}"><div>{{ i }}-{{ i+50 }}</div></label>
+			</div>
+{% endfor %}
+{% for i in range(200, 400, 100) %}
+			<div class="filter">
+				<input class="check-price" type="checkbox" id="price-{{ i }}" value="{{ i }}-{{ i+100 }}" /><label for="price-{{ i }}"><div>{{ i }}-{{ i+100 }}</div></label>
+			</div>
+{% endfor %}
+{% for i in range(500, 750, 250) %}
+			<div class="filter">
+				<input class="check-price" type="checkbox" id="price-{{ i }}" value="{{ i }}-{{ i+250 }}" /><label for="price-{{ i }}"><div>{{ i }}-{{ i+250 }}</div></label>
+			</div>
+{% endfor %}
+			<div class="filter">
+				<input class="check-price" type="checkbox" id="price-1050" value="1050-1000000" /><label for="price-1050"><div>1000+</div></label>
+			</div>
+	</div><div class="o-layout__item u-4/5@desktop u-2/3@tablet u-1/1@mobile">
+		<div class="o-box o-box--flush u-mb-55">
+			<div class="o-sort-order">
+				<i class="fa fa-angle-down"></i>
+				<div id="current">SORT BY: FEATURED</div>
+				<div class="popup">
+					<a id="price-desc">PRICE: HIGH to LOW</a>
+					<a id="price-asc">PRICE: LOW to HIGH</a>
+					<a id="name-asc">ALPHABETICAL A-Z</a>
+					<a id="name-desc">ALPHABETICAL Z-A</a>
+				</div>
+			</div> 
+		</div>
+		<div class="o-layout--flush o-products">
+            {% for product in items %}<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile o-product">
+{% if product.discount_type == 'Discount' %}<img src="{{ asset('images/product-sale.png') }}" alt="Sale" class="c-badge-image" />{% endif %}
+{% if product.new %}
+					<div class="c-badge">NEW</div>
+{% endif %}
+   				<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset(product.image) }}" alt="{{ product.name }}" /></a>
+				<div class="wishlist">
+					<a class="toggle-wishlist{% if product.in_wishlist %} active" title="Remove from Wishlist"{% else %}" title="Add to Wishlist"{% endif %}><i class="fa fa-heart"></i></a>
+				</div>
+				<a href="{{ path('product', {'handle':product.handle|lower}) }}" class="name">{{ product.name }}</a>
+				<div class="price">${{ product.price|number_format(2,'.',',') }}</div>
+				{% if product.discount %}
+					{% if product.discount_type == 'Discount' %}
+					<div class="discount">SALE: ${{ product.discount|number_format(2,'.',',') }}</div>
+					{% else %}
+					<div class="vip">VIP: ${{ product.discount|number_format(2,'.',',') }}</div>
+					{% endif %}
+				{% endif %}
+				<div class="u-hidden">
+					<div class="filter-price">{{ product.price }}</div>
+					<div class="filter-brand">{{ product.brand }}</div>
+					<div class="filter-tags">{{ product.tags }}</div>
+					<input type="hidden" value="{{ product.handle }}" />
+				</div>
+			</div>{% endfor %}
+		</div>
+	</div>
+</div>
+</form>
+<input type="hidden" id="brand" value="{{ item.name }}" />
+{% endblock %}
+
+{% block javascripts %}
+<script>
+if (localStorage.getItem("brand") != $('#brand').val()) 
+	localStorage.clear();
+localStorage.setItem("brand", $('#brand').val());
+</script>
+	<script src="{{ asset('js/collection.js') }}"></script>
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+{% endblock %}

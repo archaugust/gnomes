@@ -1,0 +1,45 @@
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    {% set logged = 1 %}
+{% else %}
+    {% set logged = 0 %}
+{% endif %}
+
+{% if items|length == 0 %}
+	<div class="u-pl-40 u-pb-40">Add items to your wishlist.</div>
+{% else %}
+	{% for key, product in items %}
+	<div class="o-wishlist-item">
+		<input type="hidden" class="o-wishlist-key" value="{{ key }}" />
+		<div class="o-wishlist-item-image"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></div>
+		<div class="o-wishlist-item-details">
+			<b><a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}</a></b>
+			<div>
+				PRICE: ${{ product.price|number_format(2,'.',',') }} 
+				{% if (product.discount_price > 0) %}
+					<span class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</span>
+				{% endif %}
+			</div>
+		</div>
+		<div class="o-wishlist-item-remove">
+			<img src="{{ asset('images/icon-cart-remove.png') }}" alt="Remove" title="Remove" />
+		</div>
+	</div>
+	{% endfor %}
+{% endif %}
+<script>
+$('.o-wishlist-item-remove').click(function(){
+	var parent = $(this).closest('.o-wishlist-item'),
+		handle = parent.find('.o-wishlist-key').val();
+
+    $.ajax({
+	    url: "/wishlist-toggle",
+	    data: 'mode=remove&handle='+ handle,
+        type: "POST",
+        success: function (data) {
+        	parent.remove();
+        	setTimeout(reloadWishlist, 1000);
+        }
+    });
+
+});
+</script>

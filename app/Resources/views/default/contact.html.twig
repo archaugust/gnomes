@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+{% block title %}Contact Us | Darfield, Canterbury | Gnomes Alpine Sports{% endblock %}
+{% block description %}Get in touch with us! You can contact the team at our Darfield store in Canterbury, or get in touch online.{% endblock %}
+{% block stylesheets %}
+<link href="{{ asset('css/contact.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="c-page">
+	<div class="o-layout--flush c-page-padded c-page-900">
+    	<div class="o-layout__item u-1/2@desktop u-1/1@tablet">
+    		<h1>GET IN TOUCH</h1>
+    		<p>We realise that buying good gear can sometimes be a challenge and making the right choice is not always easy. Rest assured, expert, friendly advice is only a phone call or a few clicks away. We love to have a good yarn, so don’t hesitate to jump on the dog and bone or flick us a quick message below.</p>
+    		<div class="o-form">
+    		{{ form_start(form, {'attr': {'id':'contactForm'}}) }}
+            {{ form_errors(form) }}
+            {{ form_row(form.name) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.subject) }}
+            {{ form_row(form.message) }}
+            {{ form_widget(form.save, {'attr':{'id':'recaptcha2'}}) }}
+            {{ form_end(form) }}
+            <div id="contactDiv" class="u-mb-35"></div>
+            </div>
+    	</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-col-left">
+    		<h2>GNOMES ALPINE SPORTS</h2>
+    		<p>26 South Terrace, Darfield<br />
+    		Canterbury, 7510<br />
+    		<b>Phone:</b> 03 318 8433<br />
+    		<b>Email:</b> {{ render(controller("AppBundle:Action:hideEmail", {'email':email}))}}
+    		</p>
+    		<h3>SHOP HOURS</h3>
+    		<p><b>Monday - Friday:</b> 9am - 5pm<br />
+    		<b>Saturday:</b> 9am - 2pm<br />
+    		<b>Sunday:</b> Closed
+    		</p>
+    		<p>For custom ski boot fitting, please call ahead and make an appointment before heading out to ensure we have an experienced boot fitter at hand.</p>
+    		<hr />
+    		<h3>CONNECT</h3>
+    		<div class="o-social">
+        		<div>
+        			<a href="https://www.facebook.com/gnomes.alpine.sports" target="_blank"><i class="fa fa-facebook"></i></a>
+        			<a href="https://twitter.com/Gnomes_Snow" target="_blank"><i class="fa fa-twitter"></i></a>
+        			<a href="#" target="_blank"><i class="fa fa-instagram"></i></a>
+        		</div>
+    		</div>
+    		<div class="o-subscribe">
+    			<h3>STAY TUNED</h3>
+    			<p>Sign up to our newsletter for news, views, deals & discounts.</p>
+    			<form id="subscribeForm" method="post" action="{{ path('subscribe') }}">
+    				<input type="text" class="u-form-control" name="name" placeholder="Name" required="required" />
+    				<input type="email" id="email" class="u-form-control" name="email" placeholder="Email" required="required" />
+    				<button id="recaptcha1" type="submit" class="c-btn c-btn--primary u-fs-15 u-ls-110">GO</button><span id="messageDiv"></span>
+    			</form>
+    		</div>
+    	</div>
+	</div>
+	<hr />
+	<div id="find-us" class="o-layout--center c-page-padded c-page-900">
+		<img src="{{ asset('images/icon-find-us.png') }}" class="u-mb-35" alt="Find Us" />
+		<h3>FIND US</h3>
+		<p>We’re at 26 South Terrace in Darfield. Navigate to us using the nifty map below, courtesy of Mr Google.<br />
+		<b>If you’re a bit old school, here are some directions:</b> From Christchurch, follow Highway 73 heading west towards Arthur’s Pass. Once in Darfield follow the main road (73) and we are on your right-hand-side. It takes 30 minutes from Christchurch to Darfield. There is plenty of parking directly outside the shop or in our carpark found at the rear.</p>
+		<div class="u-blue u-mb-35"><i class="fa fa-angle-down"></i></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block content_bottom %}
+<div id="map"></div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+var recaptcha1, recaptcha2;
+var onloadCallback = function() {
+	recaptcha1 = grecaptcha.render('recaptcha1', {
+	      'sitekey' : '{{ site_key }}',
+	      'callback' : onSubmit
+	    });
+	recaptcha2 = grecaptcha.render('contact_save', {
+	      'sitekey' : '{{ site_key }}',
+		  'callback' : onContactSubmit
+	  });
+};
+
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDcV6k3cGYqleEGCBXdcED83l7Ylsoj6k&callback=initMap"></script>
+<script src="{{ asset('js/contact.js') }}"></script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"></script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}Checkout - Confirmation | Gnomes Alpine Sports{% endblock %}
+{% block description %}Confirmation.{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/checkout.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page c-page--checkout">
+	<div class="c-breadcrumbs">
+		<a href="{{ path('checkout') }}">Cart</a> / Shipping / Payment / Confirmation
+	</div>
+    {% include('flash.html.twig') %}
+    <div class="u-pv-40">
+    	<h1>Order Confirmation</h1>
+    	<p>Thank you for placing your order with {{ shop_name }}!</p>
+
+        <p>GST Number: 091-835-169</p>
+        
+        <p>An email has been sent to confirm your order.</p>
+    </div>
+	<div class="o-help u-mb-40">Need help? <span>Just get on the blower (03 318 8433) or shoot us an email: {{ render(controller('AppBundle:Action:hideEmail', {'email':email})) }}</span></div>
+</div>
+<input type="hidden" class="shipping-cost" />
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(function(){
+	localStorage.clear();	
+});
+</script>
+	<script src="{{ asset('js/checkout.js') }}"></script>
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+{% endblock %}

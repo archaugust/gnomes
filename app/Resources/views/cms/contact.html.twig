@@ -1,0 +1,90 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Contact Messages{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-envelope"></i> Contact Messages
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+				<form method="post">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+    						<th class="check">
+    							<div class="check-box">
+   	    							<input type="checkbox" id="check-all" />
+        							<div class="with-checked">
+    	    							<div id="selected"></div>
+                                		<div class="dropdown">
+                                			<div class="btn btn-sm btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Actions <i class="fa fa-caret-down"></i></div>
+                                      		<ul class="dropdown-menu option-box">
+                                      			<li><a id="deleteConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Delete</a></li>
+                                      		</ul>
+                                        </div>
+        							</div>
+    							</div>
+    						</th>
+    						<th>Received</th>
+    						<th>Name</th>
+    						<th>Email</th>
+    						<th>Subject</th>
+    						<th>Message</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for item in items %}
+						<tr class="order">
+							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
+							<td>{{ item.dateSubmitted|date('j F Y - g:i a') }}</td>
+							<td>{{ item.name }}</td>
+							<td>{{ item.email }}</td>
+							<td>{{ item.subject }}</td>
+							<td>{{ item.message }}</td>
+						</tr>
+					{% endfor %}
+					{% if (items|length == 0) %}
+						<tr><td colspan="6">Nothing to display.</td></tr>
+					{% endif %}
+					</tbody>
+				</table>
+
+				<input type="hidden" name="list_action" id="list_action" value="" />
+
+                <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4>Confirm</h4>
+                      </div>
+                      <div class="modal-body">
+                    	<p><span id="text_action"></span> selected items?</p>
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Proceed" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-contact').addClass('active');
+});
+</script>
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

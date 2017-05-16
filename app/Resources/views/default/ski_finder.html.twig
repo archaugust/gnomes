@@ -1,0 +1,253 @@
+{% extends 'base.html.twig' %}
+{% block title %}Ski Finder | Gnomes Alpine Sports{% endblock %}
+{% block description %}Use our unique Ski Finder find the ski(s) that are best suited to your ability and the places you like to ski.{% endblock %}
+{% block stylesheets %}
+<link href="{{ asset('css/ski-finder.css') }}" rel="stylesheet" />
+<link href="{{ asset('css/collections.css') }}" rel="stylesheet" />
+{% endblock %}
+{% block banner %}
+<section id="banner">
+	<div class="o-wrapper o-box--flush">
+		<figure class="c-banner">
+			<img src="{{ asset('images/banner-ski-finder.jpg') }}" alt="Find Your Perfect Ski" />
+			<figcaption>
+				<h1 class="u-ls-110 u-black">Find Your Perfect Ski</h1>
+			</figcaption>
+		</figure>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush">
+	<div class="c-ski-finder">
+		<form method="post" id="form_finder">
+		<img src="{{ asset('images/icon-wayfinder.png') }}" alt="Ski Finder" />
+    	<h2>Gnomes Ski Finder</h2>
+    	<div class="u-ls-20 u-mb-40">Use our unique Ski Finder feature below to find the ski(s) that are best suited to your ability and the places you like to ski. Complete all the fields, hit ‘Find My Perfect Ski’ and your info will hit our inbox, ready for us to assess and get back to you with suggestions.</div>
+    	<b>START</b>
+    	<div class="u-blue"><i class="fa fa-angle-down"></i></div>
+    	<div class="o-criteria u-pt-25">
+    		<h3 class="u-blue u-margin-none"><span>1</span> Technical Ability</h3>
+    		<div class="o-criteria-box">
+    			<div class="current"><span class="light">Select One</span></div> <i class="fa fa-angle-down"></i>
+    			<input class="selected" type="hidden" name="criteria_1" />
+    			<div class="choices">
+    				<div><input type="hidden" value="1" /><span class="text"><span>Beginner:</span> I won’t be uploading to social just yet</span></div>
+					<div><input type="hidden" value="2" /><span class="text"><span>Intermediate:</span>  I look tidy on moderate trails but steeper gradients get the better of me</span></div>
+					<div><input type="hidden" value="3" /><span class="text"><span>Advanced:</span>  I ski well in most conditions but tricky snow catches me out</span></div>
+					<div><input type="hidden" value="4" /><span class="text"><span>Expert:</span> I should be/was a ski instructor. Technically correct in all terrain, in all snow conditions</span></div>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>2</span> Experience</h3>
+    		<div class="o-criteria-box">
+    			<div class="current"><span class="light">Select One</span></div> <i class="fa fa-angle-down"></i>
+    			<input class="selected" type="hidden" name="criteria_2" />
+    			<div class="choices">
+    				<div><input type="hidden" value="1" /><span class="text"><span>Limited:</span>  I'm really just starting out</span></div>
+					<div><input type="hidden" value="2" /><span class="text"><span>So-so:</span>  I have skied at least one NZ season</span></div>
+					<div><input type="hidden" value="3" /><span class="text"><span>Oodles:</span>  I have a few season passes to prove it</span></div>
+					<div><input type="hidden" value="4" /><span class="text"><span>Colossal:</span>  These grey hairs can tell stories of the best pow days</span></div>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>3</span> Approach</h3>
+    		<div>On skis, are you timid as a kitten or fierce as a lion?</div>
+    		<div class="o-criteria-box">
+    			<div class="current"><span class="light">Select One</span></div> <i class="fa fa-angle-down"></i>
+    			<input class="selected" type="hidden" name="criteria_3" />
+    			<div class="choices">
+    				<div><input type="hidden" value="1" /><span class="text"><span>Cautious:</span>  I like to stay in one piece</span></div>
+					<div><input type="hidden" value="2" /><span class="text"><span>Dabbler:</span>  When I’m feeling it, I’ll open it up</span></div>
+					<div><input type="hidden" value="3" /><span class="text"><span>Lion Cub:</span>   I usually ski hard but it's nice to chill at times</span></div>
+					<div><input type="hidden" value="4" /><span class="text"><span>Lion King:</span>  I'm adrenaline loaded and constantly crank high speed turns</span></div>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>4</span> Favourite Hangouts</h3>
+    		<div>Where do you like to strut your stuff? Select multiple.</div>
+    		<div class="o-checkboxes">
+    			<div class="o-option"><input class="u-hidden" type="checkbox" name="criteria_4[]" value="1" /> <div></div> North Island Resorts</div>
+    			<div class="o-option"><input class="u-hidden" type="checkbox" name="criteria_4[]" value="2" /> <div></div> South Island Resorts</div>
+    			<div class="o-option"><input class="u-hidden" type="checkbox" name="criteria_4[]" value="3" /> <div></div> The Clubbies</div>
+    			<div class="o-option"><input class="u-hidden" type="checkbox" name="criteria_4[]" value="4" /> <div></div> Nth America</div>
+    			<div class="o-option"><input class="u-hidden" type="checkbox" name="criteria_4[]" value="5" /> <div></div> Japan</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>5</span> Favourite Flavour</h3>
+    		<div>What type of terrain floats your boat?</div>
+    		<div class="o-criteria-box">
+    			<div class="current"><span class="light">Select One</span></div> <i class="fa fa-angle-down"></i>
+    			<input class="selected" type="hidden" name="criteria_5" />
+    			<div class="choices">
+    				<div><input type="hidden" value="1" /><span class="text"><span>Groomers:</span> I love to hang out on prepared trails</span></div>
+					<div><input type="hidden" value="2" /><span class="text"><span>50/50:</span> I'll go off-piste if conditions are good but I'm just as happy on groomers</div>
+					<div><input type="hidden" value="3" /><span class="text"><span>Freeride:</span>  I only ski on groomers for a warmup or if the snow is shockingly bad</span></div>
+					<div><input type="hidden" value="4" /><span class="text"><span>Powder:</span> These bad boys are for Japan, North America or those epic days in NZ</span></div>
+					<div><input type="hidden" value="5" /><span class="text"><span>Backcountry:</span> I'm looking for something lighter that I can mount with touring bindings</span></div>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>6</span> Specialist or All  Rounder?</h3>
+    		<div>Will this be your only pair of skis?</div>
+    		<div class="o-checkboxes">
+    			<div class="o-option radio"><input class="u-hidden" type="checkbox" name="criteria_6[]" value="1" /> <div></div> Yes, this will be my only pair</div>
+    			<div class="o-option radio"><input class="u-hidden" type="checkbox" name="criteria_6[]" value="2" /> <div></div> No, I’m adding these to my quiver</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>7</span> Fat or Skinny?</h3>
+    		<div>Which waist widths are you considering?</div>
+    		<div class="o-criteria-box">
+    			<div class="current"><span class="light">Select One</span></div> <i class="fa fa-angle-down"></i>
+    			<input class="selected" type="hidden" name="criteria_7" />
+    			<div class="choices">
+    				<div><input type="hidden" value="1" /><span class="text">I’ll leave it to your expert advice</span></div>
+					<div><input type="hidden" value="2" /><span class="text">70-80mm</span></div>
+					<div><input type="hidden" value="3" /><span class="text">81-90mm</span></div>
+					<div><input type="hidden" value="4" /><span class="text">91-100mm</span></div>
+					<div><input type="hidden" value="5" /><span class="text">101-110mm</span></div>
+					<div><input type="hidden" value="6" /><span class="text">111+</span></div>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>8</span> Retired Flotilla</h3>
+    		<div class="u-pb-20">What skis have you owned in the past?</div>
+   			<textarea name="criteria_8" placeholder="Eg: Stiff Rossignol carving skis, soft Armada jib sticks etc."></textarea>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>9</span> Likes & Dislikes</h3>
+    		<div class="u-pb-20">What have you liked and/or disliked about your old skis?</div>
+   			<textarea name="criteria_9" placeholder="We’re not just asking about the graphics either...."></textarea>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>10</span> Expectations</h3>
+    		<div class="u-pb-20">What traits are you expecting from your new sticks?</div>
+   			<textarea name="criteria_10" placeholder="Eg: Aggressive, forgiving, easy to turn etc."></textarea>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>11</span> The Personal Stuff</h3>
+    		<div class="u-pb-20">Let us know a little more about you so we can be confident in finding your perfect ski.</div>
+   			<div class="o-layout u-ml-52">
+   				<div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-52">
+   					Name
+   					<input type="text" name="name" required="required" />
+   				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-52">
+   					Email
+   					<input type="email" id="email" name="email" required="required" />
+   				</div>
+   			</div>
+   			<div class="o-layout u-ml-52 u-ph-80">
+   				<div class="o-layout__item u-1/4@tablet u-1/1@mobile u-pl-52">
+   					Height (cm)
+   					<select name="height">
+   						{% for i in range(148, 204, 2) %}<option>{{ i }}</option>{% endfor %}
+   					</select>
+   				</div><div class="o-layout__item u-1/4@tablet u-1/1@mobile u-pl-52">
+   					Weight (kg)
+   					<select name="weight">
+   						{% for i in range(44, 104, 2) %}<option>{{ i }}</option>{% endfor %}
+   					</select>
+   				</div><div class="o-layout__item u-1/4@tablet u-1/1@mobile u-pl-52">
+   					Age
+   					<input type="text" name="age" />
+   				</div><div class="o-layout__item u-1/4@tablet u-1/1@mobile u-pl-52">
+   					Gender
+   					<select name="gender">
+   						<option>Male</option>
+   						<option>Female</option>
+   					</select>
+   				</div>
+   			</div>
+    	</div>
+    	<div class="o-criteria">
+    		<h3 class="u-blue"><span>12</span> Hook Ups</h3>
+    		<div>Sign up for news, discounts, giveaways and special offers?</div>
+    		<div class="o-checkboxes">
+    			<div class="o-option"><input class="u-hidden" type="checkbox" name="subscribe" value="1" /> <div></div> Yes please!</div>
+    		</div>
+    	</div>
+    	<div class="u-pv-30">
+    		<button id="recaptcha1" class="c-btn c-btn--gray c-btn--wide">FIND MY PERFECT SKI</button>
+    	</div>
+    	</form>
+    	<div class="o-criteria u-mb-40" id="messageDiv">
+    	</div>
+	</div>
+</div>
+
+<div id="resultDiv">
+</div>
+
+{% include 'subscribe.html.twig' %}
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function validateEmail(emailAddress) {
+    var pattern = new RegExp(/^(("[\w-+\s]+")|([\w-+]+(?:\.[\w-+]+)*)|("[\w-+\s]+")([\w-+]+(?:\.[\w-+]+)*))(@((?:[\w-+]+\.)*\w[\w-+]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][\d]\.|1[\d]{2}\.|[\d]{1,2}\.))((25[0-5]|2[0-4][\d]|1[\d]{2}|[\d]{1,2})\.){2}(25[0-5]|2[0-4][\d]|1[\d]{2}|[\d]{1,2})\]?$)/i);
+    return pattern.test(emailAddress);
+}
+
+function onSubmit(token) {
+	var emptyFields = $('#form_finder input[required]').filter(function() {
+	    return $(this).val() === "";
+	}).length;
+
+	if (emptyFields === 0) {
+		if (validateEmail($('#email').val()))
+			$('#form_finder').trigger('submit');
+		else
+			$('#messageDiv').html('Please enter a valid email address.');
+	}
+	else {
+		$('#messageDiv').html('Please enter your name and email.');
+	}
+	grecaptcha.reset(recaptcha1);
+}
+
+var recaptcha1;
+var onloadCallback = function() {
+	recaptcha1 = grecaptcha.render('recaptcha1', {
+	      'sitekey' : '{{ site_key }}',
+	      'callback' : onSubmit
+	    });
+
+};
+
+$('#form_finder').submit(function(event) {
+	var data = $(this).serialize();
+    var recaptcha = grecaptcha.getResponse(recaptcha1);
+    $('.c-btn').html('Sending...');
+    $.ajax({
+        url: "/ski-finder-request",
+        data: data+"&g-recaptcha-response="+recaptcha,
+        type: "POST",
+        success: function (data) {
+        	localStorage.clear();
+            $('.c-btn').html('Request Sent');
+            if (data != 'error') {
+                $('#recaptcha1').prop('disabled','disabled');
+            	$('#messageDiv').hide().html('<h3 class="u-blue u-margin-none">Thanks for that!</h3><div class="u-ls-20">Your info is now blasting through cyberspace en route to our inbox. We’ll take a look and be right in touch!</div>').fadeIn();
+            	$('#resultDiv').hide().html(data).slideDown();
+            } 
+            else {
+            	$('#messageDiv').html('Robot verification failed, please try again.');
+            	grecaptcha.reset(recaptcha1);
+            }
+        }
+    });
+    event.preventDefault();
+});
+</script>
+<script src="{{ asset('js/ski-finder.js') }}"></script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"></script>
+{% endblock %}

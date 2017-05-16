@@ -1,0 +1,8 @@
+<p>{{ null }} null.</p>
+<p>{{ change }} changed.</p>
+<p>{{ redo }} redo.</p>
+<p>{{ offset }} products' images loaded. Page {{ page }} of {{ pages }}.</p>
+{% if page < pages %}<a href="{{ path('shopify_get_product_images') }}?page={{ page+1 }}">Next Page</a>{% endif %}
+{% for item in processed %}
+{{ item.name }} - {{ item.variantParentId }}<br />
+{% endfor %}

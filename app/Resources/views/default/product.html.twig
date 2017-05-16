@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+
+{% if collection.guides|length > 0 %}
+    {% set guide = collection.guides[0] %}
+{% else %}
+	{% set guide = null %}
+{% endif %}
+
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}{{ item.name }} | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.description|striptags|slice(0,160) }}{% endif %}{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/product.css') }}" rel="stylesheet" />
+	<link href="{{ asset('css/slick.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / <a href="{{ path('collection', {'handle':collection.handle}) }}">{{ collection.name }}</a> / {{ item.baseName }}
+	</div>
+</div>
+
+{% include('flash.html.twig') %}
+<div class="o-layout--flush o-product-details">
+	{% if discount_type == 'Discount' %}<img src="{{ asset('images/product-sale.png') }}" alt="Sale" class="c-badge-image c-badge-product" />{% endif %}
+	<div class="o-layout__item u-1/2@desktop u-1/1@mobile">
+{% if item.images|length > 0 %}
+	{% if item.images|length > 1 %}
+    	<div class="slider-main">
+        {% for image in item.images %}
+              <div><a href="#" data-toggle="modal" data-target="#lightbox"><img class="large" src="{{ asset('images/products/full/'~ image.filename) }}" alt="{{ item.baseName }}" /></a></div>
+        {% endfor %}
+    	</div>
+    	<div class="slider">
+           	<div class="slider-images">
+            {% for image in item.images %}
+                  <div><img src="{{ asset('images/products/thumb/'~ image.filename) }}" alt="{{ item.baseName }}" /></div>
+            {% endfor %}
+            </div>
+        </div>
+    {% else %}
+    	<a href="#" data-toggle="modal" data-target="#lightbox"><img class="large" src="{{ asset('images/products/full/'~ item.images[0].filename) }}" alt="{{ item.baseName }}" /></a>
+    {% endif %}
+{% else %}
+		<img src="{{ item.image }}" alt="{{ item.name }}" />
+{% endif %}
+		{% if item.video %}<div class="o-video"><div class="o-video-container">{{ item.video|raw }}</div></div>{% endif %}
+	</div><div class="o-layout__item u-1/2@desktop u-1/1@mobile details">
+    {% if item_new %}
+			<div class="c-badge c-badge-left">NEW</div>
+    {% endif %}
+		<h1>{{ item.baseName }}</h1>
+		<div class="price" id="price">${{ item.price|number_format(2,'.',',') }}</div>
+		{% if item.discountPrice %}
+			<div class="discount-container">
+			{% if discount_type == 'Discount' %}
+				<div class="discount"><span>SALE: </span><div id="price_discount">${{ item.discountPrice|number_format(2,'.',',') }}</div></div> <div class="sign-up"><a href="/register">Sign up / Join</a> For SALE Pricing</div>
+			{% else %}
+				<div class="vip"><span>VIP: </span><div id="price_discount">${{ item.discountPrice|number_format(2,'.',',') }}</div></div> <div class="sign-up"><a href="/register">Sign up / Join</a> For VIP Pricing</div>
+			{% endif %}
+			</div>
+		{% endif %}
+	    <div class="description">
+	    	{% if item.preSell and item.preSellTextId %}
+	    		<strong>{{ item.preSellText.content }}</strong>
+	    		<hr />
+	    	{% endif %}
+	        {{ item.description|raw }}
+	    </div>
+		<hr />
+		<div class="u-pb-25">
+		<form method="post" action="{{ path('cart_add') }}" id="productForm">
+			<div class="o-variants">
+				<div class="{% if (item.count > 0 or item.preSell == 1) %}o-variant active{% else %}disabled u-tooltip" title="Out of Stock{% endif %}">
+					{{ item.variantOptionOneValue }}
+					{% if item.variantOptionTwoName %} / {{ item.variantOptionTwoValue }}{% endif %}
+					{% if item.variantOptionThreeName %} / {{ item.variantOptionThreeValue }}{% endif %}
+					<input type="hidden" value="{{ item.id }}" />
+					<input class="price_variant" type="hidden" value="${{ item.price|number_format(2,'.',',') }}" />
+					<input class="price_variant_vip" type="hidden" value="${{ item.discountPrice|number_format(2,'.',',') }}" />
+				</div>
+				{% if variants|length > 0 %}
+				{% for variant in variants %}
+				<div class="{% if (variant.count > 0 or variant.preSell == 1) %}o-variant{% else %}disabled u-tooltip" title="Out of Stock{% endif %}">
+					{{ variant.variantOptionOneValue }}
+					{% if variant.variantOptionTwoName %} / {{ variant.variantOptionTwoValue }}{% endif %}
+					{% if variant.variantOptionThreeName %} / {{ variant.variantOptionThreeValue }}{% endif %}
+					<input type="hidden" value="{{ variant.id }}" />
+					<input class="price_variant" type="hidden" value="${{ variant.price|number_format(2,'.',',') }}" />
+					<input class="price_variant_vip" type="hidden" value="${{ variant.discountPrice|number_format(2,'.',',') }}" />
+				</div>
+				{% endfor %}
+				{% endif %}
+			</div>
+			<input type="hidden" name="product" id="product" value="{{ item.id }}" />
+			<button type="submit" class="c-btn c-btn--cart">Add to Cart</button>
+			<div id="messageDiv"></div>
+		</form>
+		</div>
+		{% if item.features %}
+		<div class="o-dropdown-details">
+			<hr />
+			<h3>Features &amp; Specs <span><i class="fa fa-angle-up fa-angle-down"></i></span></h3>
+			<div class="o-dropdown-details-content">
+			    {{ item.features|raw }}
+			</div>
+		</div>
+		{% endif %}
+		{% if item.sizeGuide %}
+		<div class="o-dropdown-details">
+			<hr />
+			<a href="#" data-toggle="modal" data-target="#lightbox">
+				<h3>Sizing Chart <span><i class="fa fa-angle-up fa-angle-down"></i></span></h3>
+				<img src="{{ asset('images/size-guides/'~ item.sizeGuide) }}" alt="Sizing Chart" class="u-hidden" />
+			</a>
+		</div>
+		{% endif %}
+		{% if guide %}
+		<div class="o-dropdown-details">
+			<hr />
+			<a href="#buying-guide"><h3>Buying Guide <span><i class="fa fa-angle-up fa-angle-down"></i></span></h3></a>
+		</div>
+		{% endif %}
+		{% if collection.id == 10 or collection.id == 65 %}
+		<div class="o-dropdown-details">
+			<hr />
+			<a href="/ski-finder"><h3>Ski Finder <span><i class="fa fa-angle-up fa-angle-down"></i></span></h3></a>
+		</div>
+		{% endif %}
+		<div class="o-dropdown-details">
+			<hr />
+			<h3>Shipping <span><i class="fa fa-angle-up fa-angle-down"></i></span></h3>
+			<div class="o-dropdown-details-content u-pb-20">
+			    Free shipping on orders over $99.
+			</div>
+		</div>
+	</div>
+	<hr class="u-mt-40" />
+	<h3>You might also like</h3>
+	<div class="o-layout--flush o-products">
+        {% for product in related_tags %}<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile o-product">
+    {% if product.new %}
+					<div class="c-badge">NEW</div>
+    {% endif %}
+        	<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset(product.image) }}" alt="{{ product.name }}" /></a>
+			<div class="wishlist">
+				<a class="toggle-wishlist{% if product.in_wishlist %} active" title="Remove from Wishlist"{% else %}" title="Add to Wishlist"{% endif %}><i class="fa fa-heart"></i></a>
+			</div>
+			<a href="{{ path('product', {'handle':product.handle|lower}) }}" class="name">{{ product.name }}</a>
+			<input type="hidden" value="{{ product.handle }}" />
+			<div class="price">${{ product.price|number_format(2,'.',',') }}</div>
+			{% if product.discount %}<div class="vip">VIP: ${{ product.discount|number_format(2,'.',',') }}</div>{% endif %}
+		</div>{% endfor %}
+	</div>
+	
+</div>
+{% endblock %}
+
+{% block content_bottom %}
+<div class="o-layout--center u-bg-blue u-flash u-pv-25 u-fs-15">
+	<img src="{{ asset('images/icon-shipping.png') }}" alt="Shipping" /> &nbsp; Free NZ shipping on orders over $99
+</div>
+
+{% if guide %}
+<figure class="c-banner c-banner-guide">
+	<img src="{{ asset('images/collections/banner/'~ collection.image) }}" alt="{{ collection.bannerText }}" />
+</figure>
+
+<div id="buying-guide" class="o-wrapper o-box--flush">
+    <div class="o-layout--flush o-guide o-product-details">
+    	<div class="o-layout__item u-1/4@desktop u-1/1@mobile">
+    	</div><div class="o-layout__item u-3/4@desktop u-1/1@mobile o-guide-right">
+    		<h2>{{ guide.name }}</h2>
+    		<div class="intro">{{ guide.intro }}</div>
+    	</div>
+    	{% for step in guide.steps %}
+    	<hr />
+    	<div class="o-layout__item u-1/4@desktop u-1/1@mobile o-guide-left">
+    		<div>{{ loop.index }}</div>
+    		{{ step.name }}
+    		{% if step.image %}<img src="{{ asset('images/collections-guides/thumb/'~ step.image) }}" alt="{{ step.name }}" />{% endif %}
+    	</div><div class="o-layout__item u-3/4@desktop u-1/1@mobile o-guide-right">
+    		{{ step.details|raw }}
+    	</div>
+    	{% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="o-wrapper o-box--flush">
+    <div class="o-more-info">
+    	We have a complete range of demo skis at our Darfield store. <a href="{{ path('page', {'handle':'contact'}) }}">More info here</a>.
+    </div>
+	<h3>Here's something we prepared earlier</h3>
+	<div class="o-layout--flush o-products">
+        {% for product in related_collection %}<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile o-product">
+    {% if product.new %}
+					<div class="c-badge">NEW</div>
+    {% endif %}
+			<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset(product.image) }}" alt="{{ product.name }}" /></a>
+			<div class="wishlist">
+				<a class="toggle-wishlist{% if product.in_wishlist %} active" title="Remove from Wishlist"{% else %}" title="Add to Wishlist"{% endif %}><i class="fa fa-heart"></i></a>
+			</div>
+			<a href="{{ path('product', {'handle':product.handle|lower}) }}" class="name">{{ product.name }}</a>
+			<input type="hidden" value="{{ product.handle }}" />
+			<div class="price">${{ product.price|number_format(2,'.',',') }}</div>
+			{% if product.discount %}<div class="vip">VIP: ${{ product.discount|number_format(2,'.',',') }}</div>{% endif %}
+		</div>{% endfor %}
+	</div>
+	
+</div>
+
+<div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lightboxLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <a class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x fa-close"></i></a>
+        <div class="modal-content">
+            <div class="modal-body">
+                <a href="" target="_blank"><img src="" alt="" /></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$('#productForm').submit(function(event) {
+    $('.c-btn--cart').html('<i class="fa fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>');
+	var data = $(this).serialize();
+    $.ajax({
+        url: "/cart/add",
+        data: data,
+        type: "POST",
+        success: function (data) {
+            if (data != 'error') {
+                $('.c-btn--cart').html('Add to Cart')
+            	$('#messageDiv').hide().html(data).fadeIn();
+            	setTimeout(reloadCart,1000);
+            } 
+            else {
+            	$('#messageDiv').hide().html('Something went wrong, please try again.').fadeIn();
+            }
+        }
+    });
+    event.preventDefault();
+});
+</script>
+	<script src="{{ asset('js/slick.min.js') }}"></script>
+	<script src="{{ asset('js/lightbox.js') }}"></script>
+	<script src="{{ asset('js/product.js') }}"></script>
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+{% endblock %}

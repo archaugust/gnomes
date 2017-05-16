@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use ReCaptcha\ReCaptcha;
 
 /**
  * Controller managing the registration.
@@ -48,7 +47,11 @@ class RegistrationController extends Controller
         $userManager = $this->get('fos_user.user_manager');
         /** @var $dispatcher EventDispatcherInterface */
         $dispatcher = $this->get('event_dispatcher');
-
+        
+        $em = $this->getDoctrine()->getManager();
+        $secret = $em->getRepository('AppBundle:ArchConfig')->findOneBy(array('name' => 'google_recaptcha_secret'))->getValue();
+        $site_key = $em->getRepository('AppBundle:ArchConfig')->findOneBy(array('name' => 'google_recaptcha_key'))->getValue();
+        
         $user = $userManager->createUser();
         $user->setEnabled(true);
 
@@ -66,16 +69,19 @@ class RegistrationController extends Controller
 
         if ($form->isSubmitted())
         {
-            $recaptcha = new ReCaptcha('6LcrFQ0UAAAAAPL3VHWomOKF-BcTB1cd-NrYlVGj');
-            $resp = $recaptcha->verify($request->request->get('g-recaptcha-response'), $request->getClientIp());
-
-            if (!$resp->isSuccess())
-                $this->addFlash(
-                    'error',
-                    'Please confirm that you are not a robot.'
-                );
+        	$data = $request->request->all();
+        	if(isset($data['g-recaptcha-response']) && !empty($data['g-recaptcha-response'])) {
+        		$response = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=".$secret."&response=".$data['g-recaptcha-response']."&remoteip=".$_SERVER['REMOTE_ADDR']), true);
+        		
+        		if ($response['success'] == false) {
+	        		$this->addFlash(
+	                    'error',
+	                    'Please confirm that you are not a robot.'
+	                );
+        		}
+        	}
         }
-        if ($form->isSubmitted() && $resp->isSuccess()) {
+        if ($form->isSubmitted() && $response['success']) {
             if ($form->isValid()) {
                 $event = new FormEvent($form, $request);
                 $dispatcher->dispatch(FOSUserEvents::REGISTRATION_SUCCESS, $event);
@@ -88,6 +94,11 @@ class RegistrationController extends Controller
                 }
 
                 $dispatcher->dispatch(FOSUserEvents::REGISTRATION_COMPLETED, new FilterUserResponseEvent($user, $request, $response));
+                
+                // if accepts marketing
+                if ($user->getAcceptsMarketing()) {
+                
+                }
 
                 return $response;
             }
@@ -102,6 +113,7 @@ class RegistrationController extends Controller
 
         return $this->render('FOSUserBundle:Registration:register.html.twig', array(
             'form' => $form->createView(),
+        	'site_key' => $site_key
         ));
     }
 

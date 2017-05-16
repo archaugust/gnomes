@@ -121,12 +121,14 @@
         						<th class="sort text-right">Price</a></th>
         						<th class="sort text-right">Discounted</a></th>
         						<th class="sort text-right">In stock</th>
+        						<th class="sort text-center">Pre-sell</th>
         						<th class="sort text-center">Active</th>
     						</tr>
     					</thead>
     					<tbody>
     						<tr>
     							<td>
+    								<input type="hidden" value="{{ item.id }}" />
     								<a href="javascript:" class="btn btn-xs btn-default" data-toggle="modal" data-target="#addModal">Edit</a>
     							</td>
     						{% if item.variantOptionOneName != '' %}
@@ -142,14 +144,21 @@
     							<td align="right">{{ item.Price|number_format(2,'.',',') }}</td>
     							<td align="right">{% if item.discountPrice > 0 %}{{ item.discountPrice|number_format(2,'.',',') }}{% else %}-{% endif %}</td>
     							<td align="right">{{ item.count }}</td>
+                    			<td align="center">
+                    				<a href="javascript:void(0)" class="toggle-pre_sell">
+                    					<i class="fa fa-star{% if item.preSell != 1 %}-o" title="{% else %}" title="Not{% endif %} Pre-selling"></i>
+                    				</a>
+                    			</td>
     							<td align="center">Default</td>
     						</tr>
 
     						{% for variant in productVariants(item.id) %}
+    						{% if variant.deletedAt is null %}
     						<tr>
     							<td>
     								<input type="hidden" value="{{ variant.id }}" />
-    								<a href="{{ path('admin_product_variant_edit', {id:variant.id}) }}" class="btn btn-xs btn-default">Edit</a>
+    								<a href="#" class="btn btn-xs btn-default">Edit</a>
+    								{# <a href="{{ path('admin_product_variant_edit', {id:variant.id}) }}" class="btn btn-xs btn-default">Edit</a> #}
     							</td>
     						{% if item.variantOptionOneName != '' %}
     							<td>{{ variant.variantOptionOneValue }}</td>
@@ -162,13 +171,20 @@
         					{% endif %}
     							<td>{{ variant.sku }}</td>
     							<td align="right">{{ (variant.retailPrice + variant.tax)|number_format(2,'.',',') }}</td>
+    							<td align="right">{% if variant.discountPrice > 0 %}{{ variant.discountPrice|number_format(2,'.',',') }}{% else %}-{% endif %}</td>
     							<td align="right">{{ variant.count }}</td>
+                    			<td align="center">
+                    				<a href="javascript:void(0)" class="toggle-pre_sell">
+                    					<i class="fa fa-star{% if variant.preSell != 1 %}-o" title="{% else %}" title="Not{% endif %} Pre-selling"></i>
+                    				</a>
+                    			</td>
     							<td align="center">
         							<a href="javascript:void(0)" {% if item.isActive %}class="toggle-active"{% else %}data-toggle="tooltip" data-placement="left" title="Parent product is disabled"{% endif %}>
                     					<i class="fa fa-star{% if variant.isActive == 0 %}-o{% endif %}"></i>
                     				</a>
                     			</td>
     						</tr>
+    						{% endif %}
     						{% endfor %}
     					</tbody>
     				</table>
@@ -216,6 +232,12 @@
         	<div class="col-md-6">
                 {{ form_row(form.supplier_name) }}
         	</div>
+        	<div class="col-md-6">
+                {{ form_row(form.size_guide) }}
+                {% if item.sizeGuide %}
+                	<a href="#" data-toggle="modal" data-target="#lightbox"><img src="{{ asset('images/size-guides/'~ item.sizeGuide) }}" class="img-responsive" style="width: 50%" /></a>
+                {% endif %}
+        	</div>
 		</div>        
         {{ form_row(form.tags) }}
         <hr />
@@ -241,6 +263,7 @@
         </div>
         <hr />
         {{ form_row(form.description) }}
+        {{ form_row(form.features) }}
         {{ form_row(form.meta_title) }}
         {{ form_row(form.meta_description) }}
         {{ form_row(form.video) }}
@@ -339,7 +362,7 @@
 {% block javascripts %}
 {{ parent() }}
 <script src="{{ asset('js/tags.js') }}"></script>
-<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
 <script>
 $(function(){
 

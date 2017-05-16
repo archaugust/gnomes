@@ -1,0 +1,67 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* account */
+h1, h2 {
+	margin: 0 0 20px;
+	font-size: 21px;
+	font-weight: 300;
+	letter-spacing: .07em;
+}
+
+h2 {
+	text-transform: uppercase;
+	margin: 0;
+}
+
+.c-page {
+	font-weight: 300;
+	font-size: 13px;
+	
+	label {
+		display: block;
+		margin-top: 15px;
+		letter-spacing: .06em;
+	}
+
+	.c-btn {
+		font-weight: 700;
+		margin: 20px 0 15px;
+	}
+}
+.c-page-820 {
+	width: 820px;
+	padding: 20px 0 0;
+
+	.u-form-control {
+		width: 80%;
+	}
+
+	.o-layout__item {
+		padding: 50px 40px;
+		font-size: 13px;
+	}
+}
+
+.o-gray {
+	background: #f4f4f4;
+	
+	.u-form-control {
+		border: none;
+	}
+}
+
+@media (max-width: 767px) {
+	.c-page-820 {
+		width: 100%;
+		
+		.u-form-control {
+			width: 100%;
+		}
+	
+		.o-layout__item {
+			padding: 20px;
+		}
+	}
+}

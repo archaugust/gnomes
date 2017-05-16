@@ -1,0 +1,298 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* rental */
+.c-page-rental {
+	font-size: 13px;
+	letter-spacing: .02em;
+	
+	h2, h3 {
+		font-size: 21px;
+		font-weight: 300;
+		line-height: 36px;
+		margin: 0 0 5px;
+		letter-spacing: .07em;
+		text-transform: none;
+		
+		span {
+			font-size: 13px;
+		}
+	}
+
+	img {
+		width: auto!important;
+	}
+
+	.u-bg-blue {
+		letter-spacing: .08em;
+		
+		img {
+			margin-top: -10px;
+		}
+	}
+
+	.c-btn {
+		padding: 15px 35px 10px;
+		font-weight: 700;
+		
+		&:hover {
+			color: #fff;
+		} 
+	}
+}
+
+.o-price {
+	border-bottom: 1px solid #bfbfbf;
+	
+	.button {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 15px 0 5px;
+		
+		img {
+			width: auto!important;
+			padding: 10px 0;
+		}
+	
+		&:hover {
+			color: $global-primary-color;
+			cursor: pointer;
+		}
+	}
+	
+	.details {
+		color: #737373;
+		display: none;
+		
+		.table {
+			overflow: hidden;
+			margin-top: -20px;
+		}
+		
+		&.active {
+			display: block;
+		}
+		
+		.link {
+			padding: 15px 0 25px;
+		}
+	}
+
+	table {
+		width: 100%;
+		min-width: 800px;
+		padding: 0;
+	
+		td {
+			font-size: 14px;
+			font-weight: 400;
+			letter-spacing: .075em;
+			padding: 30px 0 25px;
+			text-align: center;
+			background: #f4f4f4;
+			height: 82px;
+			width: 12.5%;
+		}
+	
+		.header {
+			background: none;
+			padding: 15px 0;
+			height: 40px;
+		}
+		
+		.spacer {
+			height: 8px;
+			background: #fff;
+			padding: 0;
+		}
+	
+		.name {
+			color: #fff;
+			line-height: 16px;
+			
+			&-2 {
+				padding-top: 28px;
+			}
+			
+			span {
+				font-size: 12px;
+				display: block;
+			}
+		}
+	}
+}
+
+.bg-1, .bg-7 {
+	background: #69be28!important;
+}
+
+.bg-2, .bg-8 {
+	background: #e00747!important;
+}
+
+.bg-3, .bg-9 {
+	background: #f7941d!important;
+}
+
+.bg-4, .bg-10 {
+	background: #00b7eb!important;
+}
+
+.bg-5, .bg-11 {
+	background: #a6a6a6!important;
+}
+
+.bg-6, .bg-12 {
+	background: #5bbbb7!important;
+}
+
+.c-page-900 {
+	width: 900px;
+	padding: 50px 0 45px;
+}
+
+.c-btn--rental {
+	font-size: 13px;
+	font-weight: 600;
+	background: transparent;
+	padding: 15px 10px 10px;
+	letter-spacing: .07em;
+	width: 100%;
+	margin-bottom: 5px;
+	border: 1px solid #737373;
+	color: #737373;
+
+	&:hover,
+	&:focus {
+	  background: #737373;
+	  color: #fff;
+	  font-weight: 900;
+	}
+
+}
+
+.o-form {
+	strong {
+		text-transform: uppercase;
+		letter-spacing: .1em;
+		margin: 20px 0 0;
+		display: block;
+		
+		> * {
+			display: inline-block;
+		}
+		
+		span {
+			font-weight: 300!important;
+		}
+	}
+	label {
+		font-size: 13px;
+		margin: 5px 0;
+		display: block;
+	}
+	hr {
+		margin: 30px 0;
+	}
+	.guests {
+		width: 70px;
+	}
+	.chain {
+		> * {
+			display: inline-block;
+		} 
+		input {
+			width: calc(100% - 23px)!important;
+		}
+	}
+	textarea {
+		height: 155px;
+		padding-top: 10px;
+	}
+}
+
+.o-gears {
+	margin-top: 35px;
+	padding: 45px 60px 25px;
+	background: #f4f4f4;
+	
+	h3 {
+		text-transform: uppercase;
+	}
+
+	.o-gear {
+		margin: 25px 0;
+		
+		.header {
+			font-size: 14px;
+			font-weight: 700;
+			letter-spacing: .075em;
+			color: #fff;
+			padding: 15px 0 10px;
+			border-radius: 10px 10px 0 0;
+			width: 80%;
+			text-transform: uppercase;
+			text-align: center;
+		}
+	
+		figure {
+			background: #fff;
+	
+			img {
+				width: 100%!important;
+			}
+	
+			figcaption {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				padding: 8px 15px 3px;
+				background: #262626;
+				color: #fff;
+				font-weight: 600;
+				font-size: 10px;
+				border-radius: 10px 0 0 0;
+				text-transform: uppercase;
+			}
+		}
+	
+		.description {
+			padding: 30px 35px 25px;
+			font-size: 12px;
+			font-weight: 300;
+			line-height: 22px;
+			background: #fff;
+		}
+	
+		.book {
+			padding: 15px 0 10px;
+			background: #737373;
+			color: #fff;
+			font-size: 13px;
+			font-weight: 900;
+			letter-spacing: .07em;
+			text-transform: uppercase;
+			text-align: center;
+		}
+	
+		a {
+			color: #000;
+			
+			&:hover > * {
+				opacity: .8;
+			}
+		}
+	}
+}
+
+.o-faq strong {
+	text-transform: uppercase;
+}
+@media (max-width: 979px) {
+	.o-price .details .table {
+		overflow-x: scroll;
+		overflow-y: hidden;
+	}
+}

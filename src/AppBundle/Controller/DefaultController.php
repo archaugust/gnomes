@@ -7,23 +7,38 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use JasonGrimes\Paginator;
 
 class DefaultController extends Controller
 {
 	/**
 	 * @Route("/", name="homepage")
 	 */
-	public function indexAction()
+	public function index()
 	{
+		$em = $this->getDoctrine()->getManager();
+		$page = $em->getRepository('CmsBundle:ArchPageHome')->findOneBy(array('is_default' => 1));
+		$page->setHits($page->getHits()+1);
+		$em->flush();
+		
+		$blog = $em->getRepository('CmsBundle:ArchBlog')->findBy(array('is_active' => 1), array('display_date' => 'DESC'), 6);
+
+		// mobile only css
+		if (preg_match("/\b(?:a(?:ndroid|vantgo)|b(?:lackberry|olt|o?ost)|cricket|do‌​como|hiptop|i(?:emob‌​ile|p[ao]d)|kitkat|m‌​(?:ini|obi)|palm|(?:‌​i|smart|windows )phone|symbian|up\.(?:browser|link)|tablet(?: browser| pc)|(?:hp-|rim |sony )tablet|w(?:ebos|indows ce|os))/i", $_SERVER["HTTP_USER_AGENT"]) == true)
+			$mobile = true;
+		else 
+			$mobile = false;
+			
 		return $this->render('default/index.html.twig', array(
+				'page' => $page,
+				'blogs' => $blog,
+				'mobile' => $mobile
 		));
 	}
 
 	/**
 	 * @Route("/member", name="member")
 	 */
-	public function memberAction() {
+	public function member() {
 		if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'))
 			return $this->redirectToRoute('admin');
 		
@@ -103,19 +118,5 @@ class DefaultController extends Controller
     		'content' => $content,
     		'form' => $form->createView()
     	));
-    }
-
-    public function hideEmailAction($email)
-    {
-    	$character_set = '+-.0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
-    	$key = str_shuffle($character_set); $cipher_text = ''; $id = 'e'.rand(1,999999999);
-    	for ($i=0;$i<strlen($email);$i+=1) $cipher_text.= $key[strpos($character_set,$email[$i])];
-    	$script = 'var a="'.$key.'";var b=a.split("").sort().join("");var c="'.$cipher_text.'";var d="";';
-    	$script.= 'for(var e=0;e<c.length;e++)d+=b.charAt(a.indexOf(c.charAt(e)));';
-    	$script.= 'document.getElementById("'.$id.'").innerHTML="<a href=\\"mailto:"+d+"\\">"+d+"</a>"';
-    	$script = "eval(\"".str_replace(array("\\",'"'),array("\\\\",'\"'), $script)."\")";
-    	$script = '<script type="text/javascript">/*<![CDATA[*/'.$script.'/*]]>*/</script>';
-    
-    	return new Response('<span id="'.$id.'">[javascript protected email address]</span>'.$script);
     }
 }

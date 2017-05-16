@@ -28,7 +28,6 @@
         "egeloen/ckeditor-bundle": "^4.0",
         "helios-ag/fm-elfinder-bundle": "~6",
         "jasongrimes/paginator": "^1.0",
-        "knplabs/knp-menu-bundle": "^2.0",
         "mpdf/mpdf": "^6.1"
     },
     "require-dev": {

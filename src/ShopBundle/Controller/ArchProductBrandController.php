@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Entity\ArchProductBrand;
 use AppBundle\Form\ArchProductBrandType;
+use CmsBundle\Form\ArchPageBrandType;
 
 class ArchProductBrandController extends Controller
 {
@@ -17,8 +18,8 @@ class ArchProductBrandController extends Controller
 		$em = $this->getDoctrine()->getManager();
 		$items = $em->getRepository('AppBundle:ArchProductBrand');
 		
-		$item = new ArchProductBrand();
-		$form = $this->createForm(ArchProductBrandType::class, $item);
+		$item = $em->getRepository('CmsBundle:ArchPageBrand')->find(1);
+		$form = $this->createForm(ArchPageBrandType::class, $item);
 		$form->handleRequest($request);
 		
 		if ($request->isMethod('POST')) {
@@ -33,6 +34,16 @@ class ArchProductBrandController extends Controller
 				}
 				
 				$em->flush();
+			}
+			
+			if ($form->isSubmitted() && $form->isValid()) {
+					
+				$em->flush();
+				
+				$this->addFlash(
+					'info',
+					'Brands main page updated.'
+				);
 			}
 		}
 		

@@ -37,7 +37,12 @@ class ArchProductCollectionProduct
      * @ORM\JoinColumn(name="product_id", referencedColumnName="id")
      */
     private $product;
-
+    
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $new;
+    
     /**
      * Get id
      *
@@ -142,5 +147,29 @@ class ArchProductCollectionProduct
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Set new
+     *
+     * @param boolean $new
+     *
+     * @return ArchProductCollectionProduct
+     */
+    public function setNew($new)
+    {
+        $this->new = $new;
+
+        return $this;
+    }
+
+    /**
+     * Get new
+     *
+     * @return boolean
+     */
+    public function getNew()
+    {
+        return $this->new;
     }
 }

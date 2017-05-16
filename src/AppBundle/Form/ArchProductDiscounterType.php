@@ -16,6 +16,16 @@ class ArchProductDiscounterType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, array('label' => 'Name*'))
+            ->add('discount_type', ChoiceType::class, array(
+            		'label' => false,
+            		'choices' => array(
+            				'VIP' => 'VIP',
+            				'Discount' => 'Discount',
+            		),
+            		'attr' => array(
+            				'class' => 'hidden'
+            		)
+            ))
             ->add('is_active', ChoiceType::class, array(
             		'label' => false,
             		'choices' => array(

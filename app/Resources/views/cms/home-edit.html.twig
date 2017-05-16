@@ -1,0 +1,158 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Home Page - Edit{% endblock %}
+{% block content %}
+<div class="content">
+	<p>Note: All text are automatically styled to all uppercase at front-end.</p>
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i> Pages / <a href="{{ path('admin_page_home') }}">Home Page</a> /</span> {{ item.name }}
+		<div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+                {{ form_row(form.name) }}
+                <hr />
+                <label for="slides">Slides</label>
+                <fieldset class="form-group">
+                    <div class="clearfix"></div>
+                    <ul id="slides" class="list-unstyled" data-prototype="{{ form_widget(form.slides.vars.prototype)|e('html_attr') }}">
+                        {% for slide in form.slides %}
+                            <li class="tag-group">
+                                <img src="{{ asset('images/home-page/slides/'~ slide.vars.value.filename) }}" class="img-responsive mb-15" />
+                                {{ form_row(slide.filename) }}
+                                {{ form_row(slide.banner_overlay) }}
+                                {{ form_row(slide.banner_text) }}
+                                {{ form_row(slide.banner_text_color) }}
+                                {{ form_row(slide.link_text) }}
+                                {{ form_row(slide.link_url) }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </fieldset>
+                <hr />
+                <label for="sections">Sections</label>
+                <fieldset class="form-group">
+                    <div class="clearfix"></div>
+                    <ul id="sections" class="list-unstyled" data-prototype="{{ form_widget(form.sections.vars.prototype)|e('html_attr') }}">
+                        {% for section in form.sections %}
+                            <li class="tag-group col-md-6">
+                                <img src="{{ asset('images/home-page/sections/'~ section.vars.value.filename) }}" class="img-responsive mb-15" />
+                                {{ form_row(section.filename) }}
+                                {{ form_row(section.banner_text) }}
+                                {{ form_row(section.link_text) }}
+                                {{ form_row(section.link_url) }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </fieldset>
+                <hr />
+                {{ form_row(form.meta_title) }}
+                {{ form_row(form.meta_description) }}
+  			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+   			    <a href="{{ path('admin_page_home') }}" class="btn btn-default">Cancel</a>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+</div>
+
+<div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="lightboxLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">ﾃ�</button>
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="" alt="" />
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#sub-menu-pages').removeClass('hidden');
+	$('#submenu-home').addClass('active');
+});
+
+var $slideHolder, $sectionHolder;
+
+var $addSlideLink = $('<a href="#" class="add_item_link btn btn-default">Add Slide</a>');
+var $newSlideLi = $('<li class="tag-group"></li>').append($addSlideLink);
+
+var $addSectionLink = $('<a href="#" class="add_item_link btn btn-default">Add Section</a>');
+var $newSectionLi = $('<li class="tag-group col-md-6"></li>').append($addSectionLink);
+
+$(document).ready(function() {
+    $slideHolder = $('ul#slides');
+
+    $slideHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $slideHolder.append($newSlideLi);
+
+    $slideHolder.data('index', $slideHolder.find(':input').length);
+
+    $addSlideLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($slideHolder, $newSlideLi);
+    });
+
+    $sectionHolder = $('ul#sections');
+
+    $sectionHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $sectionHolder.append($newSectionLi);
+
+    $sectionHolder.data('index', $sectionHolder.find(':input').length);
+
+    $addSectionLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($sectionHolder, $newSectionLi, 'col-md-6');
+    });
+
+});
+
+function addItemForm($collectionHolder, $newLinkLi, $col = 0) {
+    var prototype = $collectionHolder.data('prototype');
+
+    var index = $collectionHolder.data('index');
+
+    var newForm = prototype.replace(/__name__/g, index);
+
+    $collectionHolder.data('index', index + 1);
+
+    var $newFormLi = $('<li class="tag-group '+ $col +'"></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+
+    addItemFormDeleteLink($newFormLi);
+}
+
+function addItemFormDeleteLink($itemFormLi) {
+    var $removeFormA = $('<a href="#" class="btn btn-default btn-sm mb-15">Remove this item</a>');
+    $itemFormLi.append($removeFormA);
+
+    $removeFormA.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // remove the li for the tag form
+        $itemFormLi.remove();
+    });
+}
+
+</script>
+{% endblock %}

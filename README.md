@@ -1,19 +1,21 @@
 Gnomes.co.nz
 ========================
 
-Ecommerce website built with Symfony 3.<br />
-Dev URL: http://gnomes.spinifextestsite.com
+Ecommerce website built with Symfony 3, Inuitcss, jQuery.   
+Dev URL: http://gnomes.spinifextestsite.com   
 
-What's inside?
---------------
+What's inside?   
+--------------    
+   
+Custom CMS based on Shopify functionalities    
+API integrations:    
+Vend   
+Payment Express   
+Shopify (for migrating current data)   
+Constant Contact   
+Google Maps   
 
-Custom CMS based on Shopify functionalities  
-API integrations:  
-Vend <br />
-Shopify <br />
-Constant Contact <br />
-Google Maps  <br />
-
-Update 1: CMS 70% complete. <br />
-Update 2: CMS 90% complete. <br />
-Update 3: CMS revisions. Added raw front-end template. <br />
+Update 1: CMS 70% complete.   
+Update 2: CMS 90% complete.   
+Update 3: CMS revisions. Added raw front-end template. 
+Update 4: Frontend 90% complete.  

@@ -1,3 +1,5 @@
+{% set cart = app.session.get('cart') %}
+{% set wishlist = app.session.get('wishlist') %}
 <section id="header">
 	<form method="get">
     <div class="c-toolbar">
@@ -11,162 +13,96 @@
                     <a href="/logout" class="u-no-border u-tooltip" title="Logout">Logout</a>
                 {% else %}
                     <a href="#" data-toggle="modal" data-target="#loginModal">Sign In</a>
-                    <a href="#" class="u-no-border">Join</a>
+                    <a href="/account/register" class="u-no-border">Join</a>
                 {% endif %}
         		<input type="text" name="search" class="c-search u-form-control" />
         		<div>
-            		<div class="c-box-icon heart u-tooltip" title="Wishlist">
-            			<a href="wishlist" class="toolbar-link" id="wishlist">&nbsp;</a>
+            		<div class="c-box-icon heart" title="Wishlist">
+            			<a href="#" class="toolbar-link" id="wishlist">&nbsp;</a>
             		</div>
-            		<div class="c-box-icon cart u-tooltip" title="Shopping Bag">
-            			<a href="cart" class="toolbar-link" id="cart">&nbsp;</a>
-            			<div>0</div>
+            		<div class="c-box-icon cart" title="Shopping Bag">
+            			<a href="#" class="toolbar-link" id="cart">&nbsp;</a>
+            			<div id="in_cart">{{ cart|length }}</div>
             		</div>
-            		<div class="c-box-icon location u-tooltip" title="Find Us">
-            			<a href="#" class="toolbar-link" id="find-us">&nbsp;</a>
+            		<div class="c-box-icon location" title="Find Us">
+            			<a href="/pages/contact#find-us" id="find-us">&nbsp;</a>
             		</div>
-            		<div class="c-box-icon account u-tooltip" title="Contact">
-            			<a href="#" class="toolbar-link" id="contact">&nbsp;</a>
+            		<div class="c-box-icon account" title="Contact">
+            			<a href="/pages/contact" class="toolbar-link" id="contact">&nbsp;</a>
 	        		</div>
         		</div>
         	</div>
         	<div class="c-toolbar-popup" id="popup-wishlist">
-        		<b>Wishlist</b>
+        		<div class="o-wishlist-items">
+            	{% if wishlist|length == 0 %}
+            		<div class="u-pl-40 u-pb-40">Add items to your wishlist.</div>
+            	{% else %}
+            		{% for key, product in wishlist %}
+            		<div class="o-wishlist-item">
+            			<input type="hidden" class="o-wishlist-key" value="{{ key }}" />
+                		<div class="o-wishlist-item-image"><a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></a></div>
+                		<div class="o-wishlist-item-details">
+                			<b><a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}</a></b>
+                			<div>
+                				PRICE: ${{ product.price|number_format(2,'.',',') }} 
+                				{% if (product.discount_price > 0) %}
+                					<span class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</span>
+                				{% endif %}
+                			</div>
+                		</div>
+            			<div class="o-wishlist-item-remove">
+            				<img src="{{ asset('images/icon-cart-remove.png') }}" alt="Remove" title="Remove" />
+            			</div>
+            		</div>
+            		{% endfor %}
+            	{% endif %}
+        		</div>
         	</div>
-        	<div class="c-toolbar-popup" id="popup-cart">
-        		<b>Shopping Bag</b>
-        	</div>
-        	<div class="c-toolbar-popup" id="popup-find-us">
-        		<b>Find Us</b>
+        	<div class="c-toolbar-popup o-cart" id="popup-cart">
+        		<div class="o-cart-items">
+            	{% if cart|length == 0 %}
+        			<div class="u-pl-40 u-pb-40">Your shopping cart is empty.</div>
+            	{% else %}
+            		{% for key, product in cart %}
+            		<div class="o-cart-item">
+            			<input type="hidden" class="o-cart-key" value="{{ key }}" />
+            			<input type="hidden" class="o-cart-price" value="{% if logged and product.discount_price > 0 %}{{ product.discount_price * product.qty }}{% else %}{{ product.price * product.qty }}{% endif %}" />
+                		<div class="o-cart-item-image"><a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></a></div>
+                		<div class="o-cart-item-details">
+                			<b><a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}{% if product.qty > 1 %} x {{ product.qty }}{% endif %}</a></b>
+                			<div>
+                				PRICE: ${{ product.price|number_format(2,'.',',') }} 
+                				{% if (product.discount_price > 0) %}
+                					<span class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</span>
+                				{% endif %}
+                			</div>
+            				{% for variant in product.variant %}
+            					<div>{{ variant.name ~': '~ variant.value }}</div>
+            				{% endfor %}
+                		</div>
+            			<div class="o-cart-item-remove">
+            				<img src="{{ asset('images/icon-cart-remove.png') }}" alt="Remove" title="Remove" />
+            			</div>
+            		</div>
+            		{% endfor %}
+            	{% endif %}
+        		</div>
+        		<div class="o-cart-total u-hidden">
+        			<h3>SUBTOTAL: <span class="o-cart-subtotal"></span></h3>
+        			<a href="{{ path('checkout') }}" class="c-btn c-btn--checkout">REVIEW & CHECKOUT</a>
+	`        		<div class="shipping u-hidden">You qualify for free shipping, yuss!</div>
+        		</div>
         	</div>
         	<div class="c-toolbar-popup" id="popup-contact">
         		<ul class="o-list-bare">
-        			<li><a href="#">VIP Pricing</a></li>
-        			<li><a href="#">Join</a></li>
-        			<li><a href="#">Sign In</a></li>
-        			<li><a href="#">Contact</a></li>
+        			<li><a href="/pages/vip-club">VIP Pricing</a></li>
+        			<li><a href="/account/register">Join</a></li>
+        			<li><a href="#" data-toggle="modal" data-target="#loginModal">Sign In</a></li>
+        			<li><a href="/pages/contact">Contact</a></li>
         		</ul>
         	</div>
     	</div>
     </div>
     </form>
-    <div class="c-header">
-    	<div class="o-wrapper">
-    		<a href="/"><img class="c-logo" src="{{ asset('images/logo.png') }}" alt="Gnomes Alpine Sports" /></a>
-    		<ul class="c-main-menu o-list-inline">
-    			<li><a class="menu-link" id="shop" href="#">Shop</a></li>
-    			<li><a class="menu-link" id="rental" href="#">Rental</a></li>
-    			<li><a class="menu-link" id="ski" href="#">Ski Boot Fitting</a></li>
-    			<li><a class="menu-link" href="#">Brands</a></li>
-    			<li><a class="menu-link" href="#">Blog</a></li>
-    			<li><a class="menu-link" href="#">About</a></li>
-    			<li><a class="menu-link" href="#">Contact</a></li>
-    		</ul>
-    	</div>
-    </div>
-    <div class="o-wrapper c-menu-popups">
-    	<div class="c-menu-popup" id="popup-shop">
-			<div class="o-layout--flush">
-				<div class="o-layout__item first u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#"><b>Ski Equipment</b></a>
-					<ul class="o-list-bare">
-						<li><a href="#">Skis</a></li>
-						<li><a href="#">Ski Boots</a></li>
-						<li><a href="#">Ski Bindings</a></li>
-						<li><a href="#">Ski Poles</a></li>
-						<li><a href="#">Avalanche Safety</a></li>
-						<li><a href="#">Ski Crampons</a></li>
-						<li><a href="#">Climbing Skins</a></li>
-						<li><a href="#">Ski Boot Accessories</a></li>
-						<li><a href="#">Ex-Demo Skins</a></li>
-					</ul>
-				</div><div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#"><b>Clothing</b></a>
-					<ul class="o-list-bare">
-						<li><a href="#">Jackets</a></li>
-						<li><a href="#">Pants</a></li>
-						<li><a href="#">Base & Mid Layers</a></li>
-						<li><a href="#">Gloves & Mitts</a></li>
-						<li><a href="#">Socks</a></li>
-						<li><a href="#">Headwear</a></li>
-						<li><a href="#">Casual</a></li>
-						<li><a href="#">Mons Royale</a></li>
-						<li><a href="#">Snow Boots</a></li>
-					</ul>
-				</div><div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#"><b>Accessories</b></a>
-					<ul class="o-list-bare">
-						<li><a href="#">Goggles</a></li>
-						<li><a href="#">Helmets</a></li>
-						<li><a href="#">Protection</a></li>
-						<li><a href="#">Servicing Tools</a></li>
-						<li><a href="#">Quiver Killers</a></li>
-						<li><a href="#">Sunglasses</a></li>
-						<li><a href="#">Luggage</a></li>
-						<li><a href="#">Nutcracker/Ropetow</a></li>
-						<li><a href="#">Sun Care</a></li>
-						<li><a href="#">Snow Chains</a></li>
-						<li><a href="#">Gift Vouchers</a></li>
-						<li><a href="#">Snow Accessories</a></li>
-					</ul>
-				</div><div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#"><b>Outlet</b></a>
-					<ul class="o-list-bare">
-						<li><a href="#">Skis</a></li>
-						<li><a href="#">Ex-Demo Skis</a></li>
-						<li><a href="#">Ski Bindings</a></li>
-						<li><a href="#">Ski Poles</a></li>
-						<li><a href="#">Ski Boots</a></li>
-						<li><a href="#">Jackets</a></li>
-						<li><a href="#">Pants</a></li>
-						<li><a href="#">Thermals & Socks</a></li>
-						<li><a href="#">Gloves & Mitts</a></li>
-						<li><a href="#">Goggles</a></li>
-						<li><a href="#">Helmets & Protection</a></li>
-					</ul>
-				</div><div class="o-layout__item u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#"><b>Summer Clothing</b></a>
-					<ul class="o-list-bare">
-						<li><a href="#">Tops</a></li>
-						<li><a href="#">Pants & Shorts</a></li>
-						<li><a href="#">Skirts & Dresses</a></li>
-						<li><a href="#">Headwear</a></li>
-						<li><a href="#">Shoes</a></li>
-						<li><a href="#">Sandals</a></li>
-						<li><a href="#">Socks</a></li>
-						<li><a href="#">Camping</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		<div class="c-menu-popup" id="popup-rental">
-			<div class="o-layout--flush">
-				<div class="o-layout__item first u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">Ski & Board Rental</a>
-				</div><div class="o-layout__item u-no-border u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">Online Booking Form</a>
-				</div><div class="o-layout__item u-no-border u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">Price Schedule</a>
-				</div><div class="o-layout__item u-no-border u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">FAQ’s</a>
-				</div>
-			</div>
-			<div class="o-layout--flush">
-				<div class="o-layout__item u-1/1 first u-no-border">
-					<a href="#" class="u-blue">Book your rental gear online and save 10%!</a>
-				</div>
-			</div>
-		</div>
-		<div class="c-menu-popup" id="popup-ski">
-			<div class="o-layout--flush">
-				<div class="o-layout__item first u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">Custom Boot Fitting</a>
-				</div><div class="o-layout__item u-no-border u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">Analysis System</a>
-				</div><div class="o-layout__item u-no-border u-1/5@desktop u-1/3@tablet u-1/2@mobile">
-					<a href="#">FAQ’s</a>
-				</div>
-			</div>
-		</div>
-    </div>
+{{ render(controller('AppBundle:Action:mainMenu')) }}
 </section>

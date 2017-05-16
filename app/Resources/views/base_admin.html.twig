@@ -49,9 +49,17 @@
 				<i class="fa fa-file-text"></i><br />
 				Pages
 			</a>
-			<a href="#" id="menu-rentals">
+			<a href="javascript:" class="menu-main-link" id="menu-rental">
 				<i class="fa fa-fw fa-universal-access"></i>
 				Rentals
+			</a>
+			<a href="javascript:" class="menu-main-link" id="menu-ski-finder">
+				<i class="fa fa-fw fa-search-plus"></i>
+				<div>Ski Finder</div>
+			</a>
+			<a href="{{ path('admin_contact') }}" id="menu-contact">
+				<i class="fa fa-fw fa-envelope"></i>
+				Contact
 			</a>
 			<a href="javascript:" class="menu-main-link" id="menu-settings">
 				<i class="fa fa-fw fa-cogs"></i>
@@ -62,6 +70,8 @@
 		    {% include('admin/submenu_products.html.twig') %}
 		    {% include('admin/submenu_settings.html.twig') %}
 		    {% include('admin/submenu_pages.html.twig') %}
+		    {% include('admin/submenu_ski_finder.html.twig') %}
+		    {% include('admin/submenu_rental.html.twig') %}
 		{% endblock %}
 	</div>
 	{% block content %}{% endblock %}
@@ -76,6 +86,8 @@
 <script src="{{ asset('js/custom_admin.js') }}"></script>
 <script>
 	$('.menu-main-link').click(function(){
+		$('.menu-main a').removeClass('active');
+		$(this).addClass('active');
 		var id = '#sub-'+ $(this).attr('id');
 		console.log(id);
 		if ($(id).hasClass('hidden')) {

@@ -1,0 +1,11 @@
+/* mobile only css */
+.c-blog:hover
+	
+	figcaption {
+		display:none;
+	}
+	
+	img {
+		opacity:1;
+	}
+}

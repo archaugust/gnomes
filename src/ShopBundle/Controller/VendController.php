@@ -199,102 +199,34 @@ class VendController extends Controller
 				break;
 			case 'sales':
 				$msg = 'Sales';
-				$items = $result->register_sales;
-				$order_products = $em->getRepository('AppBundle:ArchOrderProduct');
 				
 				if (isset($result->pagination)) {
-					// loop
-				}
-
-				// customer total spent
-				$customer_orders = array();
-				
-				foreach ($items as $item) {
-					// save only sales from site customers
-					@$customer = $em->getRepository('AppBundle:User')->findOneBy(array('customer_id' => $item->customer_id));
+					$pagination = $result->pagination;
 					
-					if (count($customer) > 0) {
-						$order = $repository->findOneBy(array('id' => $item->id));
-					
-						if (count($order) == 0)
-							$order = new ArchOrder();
-	
-						$order
-							->setId($item->id)
-							->setCustomer($customer)
-							->setUser($item->user_name)
-							->setSaleDate(\DateTime::createFromFormat('Y-m-d H:i:s', $item->sale_date))
-							->setTotalPrice($item->total_price)
-							->setTotalTax($item->total_tax)
-							->setTaxName($item->tax_name)
-							->setNote($item->note)
-							->setStatus($item->status)
-							->setInvoiceNumber($item->invoice_number)
-							->setShortCode($item->short_code)
-						;
-						$em->persist($order);
+					while ($pagination->page < $pagination->pages) {
 						
-						if (isset($customer_orders[$item->customer_id])) {
-							$array = $customer_orders[$item->customer_id];
-							
-							$customer_orders[$item->customer_id] = array(
-									'total_spent' => $array['total_spent'] + ($item->total_price + $item->total_tax),
-									'orders' => ($array['orders'] + 1)
-							);
-						}
-						else
-							$customer_orders[$item->customer_id] = array(
-								'total_spent' => ($item->total_price + $item->total_tax),
-								'orders' => 1
-							);
+						set_time_limit(120);
 						
-						// products in order
-						foreach ($item->register_sale_products as $product) {
-							$order_product = $order_products->findOneBy(array('id' => $product->id));
-							
-							if (count($order_product) == 0)
-								$order_product = new ArchOrderProduct();
-
-							$order_product
-								->setId($product->id)
-								->setOrder($order)
-								->setName($product->name)
-								->setQuantity($product->quantity)
-								->setPrice($product->price)
-								->setDiscount(@$product->discount)
-								->setTax($product->tax)
-								->setTaxId($product->tax_id)
-								->setTaxTotal($product->tax)
-								->setPriceTotal($product->price)
-							;
-
-							$arch_product = $em->getRepository('AppBundle:ArchProduct')->findOneBy(array('id' => $product->product_id));
-							if (count($arch_product) > 0)
-								$order_product->setProduct($arch_product);
-							
-							$tax = $em->getRepository('AppBundle:ArchTax')->findOneBy(array('id' => $product->tax_id));
-							if (count($tax) > 0)
-								$order_product->setTaxMap($tax);
-							
-							$em->persist($order_product);
+						$items = $result->register_sales;
+						$this->saveSales($items, $repository, $em);
+						
+						$next_page = $pagination->page + 1;
+						
+						// throttle, 20 pages at a time
+						if ($next_page % 20 == 0) {
+							return new Response($next_page .'|'. $pagination->pages);
+							die;
 						}
-
-						$em->flush();
+						
+						$result = $this->get('app.vend')->getVend('register_sales?page='. $next_page);
+						
+						$pagination = $result->pagination;
 					}
 				}
-				
-				// customer total spent
-				$customers = $em->getRepository('AppBundle:User');
-				foreach ($customer_orders as $key => $value) {
-					$customer = $customers->findOneBy(array('customer_id' => $key));
-					if ($customer != null)
-						$customer
-							->setTotalSpent($value['total_spent'])
-							->setOrderCount($value['orders'])
-						;
+				else {
+					$items = $result->customers;
+					$this->saveCustomers($items, $repository, $em);
 				}
-				$em->flush();
-
 				break;
 			case 'tax':
 				$msg = 'Taxes';
@@ -415,7 +347,9 @@ class VendController extends Controller
 	public function vendToggle(Request $request) {
 		if ($request->isMethod('POST')) {
 			$data = $request->request->all();
-			
+
+			// default bundle
+			$bundle = 'AppBundle';
 			switch ($data['mode']) {
 				
 				case 'product':
@@ -455,10 +389,18 @@ class VendController extends Controller
 				case 'payment_type':
 					$entity = 'ArchPaymentType';
 					break;
+				case 'home_page':
+					$entity = 'ArchPageHome';
+					$bundle = 'CmsBundle';
+					break;
+				case 'blog':
+					$entity = 'ArchBlog';
+					$bundle = 'CmsBundle';
+					break;
 			}
 			
 			$em = $this->getDoctrine()->getManager();
-			$item = $em->getRepository('AppBundle:'. $entity)->findOneBy(array('id' => $data['id']));
+			$item = $em->getRepository($bundle .':'. $entity)->findOneBy(array('id' => $data['id']));
 			if ($data['mode'] == 'product')
 				$msg = "'". $item->getBaseName() ."'";
 			else
@@ -467,6 +409,14 @@ class VendController extends Controller
 			switch ($data['action']) {
 				case 'active':
 					$item->setIsActive($data['value']);
+					
+					if ($data['mode'] == 'product' || $data['mode' == 'product_edit']) {
+						// set variants
+						$variants = $em->getRepository('AppBundle:ArchProduct')->findBy(array('variant_parent_id' => $item->getId()));
+						foreach ($variants as $variant) {
+							$variant->setIsActive($data['value']);
+						}
+					}
 					
 					// discounter product discounts
 					if ($data['mode'] == 'discounter') {
@@ -481,13 +431,28 @@ class VendController extends Controller
 								$price = $archProduct->getPrice();
 								$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
 								$archProduct->setDiscountPrice($discounted_price);
+							
+								// set variants
+								$variants = $em->getRepository('AppBundle:ArchProduct')->findBy(array('variant_parent_id' => $archProduct->getId()));
+								foreach ($variants as $variant) {
+									$price = $variant->getPrice();
+									$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
+									$variant->setDiscountPrice($discounted_price);
+								}
 							}
 						}
 						else {
 							// remove discount
 							foreach ($item->getProducts() as $product) {
 								$archProduct = $product->getProduct();
+								
 								$archProduct->setDiscountPrice(null);
+								
+								// variants
+								$variants = $em->getRepository('AppBundle:ArchProduct')->findBy(array('variant_parent_id' => $archProduct->getId()));
+								foreach ($variants as $variant) {
+									$variant->setDiscountPrice(null);
+								}
 							}
 						}
 					}
@@ -496,11 +461,20 @@ class VendController extends Controller
 					break;
 				case 'pre_sell':
 					$item->setPreSell($data['value']);
+					
+					if ($data['mode'] == 'product' || $data['mode'] == 'product_edit') {
+						// set variants
+						$variants = $em->getRepository('AppBundle:ArchProduct')->findBy(array('variant_parent_id' => $item->getId()));
+						foreach ($variants as $variant) {
+							$variant->setPreSell($data['value']);
+						}
+					}
+					
 					$data['value'] ? $msg .= ' pre-selling enabled' : $msg .= ' pre-selling disabled';
 					break;
 				case 'default':
 					if ($data['value'] == 1)
-						$em->createQuery('UPDATE AppBundle:'. $entity .' e SET e.is_default = 0')->getResult(); // reset all to 0
+						$em->createQuery('UPDATE '. $bundle .':'. $entity .' e SET e.is_default = 0')->getResult(); // reset all to 0
 						
 					$item->setIsDefault($data['value']);
 					$data['value'] ? $msg .= ' set to default' : $msg .= ' default status removed';
@@ -603,8 +577,6 @@ class VendController extends Controller
 				->setDeletedAt(empty($item->deleted_at) ? null : \DateTime::createFromFormat('Y-m-d H:i:s', $item->deleted_at))
 			;
 			
-			$em->persist($product);
-			
 			if (isset($item->inventory)) {
 				$default_outlet = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
 				foreach ($item->inventory as $inventory) {
@@ -618,6 +590,8 @@ class VendController extends Controller
 					}
 				}
 			}
+			
+			$em->persist($product);
 			
 			$em->flush();
 		}
@@ -711,6 +685,99 @@ class VendController extends Controller
 			$em->persist($supplier);
 			$em->flush();
 		}
+	}
+	
+	private function saveSales($items, $repository, $em) {
+		$order_products = $em->getRepository('AppBundle:ArchOrderProduct');
+		
+		// customer total spent
+		$customer_orders = array();
+		foreach ($items as $item) {
+			// save only sales from site customers
+			@$customer = $em->getRepository('AppBundle:User')->findOneBy(array('customer_id' => $item->customer_id));
+			
+			if (count($customer) > 0) {
+				$order = $repository->findOneBy(array('id' => $item->id));
+				
+				if (count($order) == 0)
+					$order = new ArchOrder();
+					
+				$order
+					->setId($item->id)
+					->setCustomer($customer)
+					->setUser($item->user_name)
+					->setSaleDate(\DateTime::createFromFormat('Y-m-d H:i:s', $item->sale_date))
+					->setTotalPrice($item->total_price)
+					->setTotalTax($item->total_tax)
+					->setTaxName($item->tax_name)
+					->setNote($item->note)
+					->setStatus($item->status)
+					->setInvoiceNumber($item->invoice_number)
+					->setShortCode($item->short_code)
+					;
+				$em->persist($order);
+				
+				if (isset($customer_orders[$item->customer_id])) {
+					$array = $customer_orders[$item->customer_id];
+					
+					$customer_orders[$item->customer_id] = array(
+							'total_spent' => $array['total_spent'] + ($item->total_price + $item->total_tax),
+							'orders' => ($array['orders'] + 1)
+					);
+				}
+				else
+					$customer_orders[$item->customer_id] = array(
+							'total_spent' => ($item->total_price + $item->total_tax),
+							'orders' => 1
+					);
+					
+				// products in order
+				foreach ($item->register_sale_products as $product) {
+					$order_product = $order_products->findOneBy(array('id' => $product->id));
+					
+					if (count($order_product) == 0)
+						$order_product = new ArchOrderProduct();
+						
+					$order_product
+						->setId($product->id)
+						->setOrder($order)
+						->setName($product->name)
+						->setQuantity($product->quantity)
+						->setPrice($product->price)
+						->setDiscount(@$product->discount)
+						->setTax($product->tax)
+						->setTaxId($product->tax_id)
+						->setTaxTotal($product->tax)
+						->setPriceTotal($product->price_total)
+					;
+						
+					$arch_product = $em->getRepository('AppBundle:ArchProduct')->findOneBy(array('id' => $product->product_id));
+					if (count($arch_product) > 0)
+						$order_product->setProduct($arch_product);
+						
+					$tax = $em->getRepository('AppBundle:ArchTax')->findOneBy(array('id' => $product->tax_id));
+					if (count($tax) > 0)
+						$order_product->setTaxMap($tax);
+						
+					$em->persist($order_product);
+				}
+				
+				$em->flush();
+			}
+		}
+		
+		// customer total spent
+		$customers = $em->getRepository('AppBundle:User');
+		foreach ($customer_orders as $key => $value) {
+			$customer = $customers->findOneBy(array('customer_id' => $key));
+			if ($customer != null)
+				$customer
+				->setTotalSpent($value['total_spent'])
+				->setOrderCount($value['orders'])
+				;
+		}
+		$em->flush();
+		
 	}
 }
 ?>

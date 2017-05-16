@@ -1,0 +1,21 @@
+/* call to action, subscribe */
+.c-call > div {
+	text-align: center;
+	
+	> * {
+		display: inline-block;
+		vertical-align: middle;
+		margin-left: 11px;
+	}
+	
+	div {
+		font-size: 26px;
+		height: 26px;
+		font-weight: 200;
+	}
+	.u-form-control {
+		width: 228px;
+		margin-bottom: 0;
+		border: 0;
+	}
+}

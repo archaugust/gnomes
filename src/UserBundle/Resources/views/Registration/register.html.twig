@@ -1,5 +1,84 @@
 {% extends "FOSUserBundle::layout.html.twig" %}
+{% block title %}Join | Gnomes Alpine Sports{% endblock %}
+{% block description %}{% endblock %}
+
+{% block content %}
+{{ parent() }}
+{% endblock %}
 
 {% block fos_user_content %}
-{% include "FOSUserBundle:Registration:register_content.html.twig" %}
+<div class="c-breadcrumbs u-mb-35">
+	<a href="/">Home</a> / VIP Pricing
+</div>
+<h1>Gnomes VIP Club</h1>
+<p>Gnomes ‘V.I.P Club’ is a loyalty program that rewards our best customers. We are very grateful you have chosen to shop with Gnomes and we want to give something in return. It’s free to join and you’ll save 10-30% off current seasons products, receive pre-order discount pricing on new seasons’ gear, receive deals via email (VIP members only) and stay informed about upcoming sales.</p>
+
+<div class="c-page-padded c-page-820">
+{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+    You are already registered.
+{% else %}
+	<div class="o-layout--flush">
+		<div class="o-layout__item u-1/2@desktop u-1/1@tablet">
+            <h2 class="u-blue">NEWBIE?</h2>
+            <div>New customers can create an account here.</div>
+            {{ form_start(form, {'method': 'post', 'action': path('fos_user_registration_register'), 'attr': {'class': 'fos_user_registration_register','id':'registerForm'}}) }}
+            {% if not form.vars.valid %}
+                <div class="alert alert-danger">
+                    <strong>Error!</strong> Please review the fields marked with errors below.
+                </div>
+            {% endif %}
+                {{ form_row(form.first_name, {'attr': {'class': 'u-form-control'}, 'label':'First Name *'}) }}
+                {{ form_row(form.last_name, {'attr': {'class': 'u-form-control'}, 'label':'Last Name *'}) }}
+                <div class="u-hidden">
+                {{ form_row(form.username) }}
+                </div>
+                {{ form_row(form.email, {'attr': {'class': 'u-form-control'}, 'label':'Email *'}) }}
+                {{ form_row(form.plainPassword.first, {'attr': {'class': 'u-form-control'}, 'label':'Password *'}) }}
+                {{ form_row(form.plainPassword.second, {'attr': {'class': 'u-form-control'}, 'label':'Confirm Password *'}) }}
+                <label for="fos_user_registration_form_accepts_marketing">{{ form_widget(form.accepts_marketing) }} &nbsp; Sign me up for Gnomes’ newsletter</label>
+                <input id="recaptcha1" type="submit" class="c-btn c-btn--gray c-btn--wide" value="CREATE ACCOUNT" />
+                <div><a href="/pages/terms-conditions">Terms & Conditions</a> | <a href="/pages/terms-conditions#privacy">Privacy Policy</a></div>
+                <div id="messageDiv"></div>
+            {{ form_end(form) }}
+		</div><div class="o-layout__item u-1/2@desktop u-1/1@tablet o-gray">
+			<h2 class="u-blue">OLD HAND?</h2>
+			<div>If you’re a registered user, you can sign in here.</div>
+            <form action="{{ path('fos_user_security_check') }}" method="post">
+                <input type="hidden" name="_target_path" value="member">
+                <label for="username">Email *</label>
+                <input type="text" required class="u-form-control" name="_username" id="username">
+                <label for="password">Password *</label>
+                <input type="password" required class="u-form-control" name="_password" id="password">
+                <label for="remember_me">
+                    <input type="checkbox" id="remember_me" name="_remember_me" value="on" />
+                        &nbsp;  Remember Me
+                </label>
+                <input class="c-btn c-btn--gray c-btn--wide" type="submit" value="Login" />
+                <div><a href="/resetting/request">Forgotten your password?</a></div>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            </form>
+            
+		</div>
+	</div>
+    
+{% endif %}
+</div>
 {% endblock fos_user_content %}
+
+{% block javascripts %}
+<script>
+var recaptcha1;
+var onloadCallback = function() {
+	recaptcha1 = grecaptcha.render('recaptcha1', {
+	      'sitekey' : '{{ site_key }}',
+	      'callback' : onSubmit
+	    });
+};
+$('#fos_user_registration_form_email').keyup(function(){
+	$('#fos_user_registration_form_username').val($(this).val());
+	console.log($('#fos_user_registration_form_username').val())
+});
+</script>
+<script src="{{ asset('js/register.js') }}"></script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"></script>
+{% endblock %}

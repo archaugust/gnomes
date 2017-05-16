@@ -1,0 +1,210 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Pages{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i> Pages / </span> Home Page
+		<div class="pull-right"><a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Add Home Page</a></div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+				<p>Multiple home pages can be created, set one to default to use on front page.</p>
+				<form method="post">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+    						<th class="check">
+    							<div class="check-box">
+   	    							<input type="checkbox" id="check-all" />
+        							<div class="with-checked">
+    	    							<div id="selected"></div>
+                                		<div class="dropdown">
+                                			<div class="btn btn-sm btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Actions <i class="fa fa-caret-down"></i></div>
+                                      		<ul class="dropdown-menu option-box">
+                                      			<li><a id="deleteConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Delete</a></li>
+                                      		</ul>
+                                        </div>
+        							</div>
+    							</div>
+    						</th>
+    						<th>Title</th>
+    						<th class="text-center">Slides</th>
+    						<th class="text-center">Sections</th>
+    						<th class="text-center th-toggle">Default</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for item in items %}
+						<tr class="order">
+							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
+							<td><a href="{{ path('admin_page_home_edit', {'id': item.id}) }}">{{ item.name }}</a></td>
+							<td align="center">{{ item.slides|length }}</td>
+							<td align="center">{{ item.sections|length }}</td>
+							<td align="center">
+								<a href="javascript:void(0)" class="toggle-default">
+									<i class="fa fa-star{% if item.isDefault == 0 %}-o{% endif %}"></i>
+								</a>
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+
+				<input type="hidden" name="list_action" id="list_action" value="" />
+
+                <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    	<h4>Confirm</h4>
+                      </div>
+                      <div class="modal-body">
+                    	<p><span id="text_action"></span> selected items?</p>
+                      </div>
+                      <div class="modal-footer">
+                    	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+                    	<input type="submit" class="btn btn-primary" value="Proceed" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      {{ form_start(form, { attr: {'id':'form'} }) }}
+      {{ form_errors(form) }}
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="addModalLabel">Add Home Page</h4>
+      </div>
+      <div class="modal-body">
+        {{ form_row(form.name) }}
+  		<hr />
+        <label for="slides">Slides</label>
+        <fieldset class="form-group">
+            <div class="clearfix"></div>
+            <ul id="slides" class="list-unstyled" data-prototype="{{ form_widget(form.slides.vars.prototype)|e('html_attr') }}">
+            </ul>
+        </fieldset>
+  		<hr />
+        <label for="sections">Sections</label>
+        <fieldset class="form-group">
+            <div class="clearfix"></div>
+            <ul id="sections" class="list-unstyled" data-prototype="{{ form_widget(form.sections.vars.prototype)|e('html_attr') }}">
+            </ul>
+        </fieldset>
+        <hr />
+        {{ form_row(form.meta_title) }}
+        {{ form_row(form.meta_description) }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+      </div>
+      {{ form_end(form) }}
+    </div>
+  </div>
+</div>
+
+
+<input type="hidden" id="mode" value="home_page" />
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/notify.min.js') }}"></script>
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#sub-menu-pages').removeClass('hidden');
+	$('#submenu-home').addClass('active');
+});
+
+var mode = $('#mode').val();
+
+var $slideHolder, $sectionHolder;
+
+var $addSlideLink = $('<a href="#" class="add_item_link btn btn-default">Add Slide</a>');
+var $newSlideLi = $('<li class="tag-group"></li>').append($addSlideLink);
+
+var $addSectionLink = $('<a href="#" class="add_item_link btn btn-default">Add Section</a>');
+var $newSectionLi = $('<li class="tag-group"></li>').append($addSectionLink);
+
+$(document).ready(function() {
+    $slideHolder = $('ul#slides');
+
+    $slideHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $slideHolder.append($newSlideLi);
+
+    $slideHolder.data('index', $slideHolder.find(':input').length);
+
+    $addSlideLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($slideHolder, $newSlideLi);
+    });
+
+    $sectionHolder = $('ul#sections');
+
+    $sectionHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $sectionHolder.append($newSectionLi);
+
+    $sectionHolder.data('index', $sectionHolder.find(':input').length);
+
+    $addSectionLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($sectionHolder, $newSectionLi);
+    });
+
+});
+
+function addItemForm($collectionHolder, $newLinkLi) {
+    var prototype = $collectionHolder.data('prototype');
+
+    var index = $collectionHolder.data('index');
+
+    var newForm = prototype.replace(/__name__/g, index);
+
+    $collectionHolder.data('index', index + 1);
+
+    var $newFormLi = $('<li></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+
+    addItemFormDeleteLink($newFormLi);
+}
+
+function addItemFormDeleteLink($itemFormLi) {
+    var $removeFormA = $('<a href="#" class="btn btn-default btn-sm mb-15">Remove this item</a>');
+    $itemFormLi.append($removeFormA);
+
+    $removeFormA.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // remove the li for the tag form
+        $itemFormLi.remove();
+    });
+}
+
+</script>
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

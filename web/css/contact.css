@@ -1,0 +1,70 @@
+/* contact */
+.c-page-900 {
+  width: 900px;
+  padding: 60px 0 0; }
+  .c-page-900 h1, .c-page-900 h2, .c-page-900 h3 {
+    margin: 0 0 20px;
+    font-size: 21px;
+    font-weight: 300;
+    letter-spacing: .07em; }
+  .c-page-900 .o-layout__item {
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: .02em; }
+  .c-page-900 .u-col-left {
+    padding: 0 0 0 120px; }
+  .c-page-900 b {
+    font-weight: 600; }
+  .c-page-900 hr {
+    border-top: 4px solid #00b7eb;
+    margin: 30px 0 35px;
+    width: 90%; }
+  .c-page-900 .o-social {
+    font-size: 28px; }
+    .c-page-900 .o-social a {
+      color: #555656;
+      margin-right: 24px; }
+      .c-page-900 .o-social a:hover {
+        color: #00b7eb; }
+  .c-page-900 .o-subscribe {
+    margin-top: 35px;
+    background: #ededed;
+    padding: 35px 40px;
+    font-weight: 200; }
+    .c-page-900 .o-subscribe .u-form-control {
+      border: none;
+      margin-bottom: 15px; }
+    .c-page-900 .o-subscribe .c-btn {
+      padding: 13px 15px 8px;
+      margin-right: 15px; }
+  .c-page-900 .o-form {
+    width: 80%; }
+    .c-page-900 .o-form .u-form-control {
+      margin-bottom: 35px; }
+    .c-page-900 .o-form textarea {
+      height: 160px; }
+    .c-page-900 .o-form .c-btn {
+      margin-bottom: 20px; }
+  .c-page-900 img {
+    width: auto !important; }
+  .c-page-900 i {
+    font-size: 30px; }
+
+#map {
+  height: 710px;
+  background-color: grey;
+  padding: 0;
+  width: 100%; }
+
+@media (max-width: 767px) {
+  .c-page-900 {
+    width: 100%; }
+    .c-page-900 .u-col-left {
+      padding: 0; }
+    .c-page-900 .o-form {
+      width: 100%; }
+
+  #map {
+    height: 400px; } }
+
+/*# sourceMappingURL=contact.css.map */

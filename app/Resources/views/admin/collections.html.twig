@@ -10,7 +10,7 @@
 	<div class="content-body">
    	    {{ include('alerts.html.twig') }}
 		<div class="arch-table">
-			<div class="details" id="details">
+			<div class="details">
 				<p>Only active collections are shown in menus.</p>
 				<form method="post">
 				<table class="table table-hover">
@@ -44,10 +44,10 @@
 					{% for item in items %}
 						<tr class="order">
 							<td><input type="checkbox" class="item" name="items[]" value="{{ item.id }}" /></td>
-							<td><img src="{% if item.image %}{{ asset('images/collections/thumb/'~ item.image) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" class="img-responsive" alt="{{ item.name }}" /></td>
+							<td><img src="{% if item.image %}{{ asset('images/collections/thumb/'~ item.image ~'?id='~ 'now'|date('U')) }}{% else %}{{ asset('images/no-image.png') }}{% endif %}" class="img-responsive" alt="{{ item.name }}" /></td>
 							<td><a href="{{ path('admin_collection_edit', {'id': item.id}) }}">{{ item.name }}</a></td>
-							<td>{{ render(controller('ShopBundle:Action:filters', {'mode':'collection','id':item.id})) }}</td>
-							<td align="center">{{ item.products|length }}</td>
+							<td>{{ item.filters }}</td>
+							<td align="center">{{ item.products }}</td>
 							<td align="center">
 								<a href="javascript:void(0)" class="toggle-active">
 									<i class="fa fa-star{% if item.isActive == 0 %}-o{% endif %}"></i>
@@ -117,7 +117,7 @@
 
 {% block javascripts %}
 {{ parent() }}
-<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
 <script>
 $(function(){
 	$('#menu-products').addClass('active');

@@ -99,7 +99,7 @@ class User extends BaseUser
     private $website;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $physical_address1;
     
@@ -198,7 +198,6 @@ class User extends BaseUser
     {
         parent::__construct();
         $this->order_count = 0;
-        $this->accepts_marketing = 1;
         $this->orders = new ArrayCollection();
     }
 

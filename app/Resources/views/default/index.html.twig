@@ -1,172 +1,82 @@
 {% extends 'base.html.twig' %}
-{% block title %}Ski and Snowboard Equipment | Ski Hire Christchurch, Mt Hutt{% endblock %}
-{% block description %}{% endblock %}
+{% block title %}{{ page.metaTitle }}{% endblock %}
+{% block description %}{{ page.metaDescription }}{% endblock %}
 
 {% block stylesheets %}
 	<link href="{{ asset('css/carousel.css') }}" rel="stylesheet">
+	{% if mobile %}<link href="{{ asset('css/mobile.css') }}" rel="stylesheet">{% endif %}
 {% endblock %}
 
 {% block banner %}
 <section id="banner">
 	<div class="o-wrapper o-box--flush">
 		<div id="slideshow" class="carousel slide carousel-fade" data-ride="carousel">
-              <ol class="carousel-indicators">
-                <li data-target="#slideshow" data-slide-to="0" class="active"></li>
-                <li data-target="#slideshow" data-slide-to="1"></li>
-              </ol>
             
               <div class="carousel-inner" role="listbox">
-                <div class="item active">
-                  <img src="{{ asset('images/temp/banner-1.jpg') }}" />
-                  <img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />
+{% for item in page.slides %}
+                <div class="item{% if loop.first %} active{% endif %}">
+                  <img src="{{ asset('images/home-page/slides/'~ item.filename) }}" alt="{{ page.name }}" />
+                  {% if item.bannerOverlay == 1 %}<img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />{% endif %}
                   <div class="carousel-caption">
-                    <h1>FREERIDE SALE<br />ON NOW</h1>
-                    <a href="#" class="c-btn c-btn--secondary c-btn--wide">Shop Now</a>
+                    <h1{% if item.bannerTextColor == 1 %} class="u-black"{% endif %}>{{ item.bannerText|upper|nl2br }}</h1>
+                    <a href="{{ item.linkUrl }}" class="c-btn c-btn--secondary c-btn--wide">{{ item.linkText }}</a>
                   </div>
                 </div>
-                <div class="item">
-                  <img src="{{ asset('images/temp/banner-2.jpg') }}" />
-                  <div class="carousel-caption">
-                    <h1>FREERIDE SALE<br />ON NOW</h1>
-                    <a href="#" class="c-btn c-btn--secondary c-btn--wide">Shop Now</a>
-                  </div>
-                </div>
+{% endfor %}
               </div>
             
-              <a class="left carousel-control" href="#slideshow" role="button" data-slide="prev">
+              <a class="left carousel-control" data-target="#slideshow" role="button" data-slide="prev">
                 <div class="icon-prev" aria-hidden="true"></div>
                 <span class="sr-only">Previous</span>
               </a>
-              <a class="right carousel-control" href="#slideshow" role="button" data-slide="next">
+              <a class="right carousel-control" data-target="#slideshow" role="button" data-slide="next">
                 <div class="icon-next" aria-hidden="true"></div>
                 <span class="sr-only">Next</span>
               </a>
-        </div>
-        <div class="c-mobile-banner">
-        	<img src="{{ asset('images/temp/banner-1.jpg') }}" width="100%" />
         </div>
     </div>
 </section>
 {% endblock %}
 
 {% block content %}
-<div class="o-layout--flush u-pt-25 u-mh-30">
- 	<div class="o-layout__item u-1/2@desktop u-1/1@tablet u-ph-30 u-pv-30">
+<div class="o-layout--flush u-pt-25 u-ml-60">
+    {% for item in page.sections %}<div class="o-layout__item u-1/2@desktop u-1/1@tablet u-pl-60 u-pv-30">
  		<figure class="c-home">
- 			<a href="#">
- 				<img src="{{ asset('images/temp/home-custom-boot-fitting.jpg') }}" alt="Custom Boot Fitting" />
- 			</a>
+ 			<a href="{{ item.linkUrl }}">
+ 				<img src="{{ asset('images/home-page/sections/'~ item.filename) }}" alt="{{ item.bannerText }}" />
  			<figcaption>
-				<h2>Custom Boot Fitting</h2>
-				<button class="c-btn c-btn--secondary c-btn--wide">Custom Fit It</button>
+				<h2>{{ item.bannerText }}</h2>
+				<button class="c-btn c-btn--secondary c-btn--wide">{{ item.linkText }}</button>
  			</figcaption>
- 		</figure>
-    </div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-ph-30 u-pv-30">
- 		<figure class="c-home">
- 			<a href="#">
- 				<img src="{{ asset('images/temp/home-vip-pricing.jpg') }}" alt="VIP Pricing" />
  			</a>
- 			<figcaption>
-				<h2>VIP Pricing</h2>
-				<button class="c-btn c-btn--secondary c-btn--wide">Sign Up Now</button>
- 			</figcaption>
  		</figure>
-    </div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-ph-30 u-pv-30">
- 		<figure class="c-home">
- 			<a href="#">
- 				<img src="{{ asset('images/temp/home-ski-finder.jpg') }}" alt="Ski Finder" />
- 			</a>
- 			<figcaption>
-				<h2>Ski Finder</h2>
-				<button class="c-btn c-btn--secondary c-btn--wide">Find Your Perfect Ski</button>
- 			</figcaption>
- 		</figure>
-    </div><div class="o-layout__item u-1/2@desktop u-1/1@tablet u-ph-30 u-pv-30">
- 		<figure class="c-home">
- 			<a href="#">
- 				<img src="{{ asset('images/temp/home-ski-board-rental.jpg') }}" alt="Ski Board Rental" />
- 			</a>
- 			<figcaption>
-				<h2>Ski Board Rental</h2>
-				<button class="c-btn c-btn--secondary c-btn--wide">Book Online &amp; Save</button>
- 			</figcaption>
- 		</figure>
-    </div>
+    </div>{% endfor %}
 </div>
- 
-<form method="post">
-<div class="c-call u-pt-25 u-mb-40">
+
+<div class="c-call u-pt-25">
     <div class="u-bg-blue u-flash u-pv-25 u-fs-15">
     	<img src="{{ asset('images/icon-shipping.png') }}" alt="Shipping" /> &nbsp; Free NZ shipping on orders over $99
     </div>
-    <div class="c-subscribe u-bg-gray u-pv-40">
-    	<div class="u-tt-uppercase u-margin-none u-ls-110">Stay tuned</div>
-    	<input type="text" class="u-form-control" name="name" placeholder="Name" />
-    	<input type="text" class="u-form-control" name="email" placeholder="Email" />
-    	<input type="submit" class="c-btn c-btn--primary c-btn--small" value="GO" />
-    </div>
 </div> 
-</form>
+{% include 'subscribe.html.twig' %} 
 
 <div class="o-layout--center u-pt-40 u-fw-200">
 	<img src="{{ asset('images/icon-blog.png') }}" alt="Blog" />
 	<h4 class="u-margin-none u-pt-20 u-tt-uppercase u-fw-200">This is what we're talking about</h4>
 	<p>Check out the latest from the blog.</p>
 	
-	<div class="o-layout u-mt-55 u-mh-28">
-		<div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-ph-28">
+	<div class="o-layout u-mt-55 u-ml-56">
+		{% for item in blogs %}<div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-pl-56">
 			<figure class="c-blog">
-				<img src="{{ asset('images/temp/blog-1.jpg') }}" alt="" />
+				<img src="{{ asset('images/blog/thumb/'~ item.imageMain) }}" alt="{{ item.name }}" />
+				<a href="{{ path('blog_page', {'handle':item.handle}) }}">
 				<figcaption>
-					<h3>SKI BOOT TECHNOLOGY DEVELOPMENT</h3>
-					<p>Tap (mobile) or hover (desktop) over each blog post image to reveal this preview. Tap (mobile) or hover (desktop) over each blog post image to reveal this... <a href="#">Read more.</a></p>
+					<h3>{{ item.name|upper }}</h3>
+					<div>{{ item.teaser }} <b>Read more.</b></div>
 				</figcaption>
+				</a>
 			</figure>
-		</div><div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-ph-28">
-			<figure class="c-blog">
-				<img src="{{ asset('images/temp/blog-2.jpg') }}" alt="" />
-				<figcaption>
-					<h3>SKI BOOT TECHNOLOGY DEVELOPMENT</h3>
-					<p>Tap (mobile) or hover (desktop) over each blog post image to reveal this preview. Tap (mobile) or hover (desktop) over each blog post image to reveal this... <a href="#">Read more.</a></p>
-				</figcaption>
-			</figure>
-		</div><div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-ph-28">
-			<figure class="c-blog">
-				<img src="{{ asset('images/temp/blog-3.jpg') }}" alt="" />
-				<figcaption>
-					<h3>SKI BOOT TECHNOLOGY DEVELOPMENT</h3>
-					<p>Tap (mobile) or hover (desktop) over each blog post image to reveal this preview. Tap (mobile) or hover (desktop) over each blog post image to reveal this... <a href="#">Read more.</a></p>
-				</figcaption>
-			</figure>
-		</div><div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-ph-28">
-			<figure class="c-blog">
-				<img src="{{ asset('images/temp/blog-4.jpg') }}" alt="" />
-				<figcaption>
-					<h3>SKI BOOT TECHNOLOGY DEVELOPMENT</h3>
-					<p>Tap (mobile) or hover (desktop) over each blog post image to reveal this preview. Tap (mobile) or hover (desktop) over each blog post image to reveal this... <a href="#">Read more.</a></p>
-				</figcaption>
-			</figure>
-		</div><div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-ph-28">
-			<figure class="c-blog">
-				<img src="{{ asset('images/temp/blog-5.jpg') }}" alt="" />
-				<figcaption>
-					<h3>SKI BOOT TECHNOLOGY DEVELOPMENT</h3>
-					<p>Tap (mobile) or hover (desktop) over each blog post image to reveal this preview. Tap (mobile) or hover (desktop) over each blog post image to reveal this... <a href="#">Read more.</a></p>
-				</figcaption>
-			</figure>
-		</div><div class="o-layout__item u-1/3@desktop u-1/2@tablet u-1/1@mobile u-ph-28">
-			<figure class="c-blog">
-				<img src="{{ asset('images/temp/blog-6.jpg') }}" alt="" />
-				<figcaption>
-					<h3>SKI BOOT TECHNOLOGY DEVELOPMENT</h3>
-					<p>Tap (mobile) or hover (desktop) over each blog post image to reveal this preview. Tap (mobile) or hover (desktop) over each blog post image to reveal this... <a href="#">Read more.</a></p>
-				</figcaption>
-			</figure>
-		</div>
+		</div>{% endfor %}
 	</div>
 </div>
-{% endblock %}
-
-{% block javascripts %}
-	<script src="{{ asset('js/bootstrap.js') }}"></script>
 {% endblock %}

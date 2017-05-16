@@ -1,0 +1,181 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Custom Boot Fitting - Edit{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i> Pages / Custom Boot Fitting
+		<div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+                {{ form_row(form.intro) }}
+                <hr />
+                {{ form_row(form.banner) }}
+                {% if form.vars.value.banner %}
+                	<img src="{{ asset('images/custom-boot-fitting/'~ form.vars.value.banner) }}" class="img-responsive mb-15" />
+                {% endif %}
+                {{ form_row(form.banner_overlay) }}
+                {{ form_row(form.banner_text) }}
+                {{ form_row(form.banner_text_color) }}
+                <hr />
+                <div class="row">
+                	<div class="col-md-9">
+                		{{ form_row(form.content_top) }}
+                	</div>
+                	<div class="col-md-3">
+		                {{ form_row(form.content_top_image) }}
+                        {% if form.vars.value.contentTopImage %}
+                        	<img src="{{ asset('images/custom-boot-fitting/'~ form.vars.value.contentTopImage) }}" class="img-responsive mb-15" />
+                        {% endif %}
+                	</div>
+                </div>
+                
+                <hr />
+                <div class="row">
+                	<div class="col-md-9">
+		                {{ form_row(form.content_middle) }}
+                	</div>
+                	<div class="col-md-3">
+		                {{ form_row(form.content_middle_image) }}
+                        {% if form.vars.value.contentMiddleImage %}
+                        	<img src="{{ asset('images/custom-boot-fitting/'~ form.vars.value.contentMiddleImage) }}" class="img-responsive mb-15" />
+                        {% endif %}
+                	</div>
+                </div>
+                <hr />
+                <div class="row">
+                	<div class="col-md-6">
+                        <label for="sections">Sections</label>
+                        <fieldset class="form-group">
+                            <div class="clearfix"></div>
+                            <ul id="sections" class="list-unstyled" data-prototype="{{ form_widget(form.sections.vars.prototype)|e('html_attr') }}">
+                                {% for section in form.sections %}
+                                    <li class="tag-group">
+                                        {% if section.vars.value.filename %}<img src="{{ asset('images/custom-boot-fitting/thumb/'~ section.vars.value.filename) }}" class="img-responsive mb-15" />{% endif %}
+                                        {{ form_row(section.name) }}
+                                        {{ form_row(section.content) }}
+                                        {{ form_row(section.filename) }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </fieldset>
+                	</div>
+                	<div class="col-md-6">
+                        <label for="prices">Prices</label>
+                        <fieldset class="form-group">
+                            <div class="clearfix"></div>
+                            <ul id="prices" class="list-unstyled" data-prototype="{{ form_widget(form.prices.vars.prototype)|e('html_attr') }}">
+                                {% for price in form.prices %}
+                                    <li class="tag-group">
+                                        {{ form_row(price.name) }}
+                                        {{ form_row(price.price) }}
+                                        {{ form_row(price.colour) }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </fieldset>
+                	</div>
+                </div>
+                <hr />
+                {{ form_row(form.booking) }}
+                <hr />
+                {{ form_row(form.meta_title) }}
+                {{ form_row(form.meta_description) }}
+  			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+   			    <a href="{{ path('admin_page_boot') }}" class="btn btn-default">Cancel</a>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#sub-menu-pages').removeClass('hidden');
+	$('#submenu-boot').addClass('active');
+});
+
+var $priceHolder, $sectionHolder;
+
+var $addPriceLink = $('<a href="#" class="add_item_link btn btn-default">Add Price</a>');
+var $newPriceLi = $('<li class="tag-group"></li>').append($addPriceLink);
+
+var $addSectionLink = $('<a href="#" class="add_item_link btn btn-default">Add Section</a>');
+var $newSectionLi = $('<li class="tag-group col-md-6"></li>').append($addSectionLink);
+
+$(document).ready(function() {
+    $priceHolder = $('ul#prices');
+
+    $priceHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $priceHolder.append($newPriceLi);
+
+    $priceHolder.data('index', $priceHolder.find(':input').length);
+
+    $addPriceLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($priceHolder, $newPriceLi);
+    });
+
+    $sectionHolder = $('ul#sections');
+
+    $sectionHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $sectionHolder.append($newSectionLi);
+
+    $sectionHolder.data('index', $sectionHolder.find(':input').length);
+
+    $addSectionLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($sectionHolder, $newSectionLi);
+    });
+
+});
+
+function addItemForm($collectionHolder, $newLinkLi) {
+    var prototype = $collectionHolder.data('prototype');
+
+    var index = $collectionHolder.data('index');
+
+    var newForm = prototype.replace(/__name__/g, index);
+
+    $collectionHolder.data('index', index + 1);
+
+    var $newFormLi = $('<li class="tag-group"></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+
+    addItemFormDeleteLink($newFormLi);
+}
+
+function addItemFormDeleteLink($itemFormLi) {
+    var $removeFormA = $('<a href="#" class="btn btn-default btn-sm mb-15">Remove this item</a>');
+    $itemFormLi.append($removeFormA);
+
+    $removeFormA.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // remove the li for the tag form
+        $itemFormLi.remove();
+    });
+}
+
+</script>
+{% endblock %}

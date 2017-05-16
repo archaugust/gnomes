@@ -1,0 +1,178 @@
+<div class="header">
+	<a href="#" class="active">All Products</a>
+	<div class="pull-right paginator">
+        {% if paginator.prevUrl %}
+            <a onclick="loadPage({{ paginator.currentPage - 1 }})"><i class="fa fa-chevron-left"></i></a>
+        {% endif %}
+
+        {% for page in paginator.pages %}
+            {% if page.url %}
+                <a onclick="loadPage({{ page.num }})" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+            {% else %}
+                <a class="disabled"><span>{{ page.num }}</span></a>
+            {% endif %}
+        {% endfor %}
+
+        {% if paginator.nextUrl %}
+            <a onclick="loadPage({{ paginator.currentPage + 1 }})"><i class="fa fa-chevron-right"></i></a></li>
+        {% endif %}
+	</div>
+</div>
+<div class="details">
+    {% set sort = app.session.get('sort') %}
+    {% set filters = app.session.get('filters_search') %}
+	<form method="get" id="filter-form">
+		<div class="btn-filter">
+			Filter products <i class="fa fa-caret-down"></i>
+        	<div class="dropdown-box" id="filter-box">
+        		Show all products where:
+        		<select class="form-control" name="f" id="filter-field">
+        			<option value="">Select a filter...</option>
+        			<option value="product_type">Product type</option>
+        			<option value="brand_name">Brand name</option>
+        			<option value="supplier_name">Supplier</option>
+        			<option value="tags">Tagged with</option>
+        			<option value="pre_sell">Pre-selling</option>
+        			<option value="is_active">Site Visibility</option>
+        			<option value="vend_active">Vend Status</option>
+        			<option value="collection">Collection</option>
+        		</select>
+        		<div id="filter-value"></div>
+        		<input id="filter-submit" type="submit" class="btn btn-primary hidden" value="Add Filter">
+            </div>
+        </div>
+		<span><input type="text" class="query" name="query" value="{{ app.request.get('query') }}" placeholder="Start typing to search for products..." /></span>
+	</form>
+	<div class="filters">
+		{% for filter in filters %}
+			<a class="filter"><span>{{ filter['label'] }}</span> <i class="fa fa-close"></i></a>
+		{% endfor %}
+	</div>
+   	
+	<form method="post" action="{{ path('admin_product') }}" id="product-search-form">
+	<input type="hidden" class="return" name="return" />
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th class="check">
+					<div class="check-box">
+						<input type="checkbox" id="check-all" />
+						<div class="with-checked">
+							<div id="selected"></div>
+                    		<div class="dropdown">
+                    			<div class="btn btn-sm btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bulk Actions <i class="fa fa-caret-down"></i></div>
+                          		<ul class="dropdown-menu option-box">
+                          			<li><a id="disableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Disable</a></li>
+                          			<li><a id="enableConfirm" type="button" data-toggle="modal" data-target="#toggleModal">Enable</a></li>
+                          			<li role="separator" class="divider"></li>
+                          			<li><a id="addCollectionConfirm" type="button" data-toggle="modal" data-target="#selectModal">Add to Collection</a></li>
+                          			<li><a id="removeCollectionConfirm" type="button" data-toggle="modal" data-target="#selectModal">Remove from Collection</a></li>
+                          			<li role="separator" class="divider"></li>
+                          			<li><a id="addDiscounterConfirm" type="button" data-toggle="modal" data-target="#selectModal">Add to Discount Group</a></li>
+                          			<li><a id="removeDiscounterConfirm" type="button" data-toggle="modal" data-target="#selectModal">Remove from Discount Group</a></li>
+                          		</ul>
+                            </div>
+						</div>
+					</div>
+				</th>
+				<th class="thumb"></th>
+				<th class="sort">Name</a></th>
+				<th class="sort text-center">Inventory</th>
+				<th class="sort">Type</a></th>
+				<th class="sort">Brand</a></th>
+				<th class="sort">Supplier</a></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in items %}
+				{% set stock = item.count %}
+				{% set variants = productVariants(item.id) %}
+				{% set variantsCount = variants|length %}
+				{% if variantsCount > 0 %}
+					{% set s = 's' %}
+					{% for variant in variants %}
+						{% set stock = stock + variant.count %}
+					{% endfor %}
+				{% else %}
+					{% set s = '' %}
+				{% endif %}
+    		<tr>
+    			<td>
+    				<input type="checkbox" class="item" name="products[]" value="{{ item.id }}" />
+    			</td>
+    			<td><img src="{% if item.images|length > 0 %}{{ asset('images/products/thumb/'~ item.images[0].filename) }}{% else %}{% if item.image %}{{ item.image }}{% endif %}{% endif %}" alt="{{ item.name }}" /></td>
+    			<td><a href="{{ path('admin_product_edit', {'id':item.id}) }}">{{ item.baseName }}</a></td>
+    			<td align="center">{{ stock ~' in '~ (variantsCount + 1) ~' variant'~ s }}</td>
+    			<td><a href="?f=product_type&v={{ item.productType }}">{{ item.productType }}</a></td>
+    			<td><a href="?f=brand_name&v={{ item.brandName }}">{{ item.brandName }}</a></td>
+    			<td><a href="?f=supplier_name&v={{ item.supplierName }}">{{ item.supplierName }}</a></td>
+    		</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<input type="hidden" name="list_action" id="list_action" value="" />
+
+    <div class="modal fade" id="toggleModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        	<h4>Confirm</h4>
+          </div>
+          <div class="modal-body">
+        	<p><span id="text_action"></span> selected items?</p>
+          </div>
+          <div class="modal-footer">
+        	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+        	<input type="submit" class="btn btn-primary" value="Proceed" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="selectModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        	<h4><span id="select_title"></span></h4>
+          </div>
+          <div class="modal-body" id="select_list">
+        	
+          </div>
+          <div class="modal-footer">
+        	<div class="btn btn-default" data-dismiss="modal">Cancel</div>
+        	<input type="submit" class="btn btn-primary" value="Save" />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    </form>
+</div>
+<div class="header">
+	<a href="#" class="active">Add Products</a>
+	<div class="pull-right paginator">
+        {% if paginator.prevUrl %}
+            <a href="{{ paginator.prevUrl }}"><i class="fa fa-chevron-left"></i></a>
+        {% endif %}
+
+        {% for page in paginator.pages %}
+            {% if page.url %}
+                <a href="{{ page.url }}" {% if page.isCurrent %}class="active"{% endif %}>{{ page.num }}</a>
+            {% else %}
+                <a class="disabled"><span>{{ page.num }}</span></a>
+            {% endif %}
+        {% endfor %}
+
+        {% if paginator.nextUrl %}
+            <a href="{{ paginator.nextUrl }}"><i class="fa fa-chevron-right"></i></a></li>
+        {% endif %}
+		</div>
+	</div>
+</div>
+<br /><br />
+
+<script src="{{ asset('js/checkbox.js?id='~ 'now'|date('U')) }}"></script>
+<script src="{{ asset('js/ajax-products-search.js') }}"></script>

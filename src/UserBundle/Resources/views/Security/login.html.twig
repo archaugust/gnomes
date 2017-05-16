@@ -7,7 +7,7 @@
 <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
 {% endif %}
 
-<h1 class="margin-clear">Login</h1>
+<h1>Login</h1>
 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
 <p>You are currently logged in as {{ app.user.username }}.</p>
     <div class="list-group">

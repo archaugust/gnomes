@@ -1,0 +1,23 @@
+/* ==========================================================================
+   form input
+   ========================================================================== */
+@charset "UTF-8";
+input[type="text"], input[type="email"], input[type="date"], input[type="password"], input[type="number"], textarea, select {
+	width: 100%;
+	border: 1px solid #bfbfbf;
+	padding: 5px 0 0 5px;
+	font-size: 14px;
+	height: 37px;
+	line-height: normal;
+	border-radius: 0!important;
+}
+	
+.u-form-control {
+	margin-bottom: 10px;
+	padding-left: 15px!important;
+}
+
+/* placeholders */
+::-webkit-input-placeholder, ::-moz-placeholder, :-ms-input-placeholder, :-moz-placeholder {
+	color: #898989;
+}

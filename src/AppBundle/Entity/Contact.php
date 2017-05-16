@@ -1,7 +1,6 @@
 <?php
 namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity
  * @ORM\Table(name="gno1_contact")
@@ -16,19 +15,19 @@ class Contact
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=100)
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=100)
      */
     private $email;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=200)
      */
-    private $phone;
+    private $subject;
 
     /**
      * @ORM\Column(type="text")
@@ -39,7 +38,6 @@ class Contact
      * @ORM\Column(type="integer")
      */
     private $date_submitted;
-
 
     /**
      * Get id
@@ -100,27 +98,27 @@ class Contact
     }
 
     /**
-     * Set phone
+     * Set subject
      *
-     * @param string $phone
+     * @param string $subject
      *
      * @return Contact
      */
-    public function setPhone($phone)
+    public function setSubject($subject)
     {
-        $this->phone = $phone;
+        $this->subject = $subject;
 
         return $this;
     }
 
     /**
-     * Get phone
+     * Get subject
      *
      * @return string
      */
-    public function getPhone()
+    public function getSubject()
     {
-        return $this->phone;
+        return $this->subject;
     }
 
     /**

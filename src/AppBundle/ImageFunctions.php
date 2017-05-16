@@ -7,11 +7,19 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageFunctions extends Controller
 {
-	private $targetDir, $misc_functions;
+	private $baseDir, $targetDir, $misc_functions, $imagesDir;
 	public function __construct($targetDir, $misc_functions)
 	{
+		$this->baseDir = $targetDir;
 		$this->targetDir = $targetDir;
 		$this->misc_functions = $misc_functions;
+
+		$fs = new Filesystem();
+		
+		if ($fs->exists($this->baseDir. '/../web/images/'))
+			$this->imagesDir = $this->baseDir. '/../web/images/';
+		else
+			$this->imagesDir = $this->baseDir. '/../public_html/images/';
 	}
 	
 	public function uploadImage(UploadedFile $file, $alias)
@@ -45,16 +53,11 @@ class ImageFunctions extends Controller
     
     public function upload($mode, $folder, $name, $image, $old_image = '') {
     	$fs = new Filesystem();
-    	$rootDir = $this->targetDir;
-    	
-    	if ($fs->exists($rootDir . '/../web/images/'. $folder))
-    		$imagesDir = $rootDir . '/../web/images/'. $folder;
-   		else
-   			$imagesDir = $rootDir . '/../public_html/images/'. $folder;
+    	$imagesDir = $this->imagesDir .'/'. $folder;
     			
     	$this->setTargetDir($imagesDir);
-    			
-    	// if has old_image, delete
+    
+    	// if has old_image, delete. must not be empty or it will nuke entire $folder
     	if (!empty($old_image)) {
     		switch ($mode) {
     			case 'banner_thumb':
@@ -73,38 +76,95 @@ class ImageFunctions extends Controller
     	$source = $imagesDir . '/' . $filename;
     			
     	switch ($mode) {
-    	case 'product':
-    		$resized = $imagesDir . '/full/' . $filename;
-    		$this->resize($source, null, 590, 800, true, $resized, false, false, 90);
-    		
-    		$resized = $imagesDir . '/thumb/' . $filename;
-    		$this->resize($source, null, 600, 655, false, $resized, false, false, 90);
-    		break;
-    	case 'banner_thumb':
-    		$resized = $imagesDir . '/banner/' . $filename;
-    		$this->resize($source, null, 1180, 447, false, $resized, false, false, 90);
-    		
-    		$resized = $imagesDir . '/thumb/' . $filename;
-    		$this->resize($source, null, 600, 600, true, $resized, false, false, 90);
-    		break;
-    	case 'thumb':
-    		$resized = $imagesDir . '/thumb/' . $filename;
-	    	$this->resize($source, null, 600, 600, true, $resized, false, false, 90);
-			break;
-		}
+	    	case 'product':
+	    		$resized = $imagesDir . '/full/' . $filename;
+	    		$this->resize($source, null, 590, 800, true, $resized, false, false, 80);
+	    		
+	    		$resized = $imagesDir . '/thumb/' . $filename;
+	    		$this->resize($source, null, 480, 480, false, $resized, false, false, 80);
+	    		break;
+	    	case 'banner_thumb':
+	    		$resized = $imagesDir . '/banner/' . $filename;
+	    		$this->resize($source, null, 1180, 447, false, $resized, false, false, 80);
+	    		
+	    		$resized = $imagesDir . '/thumb/' . $filename;
+	    		$this->resize($source, null, 480, 480, true, $resized, false, false, 80);
+	    		break;
+	    	case 'banner':
+	   			$resized = $imagesDir . '/' . $filename;
+	   			$this->resize($source, null, 1180, 447, false, $resized, false, false, 80);
+	   			break;
+	    	case 'home_section':
+	    		$resized = $imagesDir . '/' . $filename;
+	    		$this->resize($source, null, 700, 371, false, $resized, false, false, 80);
+	    		break;
+	    	case 'thumb':
+	    		$resized = $imagesDir . '/thumb/' . $filename;
+		    	$this->resize($source, null, 480, 1200, true, $resized, false, false, 80);
+				break;
+	    	case 'thumb_square':
+	    		$resized = $imagesDir . '/thumb/' . $filename;
+	    		$this->resize($source, null, 480, 480, false, $resized, false, false, 80);
+	    		break;
+	    	case 'blog':
+	    		$resized = $imagesDir . '/thumb/' . $filename;
+	    		$this->resize($source, null, 480, 480, true, $resized, false, false, 80);
+	    		
+	    		$resized = $imagesDir . '/main/' . $filename;
+	    		$this->resize($source, null, 700, 400, false, $resized, true, false, 80);
+	    		break;
+	    	case 'blog_subimage':
+	    		$resized = $imagesDir . '/middle/' . $filename;
+	    		$this->resize($source, null, 700, 400, false, $resized, true, false, 80);
+	    		break;
+	    	case 'large':
+	    		$resized = $imagesDir . '/' . $filename;
+	    		$this->resize($source, null, 1200, 1200, true, $resized, false, false, 80);
+	    		break;
+	    	case 'rental':
+	    		$resized = $imagesDir . '/' . $filename;
+	    		$this->resize($source, null, 360, 278, true, $resized, false, false, 80);
+	    		break;
+    	}
     		
     	return $filename;
     }
     
+    function createImageFromURL($url, $filename, $folder, $full = false) {
+    	$imagesDir = $this->imagesDir .'/'. $folder;
+    	
+   		$resized = $imagesDir . '/' . $filename;
+   		$this->resize($url, null, 1200, 1200, true, $resized, false, false, 80);
+    	
+    	$url = $imagesDir .'/'. $filename;
+    	
+    	if ($full) {
+    		$resized = $imagesDir . '/full/' . $filename;
+    		$this->resize($url, null, 590, 800, true, $resized, false, false, 80);
+    	}
+    	
+    	$resized = $imagesDir . '/thumb/' . $filename;
+    	$this->resize($url, null, 480, 480, false, $resized, false, false, 80);
+    	
+    	return $filename;
+    }
+
+    
+    public function deleteImage($image, $folder) {
+    	// image must not be empty or it will nuke entire $folder
+    	if (!empty($image)) {
+    		$fs = new Filesystem();
+	    	$imagesDir = $this->imagesDir .'/'. $folder;
+
+			$fs->remove($imagesDir .'/'. $image);
+    	}
+		return true;
+    }
+    
     public function deleteProductImage($image) {
     	$fs = new Filesystem();
-    	$rootDir = $this->container->getParameter('kernel.root_dir');
+    	$imagesDir = $this->imagesDir;
     	
-    	if ($fs->exists($rootDir . '/../web/images'))
-    		$imagesDir = $rootDir . '/../web/images';
-    	else
-    		$imagesDir = $rootDir . '/../public_html/images';
-    			
     	$fs->remove($imagesDir .'/products/'. $image);
 		$fs->remove($imagesDir .'/products/full/'. $image);
     	$fs->remove($imagesDir .'/products/thumb/'. $image);

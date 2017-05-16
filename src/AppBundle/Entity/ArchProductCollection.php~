@@ -60,6 +60,11 @@ class ArchProductCollection
     private $banner_overlay;
     
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $banner_sale;
+    
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $meta_title;
@@ -79,10 +84,22 @@ class ArchProductCollection
      */
     private $products;
     
+    /**
+     * @ORM\OneToMany(targetEntity="ArchProductCollectionGuide", mappedBy="collection")
+     */
+    private $guides;
+    
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $hits;
+    
     public function __construct() {
-    	$this->is_active = 1;
+    	$this->hits = $this->banner_sale = 0;
+    	$this->is_active = 0;
     	$this->filters = new ArrayCollection();
     	$this->products = new ArrayCollection();
+    	$this->guides = new ArrayCollection();
     }
 
     /**
@@ -240,6 +257,30 @@ class ArchProductCollection
     }
 
     /**
+     * Set bannerTextColor
+     *
+     * @param boolean $bannerTextColor
+     *
+     * @return ArchProductCollection
+     */
+    public function setBannerTextColor($bannerTextColor)
+    {
+        $this->banner_text_color = $bannerTextColor;
+
+        return $this;
+    }
+
+    /**
+     * Get bannerTextColor
+     *
+     * @return boolean
+     */
+    public function getBannerTextColor()
+    {
+        return $this->banner_text_color;
+    }
+
+    /**
      * Set bannerOverlay
      *
      * @param boolean $bannerOverlay
@@ -261,6 +302,30 @@ class ArchProductCollection
     public function getBannerOverlay()
     {
         return $this->banner_overlay;
+    }
+
+    /**
+     * Set bannerSale
+     *
+     * @param boolean $bannerSale
+     *
+     * @return ArchProductCollection
+     */
+    public function setBannerSale($bannerSale)
+    {
+        $this->banner_sale = $bannerSale;
+
+        return $this;
+    }
+
+    /**
+     * Get bannerSale
+     *
+     * @return boolean
+     */
+    public function getBannerSale()
+    {
+        return $this->banner_sale;
     }
 
     /**
@@ -309,6 +374,30 @@ class ArchProductCollection
     public function getMetaDescription()
     {
         return $this->meta_description;
+    }
+
+    /**
+     * Set hits
+     *
+     * @param integer $hits
+     *
+     * @return ArchProductCollection
+     */
+    public function setHits($hits)
+    {
+        $this->hits = $hits;
+
+        return $this;
+    }
+
+    /**
+     * Get hits
+     *
+     * @return integer
+     */
+    public function getHits()
+    {
+        return $this->hits;
     }
 
     /**
@@ -380,26 +469,36 @@ class ArchProductCollection
     }
 
     /**
-     * Set bannerTextColor
+     * Add guide
      *
-     * @param boolean $bannerTextColor
+     * @param \AppBundle\Entity\ArchProductCollectionGuide $guide
      *
      * @return ArchProductCollection
      */
-    public function setBannerTextColor($bannerTextColor)
+    public function addGuide(\AppBundle\Entity\ArchProductCollectionGuide $guide)
     {
-        $this->banner_text_color = $bannerTextColor;
+        $this->guides[] = $guide;
 
         return $this;
     }
 
     /**
-     * Get bannerTextColor
+     * Remove guide
      *
-     * @return boolean
+     * @param \AppBundle\Entity\ArchProductCollectionGuide $guide
      */
-    public function getBannerTextColor()
+    public function removeGuide(\AppBundle\Entity\ArchProductCollectionGuide $guide)
     {
-        return $this->banner_text_color;
+        $this->guides->removeElement($guide);
+    }
+
+    /**
+     * Get guides
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getGuides()
+    {
+        return $this->guides;
     }
 }

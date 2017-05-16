@@ -1,0 +1,152 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* ski-finder */
+.c-ski-finder {
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
+	font-size: 13px;
+	line-height: 26px;
+	font-weight: 300;
+	text-align: center;
+	width: 740px;
+	padding-top: 55px;
+
+	h2 {
+		font-size: 21px;
+		font-weight: 300;
+		color: $global-font-color;
+		letter-spacing: .07em;
+		margin: 15px 0 20px;
+	}
+
+	i {
+		font-size: 20px;
+		margin-top: 5px;
+	}
+
+	.c-btn {
+		font-weight: 900;
+		padding-left: 70px;
+		padding-right: 70px;
+	}
+}
+
+.o-criteria {
+	
+	h3 {
+		font-size: 19px;
+		margin: 40px 0 0;
+		font-weight: 300;
+		
+		span {
+			display: block;
+			font-weight: 800;
+		}
+	}
+
+	textarea {
+		width: 100%;
+		height: 40px;
+		padding: 10px 0 0 15px;
+	}
+
+	&-box {
+		position: relative;
+		margin-top: 20px;
+		border: 1px solid #bfbfbf;
+		padding: 10px 0 5px;
+		width: 100%;
+		cursor: pointer;
+		
+		.current {
+			.light {
+				color: #a6a6a6;
+			}
+			&:hover {
+				color: $global-primary-color;
+			}
+		}
+	
+		i {
+			position: absolute;
+			right: 30%;
+			top: 3px;
+			color: #a6a6a6;
+		}
+	
+		.choices {
+			display: none;
+			padding: 15px;
+			letter-spacing: .035em;
+			
+			> div {
+				padding: 5px 0;
+				font-size: 12.5px;
+				color: #000;
+				
+				.text span {
+					font-weight: 600;
+				}
+				
+				&:hover {
+					color: $global-primary-color;
+				}
+			}
+		}
+	}
+
+	.o-layout__item {
+		font-size: 13px;
+		margin-bottom: 30px;
+	}
+
+	.u-ph-80 {
+		padding: 0 80px;
+	}
+}
+
+.o-checkboxes {
+	margin: 20px 0 -15px;
+	
+	> .o-option {
+		display: inline-block;
+		position: relative;
+		padding-left: 30px;
+		margin: 0 20px 15px 0;
+		letter-spacing: .02em;
+		
+		> div {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 22px;
+			height: 22px;
+			border: 1px solid #717171;
+			border-radius: 11px;
+		}
+	
+		.active {
+			border: 1px solid $global-primary-color;
+			background: $global-primary-color!important;
+		}
+	
+		&:hover {
+			color: $global-primary-color;
+			
+			> div {
+				border: 1px solid $global-primary-color;
+				background: $global-primary-color;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 767px) {
+	.u-ph-80 {
+		padding: 0;
+	}
+}

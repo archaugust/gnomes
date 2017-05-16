@@ -1,0 +1,106 @@
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% extends 'base_admin.html.twig' %}
+{% block title %}Page - Edit{% endblock %}
+{% block content %}
+<div class="content">
+    {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+    {{ form_errors(form) }}
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-file-text"></i> Pages / <a href="{{ path('admin_page') }}">Pages</a> / {{ item.name }}
+		<div class="pull-right">
+            <input type="submit" class="btn btn-primary" value="Save" />
+        </div>
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="details" id="details">
+                {{ form_row(form.name) }}
+                <label for="page_handle">Handle</label>
+                {{ form_row(form.handle) }}
+                {{ form_row(form.content) }}
+                {{ form_row(form.banner) }}
+                {% if item.banner %}
+                	<img src="{{ asset('images/about/'~ item.banner) }}" class="img-responsive mb-15" />
+                {% endif %}
+                {{ form_row(form.banner_overlay) }}
+                {{ form_row(form.banner_text) }}
+                {{ form_row(form.banner_text_color) }}
+                <hr />
+                {{ form_row(form.meta_title) }}
+                {{ form_row(form.meta_description) }}
+                <hr />
+  			    {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+   			    <a href="{{ path('admin_page') }}" class="btn btn-default">Cancel</a>
+  			</div>
+		</div>
+	</div>
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+<script>
+$(function(){
+	$('#menu-pages').addClass('active');
+	$('#sub-menu-pages').removeClass('hidden');
+	$('#submenu-pages').addClass('active');
+
+	$('#arch_page_handle').removeClass('hidden'){% if item.core %}.attr('readonly','readonly'){% endif %};
+});
+
+var $sectionHolder;
+
+var $addSectionLink = $('<a href="#" class="add_item_link btn btn-default">Add Section</a>');
+var $newSectionLi = $('<li class="tag-group"></li>').append($addSectionLink);
+
+$(document).ready(function() {
+    $sectionHolder = $('ul#sections');
+
+    $sectionHolder.find('li').each(function() {
+        addItemFormDeleteLink($(this));
+    });
+
+    $sectionHolder.append($newSectionLi);
+
+    $sectionHolder.data('index', $sectionHolder.find(':input').length);
+
+    $addSectionLink.on('click', function(e) {
+        e.preventDefault();
+
+        addItemForm($sectionHolder, $newSectionLi);
+    });
+
+});
+
+function addItemForm($collectionHolder, $newLinkLi) {
+    var prototype = $collectionHolder.data('prototype');
+
+    var index = $collectionHolder.data('index');
+
+    var newForm = prototype.replace(/__name__/g, index);
+
+    $collectionHolder.data('index', index + 1);
+
+    var $newFormLi = $('<li class="tag-group"></li>').append(newForm);
+    $newLinkLi.before($newFormLi);
+
+    addItemFormDeleteLink($newFormLi);
+}
+
+function addItemFormDeleteLink($itemFormLi) {
+    var $removeFormA = $('<a href="#" class="btn btn-default btn-sm mb-15">Remove this item</a>');
+    $itemFormLi.append($removeFormA);
+
+    $removeFormA.on('click', function(e) {
+        // prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        // remove the li for the tag form
+        $itemFormLi.remove();
+    });
+}
+
+</script>
+{% endblock %}

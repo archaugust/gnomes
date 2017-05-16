@@ -1,0 +1,77 @@
+{% for guest in item.guests  %}
+<table class="table table-hover">
+	<tr><td colspan="2"><p><b>Guest {{ loop.index }}</b></p></td>
+	<tr>
+		<td width="200">
+			<b>First Name:</b>
+		</td>
+		<td>
+			{{ guest.firstName }}
+		</td>
+	</tr>
+	<tr>
+		<td><b>Last Name:</b></td>
+		<td>{{ guest.lastName }}</td>
+	</tr>
+	<tr>
+		<td><b>Height:</b></td>
+		<td>{{ guest.height }}</td>
+	</tr>
+	<tr>
+		<td><b>Weight:</b></td>
+		<td>{{ guest.weight }}</td>
+	</tr>
+	<tr>
+		<td><b>Shoe Size:</b></td>
+		<td>{{ guest.shoeSize }}</td>
+	</tr>
+	<tr>
+		<td><b>Age:</b></td>
+		<td>{{ guest.age }}</td>
+	</tr>
+	<tr>
+		<td><b>Ability Level:</b></td>
+		<td>{{ guest.firstName }}</td>
+	</tr>
+	<tr>
+		<td><b>Gear</b></td>
+		<td>{{ guest.gear }}</td>
+	</tr>
+	<tr>
+		<td><b>Gear Type</b></td>
+		<td>{{ guest.gearType }}</td>
+	</tr>
+	<tr>
+		<td><b>Snowboard Stance</b></td>
+		<td>{{ guest.snowboardStance }}</td>
+	</tr>
+	<tr>
+		<td><b>Jacket</b></td>
+		<td>{{ guest.jacket }}</td>
+	</tr>
+	<tr>
+		<td><b>Pants</b></td>
+		<td>{{ guest.pants }}</td>
+	</tr>
+	<tr>
+		<td><b>Goggles</b></td>
+		<td>{{ guest.goggles }}</td>
+	</tr>
+	<tr>
+		<td><b>Gloves</b></td>
+		<td>{{ guest.gloves }}</td>
+	</tr>
+	<tr>
+		<td><b>Helmet</b></td>
+		<td>{{ guest.helmet }}</td>
+	</tr>
+	<tr>
+		<td><b>Chains</b></td>
+		<td>{{ guest.chains }}</td>
+	</tr>
+	<tr>
+		<td><b>Instructions:</b></td>
+		<td>{{ guest.instructions }}</td>
+	</tr>
+</table>
+{% endfor %}

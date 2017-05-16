@@ -8,8 +8,6 @@ imports:
 parameters:
     locale: en
     root_directory: '%kernel.root_dir%/../web'
-    redirect_uri: 'http://gnomes.dev/vend-authorize'
-    vend_prefix: 'gnomes'
 
 framework:
     #esi:             ~
@@ -77,6 +75,8 @@ fos_user:
     registration:
         confirmation:
             enabled: true
+        form:
+            type: UserBundle\Form\RegistrationType
     from_email:
         address: info@gnomes.co.nz
         sender_name: Gnomes
@@ -117,9 +117,9 @@ fm_elfinder:
                 plugins:
                     AutoResize: # global resize options, applies to root which don't have his own resize configuraion
                         enable: true
-                        maxWidth: 750
+                        maxWidth: 1180
                         maxHeight: 750
-                        quality: 80 # JPEG image save quality
+                        quality: 90 # JPEG image save quality
                 roots:       # at least one root must be defined, defines root filemanager directories
                     uploads:
                         #show_hidden: true|false # defaults to false, hides dotfiles
@@ -141,9 +141,9 @@ fm_elfinder:
                 plugins:
                     AutoResize: # global resize options, applies to root which don't have his own resize configuraion
                         enable: true
-                        maxWidth: 750
+                        maxWidth: 1180
                         maxHeight: 750
-                        quality: 80 # JPEG image save quality
+                        quality: 90 # JPEG image save quality
                 roots:       # at least one root must be defined
                     uploads:
                         driver: LocalFileSystem

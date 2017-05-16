@@ -49,7 +49,7 @@
 							</td>
 							<td>
 								{% for collection in item.collections %}
-									<a href="{{ path('admin_collection_edit', {'id':collection.id}) }}">{{ collection.collection.name }}</a>{% if not loop.last %}, {% endif %}
+									<a href="{{ path('admin_collection_edit', {'id':collection.collectionId}) }}">{{ collection.collection.name }}</a>{% if not loop.last %}, {% endif %}
 								{% endfor %}
 							</td>
 							<td align="center">{{ item.sortOrder }}</td>
@@ -131,7 +131,7 @@
 
 {% block javascripts %}
 {{ parent() }}
-<script src="{{ asset('js/notify.min.js') }}"></script>
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
 <script>
 $(function(){
 	$('#menu-products').addClass('active');

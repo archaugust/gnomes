@@ -1,0 +1,59 @@
+{% extends 'base_admin.html.twig' %}
+{% block title %}Ski Finder - Skis{% endblock %}
+{% block content %}
+<div class="content">
+	<div class="content-header">
+		<span><i class="fa fa-fw fa-search-plus"></i> Ski Finder / </span> Skis
+	</div>
+	<div class="content-body">
+   	    {{ include('alerts.html.twig') }}
+		<div class="arch-table">
+			<div class="header">
+				<a href="#" class="active">Skis</a>
+			</div>
+			<div class="details" id="details">
+				<p>Only products under 'Skis' product type and in a collection are listed here.</p>
+				<table class="table table-hover">
+					<thead>
+						<tr>
+    						<th>Name</th>
+    						<th class="th-toggle text-center">Site</th>
+    						<th class="th-toggle text-center">Tags</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for item in items %}
+						<tr>
+							<td><a href="{{ path('admin_product_edit', {'id':item.id}) }}">{{ item.name }}</a><input type="hidden" value="{{ item.id }}" /></td>
+							<td align="center">
+								<a href="javascript:void(0)" class="toggle-active">
+									<i class="fa fa-star{% if item.is_active == 0 %}-o{% endif %}"></i>
+								</a>
+							</td>
+							<td align="center"><a href="{{ path('admin_ski_finder_edit', {'id':item.id}) }}" class="btn btn-{% if item.has_data %}default">Update{% else %}primary">Add Tags{% endif %}</a></td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<input type="hidden" id="mode" value="product" />
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="{{ asset('js/notify_admin.min.js') }}"></script>
+<script>
+$(function(){
+	$('#menu-ski-finder').addClass('active');
+	$('#sub-menu-ski-finder').removeClass('hidden');
+	$('#submenu-ski-finder').addClass('active');
+});
+var mode = $('#mode').val();
+</script>
+<script src="{{ asset('js/ajax-toggle.js?id='~ 'now'|date('U')) }}"></script>
+{% endblock %}

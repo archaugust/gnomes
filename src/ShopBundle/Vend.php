@@ -45,7 +45,7 @@ class Vend
 			
 			$access_token->setValue($result->access_token);
 			// add 400 second allowance to avoid token expiring while running tasks
-			$access_token_expiry->setValue((int)($result->expires) - 400); 
+			$access_token_expiry->setValue((int)($result->expires) - 3600); 
 			
 			// change refresh_token if added to response
 			if (isset($result->refresh_token)) {

@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Ivory\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ContentType extends AbstractType
 {
@@ -20,7 +21,7 @@ class ContentType extends AbstractType
             		'label' => 'Meta Title',
             		'required' => false
             ))
-            ->add('meta_description', TextType::class, array(
+            ->add('meta_description', TextareaType::class, array(
             		'label' => 'Meta Description',
             		'required' => false
             ))

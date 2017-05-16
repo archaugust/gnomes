@@ -1,0 +1,313 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* checkout */
+.c-page--checkout {
+	font-size: 13px;
+	letter-spacing: .02em;
+	
+	h1 {
+		font-size: 31px;
+		font-weight: 200;
+		margin: 0;
+		letter-spacing: .02em;
+		text-align: left;
+		
+		span {
+			font-size: 16px;
+		}
+	}
+
+	h3 {
+		font-size: 20.5px;
+		font-weight: 300;
+		margin: 0;
+	}
+
+	.c-btn--checkout, .c-btn--continue {
+		padding: 25px 0 20px;
+		font-size: 13px;
+		font-weight: 900;
+		color: #fff;
+		letter-spacing: .07em;
+		width: 100%;
+		margin-bottom: 10px;
+		
+		&:hover {
+			opacity: .8;
+		}
+	}
+	
+	.c-btn--checkout {
+		background: #595959;
+	}
+	
+	.c-btn--continue {
+		background: $global-primary-color;
+	}
+
+	.o-layout--center {
+		padding-top: 10px;
+		
+		img {
+			width: auto!important;
+		}
+	}
+	
+	.o-layout__item {
+		font-size: 13px;
+	}
+	
+	.u-col-left {
+		padding-right: 100px;
+		border-right: 1px solid #bfbfbf;
+	}
+
+	.u-col-right {
+		padding-left: 100px;
+	}
+
+	b {
+		letter-spacing: .1em;
+	}
+
+	input[type="radio"] {
+		margin: 0 5px 15px 0;
+	}
+}
+
+table {
+	width: 100%;
+	padding: 0;
+
+	th {
+		font-size: 11.5px;
+		font-weight: 300;
+		height: 110px;
+		vertical-align: bottom;
+		padding-bottom: 20px;
+		border-bottom: 1px solid #BFBFBF;
+	}
+	td {
+		font-weight: 400;
+		letter-spacing: .075em;
+		padding: 20px 0;
+		text-align: center;
+		height: 82px;
+		border-bottom: 1px solid #bfbfbf;
+
+		img {
+			width: auto!important;
+		}
+	}
+
+	select {
+		width: 60px;
+	}
+
+	.image {
+		width: 100px;
+	}	
+
+	.wishlist {
+		width: 50px;
+		
+		a {
+			color: #b7b7b8;
+			font-size: 17px;
+			position: relative;
+			z-index: 1000;
+			cursor: pointer;
+			
+			&:hover {
+				color: $global-primary-color!important;
+			}
+		}
+	}
+
+	.active {
+		color: $global-primary-color!important;
+	}
+
+	.details {
+		font-size: 12px;
+		line-height: 19px;
+		text-align: left;
+		
+		a {
+			font-weight: 600;
+			color: #000;
+			font-size: 13.5px;
+			text-transform: uppercase;
+			
+			&:hover {
+				color: $global-primary-color;
+			}
+		}
+	
+		.vip, .sale {
+			font-weight: 700;
+		}
+	}
+	
+	.price {
+		font-size: 17px;
+		font-weight: 300;
+		
+		span {
+			display: block;
+			font-size: 11.5px;
+			letter-spacing: .05em;
+		}
+	}
+
+	.remove {
+		img {
+			width: auto!important;
+		}
+	
+		&:hover {
+			opacity: .5;
+		}
+	}
+
+	.summary {
+		padding: 60px 0;
+		background: #ededed;
+		font-size: 11.5px;
+
+		> * {
+			display: block;
+		}
+		
+		span {
+			font-size: 20.5px;
+			margin: 10px 0 20px;
+		}
+		
+		b {
+			font-size: 26.5px;
+			margin-top: 10px;
+			font-weight: 600;
+		}
+	}
+
+	.vip {
+		color: $global-primary-color;
+	}
+	
+	.sale {
+		color: #ff0000;
+	}
+}
+
+table.cart-items {
+	min-width: 800px;
+}
+
+.o-summary-item {
+	display: block;
+	clear: both;
+	> * {
+		float: left;
+		padding-bottom: 20px;
+	}
+	&-image {
+		width: 100px;
+		
+		img {
+			width: auto;
+			margin: 0!important;
+		}
+	}
+
+	&-details {
+		width: calc(100% - 120px);
+		padding-left: 20px;
+		letter-spacing: .07em;
+		line-height: 18px;
+		font-size: 12px;
+	}
+
+	a {
+		display: block;
+		font-size: 13.5px;
+		margin-bottom: 5px;
+		font-weight: 600;
+		text-transform: uppercase;
+		color: #000;
+		
+		&:hover {
+			color: $global-primary-color;
+		}
+	}
+}
+
+.o-summary-shipping {
+	padding: 40px 55px 35px;
+	background: #ededed;
+	letter-spacing: .05em;
+	
+	.o-layout__item {
+		font-size: 17px;
+	}
+	hr {
+		margin: 25px;
+	}
+	
+	.total {
+		font-size: 24px; 
+	}
+}
+
+.o-help {
+	font-size: 19px;
+	font-weight: 300;
+	letter-spacing: .08em;
+	margin: 30px 0;
+ 	
+	span {
+		font-size: 16px;
+		font-weight: 200; 
+	}
+}
+
+@media (max-width: 979px) {
+	.c-page--checkout {
+		h1 {
+			font-size: 21px;
+		}
+		.u-col-left, .u-col-right {
+			padding: 0 0 30px;
+			border-right: none;
+		}
+	
+		.u-right {
+			float: left!important;
+			margin-left: 20px;
+		}
+	
+		.c-btn {
+			width: 100%;
+		}
+	}
+
+	table {
+		th {
+			height: 80px;
+		}
+	}
+
+	.cart-items-container {
+		overflow-x: scroll;
+	}
+
+	table.cart-items {
+		min-width: 700px;
+	}
+
+	.o-summary-shipping {
+		padding: 20px;
+	}
+}

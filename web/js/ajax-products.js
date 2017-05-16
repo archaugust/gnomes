@@ -76,6 +76,7 @@ $('#filter-field').change(function(){
 			case 'product_type':
 			case 'brand_name':
 			case 'supplier_name':
+			case 'collection':
 			    $.ajax({
 			        url: "/admin/get-select",
 			        type: 'POST',
@@ -95,7 +96,7 @@ $('#filter-field').change(function(){
 	}
 });
 $('#filter-form').submit(function(){
-	$('.details').html('<i class="fa fa-refresh fa-spin fa-5x"></i><span class="sr-only">Loading...</span>');
+	$(this).closest('.details').html('<i class="fa fa-refresh fa-spin fa-5x"></i><span class="sr-only">Loading...</span>');
 	var data = $(this).serialize();
     $.ajax({
         url: "/admin/product/ajax_",

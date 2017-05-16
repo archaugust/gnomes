@@ -1,0 +1,25 @@
+/* transitions */ 
+
+.u-flash {
+  @keyframes subtle-flash {
+      0% {
+          opacity: 1;
+      }
+      15% {
+          opacity: .7;
+      }
+      100% {
+          opacity: 1;
+      }
+  }
+
+  &:hover, &:active {
+    	animation: subtle-flash $global-transition ease-out;
+  }
+}
+
+
+a, img, .c-header > div, .c-logo, .main-menu, .o-layout__item, .logo, figure, figcaption, .c-btn, .c-main-menu-mobile {
+	transition: all $global-transition ease!important;
+	-webkit-transition: $global-transition ease!important;
+}

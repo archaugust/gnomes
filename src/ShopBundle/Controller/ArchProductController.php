@@ -15,6 +15,7 @@ use AppBundle\Entity\ArchProductCollectionProduct;
 use AppBundle\Entity\ArchProductDiscounter;
 use AppBundle\Entity\ArchProductDiscounterFilter;
 use AppBundle\Entity\ArchProductDiscounterProduct;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class ArchProductController extends Controller
 {
@@ -29,43 +30,60 @@ class ArchProductController extends Controller
 		$em = $this->getDoctrine()->getManager();
 		$items = $em->getRepository('AppBundle:ArchProduct');
 
+		// collection search uses a different item query
+		$collection_search = 0;
+		
 		// filters
 		$filters = $session->get('filters_product') != null ? $session->get('filters_product') : array();
 		
 		// dropdown filters
 		if (!empty($data['f']) && isset($data['v'])) {
-			$allowed_fields = array('tags', 'product_type', 'brand_name', 'supplier_name', 'is_active', 'vend_active', 'pre_sell');
+			$allowed_fields = array('tags', 'product_type', 'brand_name', 'supplier_name', 'is_active', 'vend_active', 'pre_sell', 'collection');
 			
 			if (in_array($data['f'], $allowed_fields)) {
 				
-				// field
-				$field = $data['f'];
-				
-				// operator
-				if ($field == 'tags')
-					$operator = 'LIKE';
-				else
-					$operator = '=';
-				
-				// value
-				$value =  $field == 'tags' ? '%'. $data['v'] .'%' : $data['v'];
-				
-				// label
-				$label = $this->get('app.misc_functions')->getLabel($field, $value);
-				
-				if ($field != 'tags') {
-					foreach ($filters as $filter) {
-						if ($filter['field'] == $field)
-							unset($filters[$filter['label']]);
+				if ($data['f'] == 'collection') {
+					$collection_search = 1; 
+					$filters = array();
+					$collection = $em->getRepository('AppBundle:ArchProductCollection')->findOneBy(array('name' => $data['v']));
+					$items = new ArrayCollection();
+					
+					foreach ($collection->getProducts() as $product) {
+						$items->add($product->getProduct());
 					}
 				}
+				else {
 				
-				$filters[$label] = array(
-						'label' => $label,
-						'field' => $field,
-						'operator' => $operator,
-						'value' => $value,
-				);
+					// field
+					$field = $data['f'];
+					
+					// operator
+					if ($field == 'tags')
+						$operator = 'LIKE';
+					else
+						$operator = '=';
+					
+					// value
+					$value =  $field == 'tags' ? '%'. $data['v'] .'%' : $data['v'];
+					
+					// label
+					$label = $this->get('app.misc_functions')->getLabel($field, $value);
+					
+					if ($field != 'tags') {
+						foreach ($filters as $filter) {
+							if ($filter['field'] == $field)
+								unset($filters[$filter['label']]);
+						}
+					}
+					
+					$filters[$label] = array(
+							'label' => $label,
+							'field' => $field,
+							'operator' => $operator,
+							'value' => $value,
+					);
+									
+				}
 			}
 		}
 		
@@ -85,6 +103,7 @@ class ArchProductController extends Controller
 			
 			// list actions
 			$data = $request->request->all();
+			
 			if (!empty($data['products'])) {
 				$list_action = $data['list_action'];
 				$products = $data['products'];
@@ -117,7 +136,7 @@ class ArchProductController extends Controller
 							if ($list_action == 'collection_add') {
 								
 								foreach ($products as $product) {
-									$product = $items->findOneBy(array('id' => $product));
+									$product = $items->findOneBy(array('id' => $product, 'variant_parent_id' => null));
 									
 									// do not add if already in list
 									$exists = 0;
@@ -176,15 +195,19 @@ class ArchProductController extends Controller
 							$msg_discounter[] = "'". $discounter->getName() ."'";
 							
 							if ($list_action == 'discounter_add') {
-								
+								$duplicates = array();
 								foreach ($products as $product) {
-									$product = $items->findOneBy(array('id' => $product));
+									$product = $items->findOneBy(array('id' => $product, 'variant_parent_id' => null));
 									
 									// do not add if already in list
 									$exists = 0;
 									foreach ($discounter->getProducts() as $discounterProduct) {
-										if ($discounterProduct->getProduct() == $product)
+										if ($discounterProduct->getProduct() == $product) {
 											$exists = 1;
+											$msg = $product->getBaseName() .' | '. $discounterProduct->getDiscounter()->getDiscountType() .' | '. $discounterProduct->getDiscounter()->getName();
+											if (!in_array($msg, $duplicates))
+												$duplicates[] = $msg;
+										}
 									}
 									
 									if ($exists == 0) {
@@ -198,15 +221,24 @@ class ArchProductController extends Controller
 										$discounter->addProduct($discounterProduct);
 									}
 								}
+								
+								if (count($duplicates) > 0) {
+									$this->addFlash('danger',"Skipped product(s) belonging to another discount group:");
+									foreach ($duplicates as $duplicate) 
+										$this->addFlash('danger', $duplicate);
+									
+								}
 							}
 								
 							if ($list_action == 'discounter_remove') {
 								
 								foreach ($products as $product) {
 									$discounterProduct = $em->getRepository('AppBundle:ArchProductDiscounterProduct')->findOneBy(array('discounter_id' => $discounter->getId(), 'product_id' => $product));
-									if ($discounterProduct != null)
+									if ($discounterProduct != null) {
+										$archProduct = $discounterProduct->getProduct();
+										$archProduct->setDiscountPrice(null);
 										$em->remove($discounterProduct);
-										
+									}
 								}
 							}
 						}
@@ -249,7 +281,7 @@ class ArchProductController extends Controller
 					
 					// add products to ArchCollectionProducts
 					$collectionItems = $items->createQueryBuilder('i')
-						->where('i.variant_parent_id IS NULL'. $where)
+						->where('i.variant_parent_id IS NULL AND i.deleted_at IS NULL'. $where)
 						->orderBy('i.name', 'ASC');
 						
 					foreach ($filters as $filter)
@@ -275,20 +307,19 @@ class ArchProductController extends Controller
 			}
 			
 			// new discount group
-			if (!empty($data['discounter_name']) && !empty($data['rate']) && !empty($data['suffix'])) {
-				$name = $data['discounter_name'];
-				$rate = $data['rate'];
-				$suffix = $data['suffix'];
+			if (!empty($data['discounter_name']) && !empty($data['rate']) && !empty($data['suffix']) && !empty($data['discount_type'])) {
 				
 				$discounter = new ArchProductDiscounter();
 				$discounter
-					->setName($name)
-					->setRate($rate)
-					->setSuffix($suffix)
+					->setName($data['discounter_name'])
+					->setRate($data['rate'])
+					->setSuffix($data['suffix'])
+					->setDiscountType($data['discount_type'])
 				;
 				
 				$em->persist($discounter);
 				
+				$duplicates = array();
 				if (count($filters) > 0) {
 					$where = '';
 					foreach ($filters as $filter) {
@@ -304,9 +335,11 @@ class ArchProductController extends Controller
 					$where .= ' AND i.'. $filter['field'] .' '. $filter['operator'] .' :'. $filter['field'];
 					}
 					
+					$discounterProducts = $em->getRepository('AppBundle:ArchProductDiscounterProduct');
+					
 					// add products to ArchDiscounterProducts
 					$discounterItems = $items->createQueryBuilder('i')
-						->where('i.variant_parent_id IS NULL'. $where)
+						->where('i.variant_parent_id IS NULL AND i.deleted_at IS NULL'. $where)
 						->orderBy('i.name', 'ASC');
 						
 					foreach ($filters as $filter)
@@ -317,6 +350,16 @@ class ArchProductController extends Controller
 						->getResult();
 							
 					foreach ($discounterItems as $discounterItem) {
+						// check if item is already in a discount group
+						$check = $discounterProducts->findOneBy(array('product' => $discounterItem));
+						if ($check) {
+							$msg = $check->getProduct()->getBaseName() .' | '. $discounterItem->getDiscounter()->getDiscountType() .' | '. $discounterItem->getDiscounter()->getName();
+							if (!in_array($msg, $duplicates))
+								$duplicates[] = $msg;
+								// skip duplicate product
+								continue;
+						}
+						
 						$discounterProduct = new ArchProductDiscounterProduct();
 						$discounterProduct
 							->setDiscounter($discounter)
@@ -328,8 +371,18 @@ class ArchProductController extends Controller
 				}					
 				$em->flush();
 				
-				$this->addFlash('info', "New Discount group: '". $name ."' added.");
+				$this->addFlash('info', "New Discount group: '". $data['discounter_name'] ."' added.");
+				
+				if (count($duplicates) > 0) {
+					$this->addFlash('danger',"Skipped product(s) belonging to another discount group:");
+					foreach ($duplicates as $duplicate)
+						$this->addFlash('danger', $duplicate);
+						
+				}
 			}
+			
+			if (isset($data['return'])) 
+				return $this->redirect($data['return']);
 			
 			// add
 			if ($form->isSubmitted()) {
@@ -422,6 +475,8 @@ class ArchProductController extends Controller
 						->setVariantOptionThreeName($input['variant_option_three_name'])
 						->setIsActive($input['is_active'])
 						->setPreSell($input['pre_sell'])
+						->setUpdatedAt(empty($result->updated_at) ? \DateTime::createFromFormat('Y-m-d H:i:s', date("Y-m-d H:i:s")) : \DateTime::createFromFormat('Y-m-d H:i:s', $result->updated_at))
+						->setDeletedAt(empty($result->deleted_at) ? null : \DateTime::createFromFormat('Y-m-d H:i:s', $result->deleted_at))
 					;
 					
 					$em->persist($item);
@@ -435,62 +490,72 @@ class ArchProductController extends Controller
 					$this->addFlash('danger', 'ERROR: Please check your input.');
 			}
 		}
-			
-		// sort order
-		$allowed_fields = array('name', 'product_type', 'brand_name', 'supplier_name', 'is_active', 'vend_active', 'pre_sell');
 		
-		if ($session->get('sort') != null) {
-			$sort = $session->get('sort');
-			if (!in_array($sort['name'], $allowed_fields))
+		if ($collection_search == 0) {
+			
+			// sort order
+			$allowed_fields = array('name', 'product_type', 'brand_name', 'supplier_name', 'is_active', 'vend_active', 'pre_sell');
+			
+			if ($session->get('sort') != null) {
+				$sort = $session->get('sort');
+				if (!in_array($sort['name'], $allowed_fields))
+					$sort = array('name'=>'name','order'=>'asc');
+			}
+			else
 				$sort = array('name'=>'name','order'=>'asc');
+				
+			if (isset($data['sort'])) {
+				if (in_array($data['sort'], $allowed_fields))
+					$sort = array(
+							'name' => $data['sort'],
+							'order' => (isset($data['order']) && in_array(@$data['order'], array('asc','desc'))) ? $data['order'] : 'asc'
+					);
+			}
+				
+			$session->set('sort', $sort);
+				
+			$where = '';
+			foreach ($filters as $filter)
+				$where .= ' AND i.'. $filter['field'] .' '. $filter['operator'] .' :'. $filter['field'];
+	
+			// textbox filter = name or handle
+			if (!empty($data['query'])) {
+				$where .= ' AND (i.name LIKE :name OR i.handle LIKE :name OR i.id LIKE :name)';
+			}
+				
+			$items = $items->createQueryBuilder('i')
+				->where('i.variant_parent_id IS NULL AND i.deleted_at is NULL'. $where)
+				->orderBy('i.'. $sort['name'], $sort['order']);
+				
+			foreach ($filters as $filter)
+				$items->setParameter($filter['field'], $filter['value']);
+	
+			if (!empty($data['query'])) 
+				$items->setParameter('name', '%'. $data['query'] .'%');
+			
+				
+			$items = $items
+				->getQuery()
+				->getResult();
+			
+			!empty($data['page']) ? $pagenum = $data['page'] : $pagenum = 1;
+			$itemsPerPage = 50;
+			$finalItems = array_slice($items, ($pagenum - 1) * $itemsPerPage, $itemsPerPage);
+		} 
+		else {
+			$pagenum = 1;
+			$finalItems = $items;
+			$itemsPerPage = 1000;
 		}
-		else
-			$sort = array('name'=>'name','order'=>'asc');
-			
-		if (isset($data['sort'])) {
-			if (in_array($data['sort'], $allowed_fields))
-				$sort = array(
-						'name' => $data['sort'],
-						'order' => (isset($data['order']) && in_array(@$data['order'], array('asc','desc'))) ? $data['order'] : 'asc'
-				);
-		}
-			
-		$session->set('sort', $sort);
-			
-		$where = '';
-		foreach ($filters as $filter)
-			$where .= ' AND i.'. $filter['field'] .' '. $filter['operator'] .' :'. $filter['field'];
-
-		// textbox filter = name or handle
-		if (!empty($data['query'])) {
-			$where .= ' AND (i.name LIKE :name OR i.handle LIKE :name OR i.id LIKE :name)';
-		}
-			
-		$items = $items->createQueryBuilder('i')
-			->where('i.variant_parent_id IS NULL'. $where)
-			->orderBy('i.'. $sort['name'], $sort['order']);
-		
-		foreach ($filters as $filter)
-			$items->setParameter($filter['field'], $filter['value']);
-
-		if (!empty($data['query'])) 
-			$items->setParameter('name', '%'. $data['query'] .'%');
-		
-			
-		$items = $items
-			->getQuery()
-			->getResult();
 		
 		// pagination
-		!empty($data['page']) ? $pagenum = $data['page'] : $pagenum = 1;
 		$totalItems = count($items);
 		
-		$itemsPerPage = 50;
 		$urlPattern = $request->getPathInfo() .'?page=(:num)';
 		$paginator = new Paginator($totalItems, $itemsPerPage, $pagenum, $urlPattern);
 			
 		return $this->render('admin/'. $mode .'products.html.twig', array(
-			'items' => array_slice($items, ($pagenum - 1) * $itemsPerPage, $itemsPerPage),
+			'items' => $finalItems,
 			'paginator' => $paginator,
 			'form' => $form->createView(),
 		));
@@ -502,11 +567,13 @@ class ArchProductController extends Controller
 	public function productEdit(Request $request, $id, $mode = '') {
 		$em = $this->getDoctrine()->getManager();
 		$repository = $em->getRepository('AppBundle:ArchProduct');
-		if (($item = $repository->findOneBy(array('id' => $id))) == null) {
+		if (($item = $repository->findOneBy(array('id' => $id, 'deleted_at' => null))) == null) {
 			$this->addFlash('danger', 'Product not found or deleted.');
 			
 			return $this->redirectToRoute('admin_product');
 		}
+		
+		$old_size_guide = $item->getSizeGuide();
 		
 		// check for new variant options
 		$variant_options = array();
@@ -543,9 +610,6 @@ class ArchProductController extends Controller
 			);
 		}
 		
-		if ($item == null)
-			return new Response('ERROR: Product does not exist.');
-			
 		$form = $this->createForm(ArchProductsType::class, $item);
 		
 		if ($request->isMethod('POST')) {
@@ -567,10 +631,24 @@ class ArchProductController extends Controller
 			// update
 			$form->handleRequest($request);
 			if ($form->isSubmitted() && $form->isValid()) {
+				$vend = $this->get('app.vend');
+				
 				$input = $request->request->get('arch_products');
-
-				// post to Vend
+				
+				// check Vend for duplicate handles
+				$result = $vend->getVend('products?handle='. $input['handle']);
+				
+				if (count($result->products) > 0) {
+					foreach ($result->products as $product)
+					if ($product->handle != $input['handle']) {
+						$this->addFlash('danger', 'Duplicate handle found at Vend.');
+						return $this->redirectToRoute('admin_product_edit', array('id' => $id));
+					}
+				}
+				
 				$tax = explode(':', $input['tax']);
+				
+				// post to Vend
 				
 				// use default outlet
 				$outlet_id = $em->getRepository('AppBundle:ArchOutlet')->findOneBy(array('is_default' => 1))->getId();
@@ -605,8 +683,8 @@ class ArchProductController extends Controller
 				);
 				
 				$url = 'products';
-				
-				$result = $this->get('app.vend')->postVend($url, $data);
+
+				$result = $vend->postVend($url, $data);
 				
 				if ($result == null) {
 					$this->addFlash(
@@ -617,25 +695,35 @@ class ArchProductController extends Controller
 				}
 				
 				$result = $result->product;
-
+				
+				// size guide
+				if ($item->getSizeGuide() != null) {
+					$size_guide = $this->get('app.image_functions')->upload('large', 'size-guides', $item->getHandle(), $item->getSizeGuide());
+				}
+				else {
+					$size_guide = $old_size_guide;
+				}
+				
+					
 				$item
-					->setName($result->name)
-					->setBaseName($result->base_name)
-					->setHandle($result->handle)
-					->setBrandName($input['brand_name'])
+					->setProductType($input['product_type'])
 					->setSupplierName($input['supplier_name'])
 					->setProductType($input['product_type'])
-					->setTax($result->tax)
-					->setRetailPrice($result->price)
-					->setPrice(($result->price + $result->tax))
-					->setTaxId($tax[0])
-					->setOutletId($outlet_id)
+					->setBrandName($input['brand_name'])
 					->setCount($input['count'])
 					->setReorderPoint($input['reorder_point'])
 					->setRestockLevel($input['restock_level'])
 					->setVariantOptionOneName($input['variant_option_one_name'])
 					->setVariantOptionTwoName($input['variant_option_two_name'])
 					->setVariantOptionThreeName($input['variant_option_three_name'])
+					->setName($result->name)
+					->setBaseName($result->base_name)
+					->setHandle($result->handle)
+					->setTax($result->tax)
+					->setRetailPrice($result->price)
+					->setPrice(($result->price + $result->tax))
+					->setOutletId($outlet_id)
+					->setSizeGuide($size_guide)
 				;
 					
 				// images

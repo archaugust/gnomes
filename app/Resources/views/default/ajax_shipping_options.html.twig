@@ -1,0 +1,8 @@
+{% for option in options %}<div class="o-layout__item u-3/4@desktop u-1/1@mobile u-pl-60">
+	<label for="shipping_{{ loop.index }}">
+		<input type="radio" id="shipping_{{ loop.index }}" name="shipping" value="{{ option.value }}" required="required" />
+		{{ option.text }}
+	</label>
+</div><div class="o-layout__item u-1/4@desktop u-1/1@tablet u-pl-60">
+	<span class="u-fw-600 u-right">{% if option.price == 0 %}FREE{% else %}${{ option.price|number_format(2,'.',',') }}{% endif %}</span>
+</div>{% endfor %}

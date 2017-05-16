@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}Custom Boot Fitting | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.intro|striptags|slice(0,160) }}{% endif %}{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/boot-fitting.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block banner %}
+{% if item.banner %}
+<section id="banner">
+	<div class="o-wrapper o-box--flush">
+		<figure class="c-banner">
+			<img src="{{ asset('images/custom-boot-fitting/'~ item.banner) }}" alt="{{ item.bannerText }}" />
+			{% if item.bannerOverlay == 1 %}<img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />{% endif %}
+			<figcaption>
+				<h1 class="u-ls-110{% if item.bannerTextColor == 1 %} u-black{% endif %}">{{ item.bannerText }}</h1>
+			</figcaption>
+		</figure>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page">
+	<div class="c-breadcrumbs u-mb-40">
+		<a href="/">Home</a> / Boot Fitting
+	</div>
+	<div class="c-page-boot">
+       	{{ item.intro|raw }}
+		
+		<div id="analysis-system" class="o-col u-mt-55">
+        	<div class="o-col-text">
+        		<div>{{ item.contentTop|raw }}</div>
+        	</div><div class="o-col-image">
+        		<img src="{{ asset('images/custom-boot-fitting/thumb/'~ item.contentTopImage) }}" alt="Ski Boot Fitting" />
+    		</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block content_bottom %}
+<div class="c-page-boot u-pv-30">
+    <div class="o-layout--center u-bg-blue u-flash u-pv-25 u-fs-15">
+    	<h3>Why Choose Gnomes for Your Custom Boot Fitting Needs?</h3>
+    </div>
+</div>
+
+<div class="o-wrapper o-box-flush c-page">
+	<div class=" c-page-boot c-page-padded c-page-800">
+    	<div class="o-col">
+        	<div class="o-col-50">
+        		{{ item.contentMiddle|raw }}
+        	</div><div class="o-col-50">
+        		<div><img src="{{ asset('images/custom-boot-fitting/thumb/'~ item.contentMiddleImage) }}" alt="Ski Boot Fitting" /></div>
+            </div>
+    	</div>
+    </div>
+    <div class="c-page-boot">
+{% for section in item.sections %}    	
+    	<div class="o-col {% if (loop.index % 2 == 1) %} reverse{% endif %}">
+        	<div class="o-col-text">
+        		<div>
+            		<h3>{{ section.name }}</h3>
+            		{{ section.content|raw }}
+        		</div>
+        	</div>
+        	<div class="o-col-image">
+        		<img src="{{ asset('images/custom-boot-fitting/thumb/'~ section.filename) }}" alt="{{ section.name }}" />
+            </div>
+    	</div>
+{% endfor %}
+	</div>
+	<hr />
+	<div class="c-page-boot c-page-padded c-page-740">
+		<h3 class="o-block u-mb-40">BOOT FITTING PRICES</h3>
+		{% for price in item.prices %}
+		<div class="o-price">
+			<div class="text">{{ price.name|raw }}</div>
+			<div class="price" style="background: #{{ price.colour }}">{{ price.price }}</div>
+		</div>
+		{% endfor %}
+		<div id="faqs" class="o-block u-mt-55">
+			<h3>BOOKINGS & QUERIES</h3>
+			{{ item.booking|raw }}
+		</div>
+	</div>
+	<hr />
+</div>
+
+<div class="o-wrapper o-box--flush c-page-boot">
+	<h3 class="o-block u-mt-55">HERE'S SOMETHING WE PREPARED EARLIER</h3>
+	<div class="o-layout--flush o-products">
+        {% for product in related_collection %}<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile o-product">
+    {% if product.new %}
+					<div class="c-badge">NEW</div>
+    {% endif %}
+			<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset(product.image) }}" alt="{{ product.name }}" /></a>
+			<div class="wishlist">
+				<a class="toggle-wishlist{% if product.in_wishlist %} active" title="Remove from Wishlist"{% else %}" title="Add to Wishlist"{% endif %}><i class="fa fa-heart"></i></a>
+			</div>
+			<a href="{{ path('product', {'handle':product.handle|lower}) }}" class="name">{{ product.name }}</a>
+			<input type="hidden" value="{{ product.handle }}" />
+			<div class="price">${{ product.price|number_format(2,'.',',') }}</div>
+			{% if product.discount %}<div class="vip">VIP: ${{ product.discount|number_format(2,'.',',') }}</div>{% endif %}
+		</div>{% endfor %}
+	</div>
+	
+</div>
+
+{% endblock %}
+{% block javascripts %}
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+{% endblock %}

@@ -27,13 +27,16 @@ class ArchProductCollectionType extends AbstractType
             				'White' => false,
             		),
             		'placeholder' => false,
-            		'data' => false,
             		'expanded' => true,
             		'multiple' => false,
             		'required' => false
             ))
             ->add('banner_overlay', CheckboxType::class, array(
             		'label' => 'Dark overlay',
+            		'required' => false
+            ))
+            ->add('banner_sale', CheckboxType::class, array(
+            		'label' => 'Sale Tag',
             		'required' => false
             ))
             ->add('is_active', ChoiceType::class, array(
@@ -59,7 +62,7 @@ class ArchProductCollectionType extends AbstractType
        				'label' => 'Meta Title',
       				'required' => false
        		))
-       		->add('meta_description', TextType::class, array(
+       		->add('meta_description', TextareaType::class, array(
        				'label' => 'Meta Description',
        				'required' => false
        		))

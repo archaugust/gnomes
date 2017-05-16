@@ -5,9 +5,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use AppBundle\Entity\ArchProductCollection;
 use AppBundle\Entity\ArchProduct;
-use AppBundle\Form\ArchProductCollectionType;
 use AppBundle\Entity\ArchProductDiscounter;
 use AppBundle\Form\ArchProductDiscounterType;
 use AppBundle\Entity\ArchProductDiscounterProduct;
@@ -16,11 +14,12 @@ class ArchProductDiscounterController extends Controller
 {
 	
 	/**
-	 * @Route("/admin/discounter", name="admin_discounter")
+	 * @Route("/admin/discounter/{mode}", name="admin_discounter")
 	 */
-	public function discounter(Request $request) {
+	public function discounter(Request $request, $mode = "vip") {
 		$em = $this->getDoctrine()->getManager();
 		$items = $em->getRepository('AppBundle:ArchProductDiscounter');
+		$products = $em->getRepository('AppBundle:ArchProduct');
 		
 		$item = new ArchProductDiscounter();
 		$form = $this->createForm(ArchProductDiscounterType::class, $item);
@@ -65,6 +64,14 @@ class ArchProductDiscounterController extends Controller
 								$price = $archProduct->getPrice();
 								$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
 								$archProduct->setDiscountPrice($discounted_price);
+								
+								// set variants
+								$variants = $products->findBy(array('variant_parent_id' => $archProduct->getId()));
+								foreach ($variants as $variant) {
+									$price = $variant->getPrice();
+									$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
+									$variant->setDiscountPrice($discounted_price);
+								}
 							}
 						}
 					}
@@ -77,6 +84,12 @@ class ArchProductDiscounterController extends Controller
 							foreach ($item->getProducts() as $product) {
 								$archProduct = $product->getProduct();
 								$archProduct->setDiscountPrice(null);
+
+								// set variants
+								$variants = $products->findBy(array('variant_parent_id' => $archProduct->getId()));
+								foreach ($variants as $variant) {
+									$variant->setDiscountPrice(null);
+								}
 							}
 						}
 					}
@@ -104,7 +117,8 @@ class ArchProductDiscounterController extends Controller
 					$value = $filter->getValue();
 					
 					if ($field == 'tags') {
-						$filter->setValue('%'. $value .'%');
+						$value = '%'. $value .'%';
+						$filter->setValue($value);
 						$operator = 'LIKE';
 					}
 					else
@@ -122,10 +136,12 @@ class ArchProductDiscounterController extends Controller
 				}
 				
 				// add products to ArchDiscounterProducts
+				$duplicates = array();
 				if ($where != '') {
-					$products = $em->getRepository('AppBundle:ArchProduct');
+					$discounterProducts = $em->getRepository('AppBundle:ArchProductDiscounterProduct');
+					
 					$discounterItems = $products->createQueryBuilder('i')
-						->where('i.variant_parent_id IS NULL'. $where)
+						->where('i.variant_parent_id IS NULL AND i.deleted_at IS NULL'. $where)
 						->orderBy('i.name', 'ASC');
 					
 					foreach ($filters as $filter)
@@ -136,6 +152,16 @@ class ArchProductDiscounterController extends Controller
 						->getResult();
 					
 					foreach ($discounterItems as $discounterItem) {
+						// check if item is already in a discount group
+						$check = $discounterProducts->findOneBy(array('product' => $discounterItem));
+						if ($check) {
+							$msg = $check->getProduct()->getBaseName() .' | '. $discounterItem->getDiscounter()->getDiscountType() .' | '. $discounterItem->getDiscounter()->getName();
+							if (!in_array($msg, $duplicates))
+								$duplicates[] = $msg;
+							// skip duplicate product
+							continue;
+						}
+						
 						$discounterProduct = new ArchProductDiscounterProduct();
 		
 						$discounterProduct
@@ -155,12 +181,67 @@ class ArchProductDiscounterController extends Controller
 						"New discounter '". $item->getName() ."' added. Enable the discounter to apply the discount rate."
 				);
 				
+				if (count($duplicates) > 0) {
+					$this->addFlash('danger',"Skipped product(s) belonging to another discount group:");
+					foreach ($duplicates as $duplicate)
+						$this->addFlash('danger', $duplicate);
+						
+				}
+				
 				return $this->redirectToRoute('admin_discounter');
 			}
 		}
 		
+		if ($mode == 'discount') 
+			$discounters = $items->findBy(array('discount_type' => 'Discount'));
+		else 
+			$discounters = $items->findBy(array('discount_type' => 'VIP'));
+		
+		$items = array();
+		foreach ($discounters as $discounter) {
+			$filters = '';
+			foreach ($discounter->getFilters() as $filter) {
+				switch($filter->getField()) {
+					case 'name':
+						$field = 'Name has ';
+						break;
+					case 'product_type':
+						$field = 'Product type is ';
+						break;
+					case 'brand_name':
+						$field = 'Brand name is ';
+						break;
+					case 'supplier_name':
+						$field = 'Supplier is ';
+						break;
+					case 'tags':
+						$field = 'Tagged with ';
+						break;
+					case 'is_active':
+						$field = 'Site visibility is ';
+						break;
+					case 'vend_active':
+						$field = 'Vend status is ';
+						break;
+				}
+				
+				$value = ($filter->getField() == 'tags') ? "'". substr($filter->getValue(),1,-1) ."'" : $filter->getValue();
+				
+				$filters .= $field . $value .'. ';
+			}
+			
+			$items[] = array(
+					'id' => $discounter->getId(),
+					'name' => $discounter->getName(),
+					'products' => count($discounter->getProducts()),
+					'filters' => $filters,
+					'isActive' => $discounter->getIsActive()
+			);
+		}
+			
 		return $this->render('admin/discounter.html.twig', array(
-				'items' => $items->findAll(),
+				'mode' => $mode,
+				'items' => $items,
 				'form' => $form->createView(),
 		));
 	}
@@ -169,8 +250,11 @@ class ArchProductDiscounterController extends Controller
 	 * @Route("/admin/discounter-edit/{id}", name="admin_discounter_edit")
 	 */
 	public function discounterEdit(Request $request, $id) {
+		$this->get('session')->set('filters_search', null);
+		
 		$em = $this->getDoctrine()->getManager();
 		$item = $em->getRepository('AppBundle:ArchProductDiscounter')->findOneBy(array('id'=>$id));
+		$products = $em->getRepository('AppBundle:ArchProduct');
 		
 		// view list
 		$data = $request->query->all();
@@ -216,8 +300,8 @@ class ArchProductDiscounterController extends Controller
 		// edit
 		if ($form->isSubmitted() && $form->isValid()) {
 
-			// redo discounts if rate changed
-			if ($old_rate != $item->getRate() || $old_suffix != $item->getSuffix()) {
+			// redo discounts if rate changed or enabled
+			if ($old_rate != $item->getRate() || $old_suffix != $item->getSuffix() || $item->getIsActive() == 1) {
 				$rate = $item->getRate();
 				$suffix = $item->getSuffix();
 				
@@ -227,6 +311,14 @@ class ArchProductDiscounterController extends Controller
 					$price = $archProduct->getPrice();
 					$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
 					$archProduct->setDiscountPrice($discounted_price);
+					
+					// set variants
+					$variants = $products->findBy(array('variant_parent_id' => $archProduct->getId()));
+					foreach ($variants as $variant) {
+						$price = $variant->getPrice();
+						$discounted_price = floor($price * (1 - ($rate/100))) + ($suffix/100);
+						$variant->setDiscountPrice($discounted_price);
+					}
 				}
 				
 			}

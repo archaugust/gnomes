@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+{% block title %}Your Shopping Cart | Gnomes Alpine Sports{% endblock %}
+{% block description %}Review you shopping cart.{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/checkout.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+{% set wishlist = app.session.get('wishlist') %}
+<div class="o-layout--flush c-page c-page--checkout">
+	<div class="c-breadcrumbs">
+		Cart
+	</div>
+	<div class="o-layout__item u-3/4@desktop u-1/1@tablet cart-items-container">
+		<table class="cart-items">
+			<tr>
+				<th colspan="3"><h1>YOUR SHOPPING CART</h1></th>
+				<th width="100">QTY</th>
+				<th width="180">PRICE</th>
+				<th width="100">REMOVE</th>
+			</tr>
+    		{% for key, product in items %}
+    		<tr class="o-checkout-item">
+    			<td class="image">
+    				<input type="hidden" class="o-cart-key" value="{{ key }}" />
+    				<input type="hidden" class="o-cart-price" value="{% if logged and product.discount_price > 0 %}{{ product.discount_price }}{% else %}{{ product.price }}{% endif %}" />
+        			<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></a>
+        		</td>
+        		<td class="wishlist o-product">
+        			<input type="hidden" value="{{ product.handle }}" />
+        			<a class="toggle-wishlist{% if product.handle in wishlist|keys %} active" title="Remove from Wishlist"{% else %}" title="Add to Wishlist"{% endif %}><i class="fa fa-heart"></i></a>
+        		</td>
+        		<td class="details">
+        			<a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}</a>
+        			<div>
+        				PRICE: ${{ product.price|number_format(2,'.',',') }} 
+        				{% if (product.discount_price > 0) %}
+        					<span class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</span>
+        				{% endif %}
+        			</div>
+    				{% for variant in product.variant %}
+    					<div>{{ variant.name|upper ~': '~ variant.value }}</div>
+    				{% endfor %}
+        		</td>
+        		<td class="qty">
+        			<select name="qty" class="o-cart-item-qty">
+        				{% if product.count > 0 %}
+            				{% for i in 1..product.count %}
+            					<option{% if (product.qty == i) %} selected="selected"{% endif %}>{{ i }}</option>
+            				{% endfor %}
+        				{% else %}
+        					<option>1</option>
+        				{% endif %}
+        			</select>
+        		</td>
+        		<td class="price">
+                    <div class="priceDiv">${% if (logged and product.discount_price > 0) %}{{ (product.discount_price * product.qty)|number_format(2,'.',',') }}{% else %}{{ (product.price * product.qty)|number_format(2,'.',',') }}{% endif %}</div>
+                    {% if (logged == 0) %}
+                    	{% if (product.discount_type == 'VIP') %}<span class="vip">Sign up for VIP Pricing</span>{% else %}<span class="sale">Sign up for SALE Pricing</span>{% endif %}
+                    {% endif %}
+        		</td>
+    			<td class="remove">
+    				<img src="{{ asset('images/icon-cart-remove.png') }}" alt="Remove" title="Remove" />
+    			</td>
+    		</tr>
+    		{% endfor %}
+    		<tr class="cart-empty u-hidden"><td colspan="6">There are no items in your shopping cart.</td></tr>
+		</table>
+		<div class="o-help u-mb-40">Need help? <span>Just get on the blower (03 318 8433) or shoot us an email: {{ render(controller('AppBundle:Action:hideEmail', {'email':email})) }}</span></div>
+	</div><div class="o-layout__item u-1/4@desktop u-1/1@tablet u-mb-40" id="summaryDiv">
+		<table>
+			<tr>
+				<th>ORDER SUMMARY</th>
+			</tr>
+			<tr>
+				<td class="summary">
+					SUBTOTAL (PURCHASES)
+					<span id="subtotalDiv"></span>
+					SHIPPING
+					<span id="shippingDiv">FREE</span>
+					GRAND TOTAL
+					<b id="grandTotalDiv"></b>
+				</td>
+			</tr>
+		</table>
+		<a href="checkout/shipping" class="c-btn c-btn--checkout">CHECKOUT</a>
+		<a href="{{ path('collection',{'handle':continue|lower}) }}" class="c-btn c-btn--continue">CONTINUE SHOPPING</a>
+		<div class="o-layout--center u-img-responsive">
+			<img src="{{ asset('images/icon-cards.png') }}" alt="Accept credit cards" />
+		</div>
+	</div>
+</div>
+<input type="hidden" class="shipping-cost" value="{{ shipping }}" />
+{% endblock %}
+
+{% block javascripts %}
+	<script src="{{ asset('js/checkout.js') }}"></script>
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+{% endblock %}

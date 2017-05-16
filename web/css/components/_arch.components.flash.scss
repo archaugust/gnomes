@@ -1,0 +1,16 @@
+/* flash messages */
+.c-flash {
+	display: block;
+	padding: 10px 10px 5px;
+	color: #000;
+	margin-top: 20px;
+	
+	&-info {
+		background: #eee!important; 
+	}
+
+	&-danger {
+		background: #000;
+		color: #fff;
+	}
+}

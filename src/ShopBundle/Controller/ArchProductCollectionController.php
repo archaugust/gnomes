@@ -4,12 +4,14 @@ namespace ShopBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Entity\ArchProductCollection;
 use AppBundle\Entity\ArchProduct;
 use AppBundle\Form\ArchProductCollectionType;
 use AppBundle\Entity\ArchProductCollectionProduct;
 use AppBundle\Form\ArchProductCollectionNewType;
+use AppBundle\Form\ArchProductCollectionGuideType;
+use AppBundle\Entity\ArchProductCollectionGuide;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class ArchProductCollectionController extends Controller
 {
@@ -19,7 +21,7 @@ class ArchProductCollectionController extends Controller
 	 */
 	public function collection(Request $request) {
 		$em = $this->getDoctrine()->getManager();
-		$items = $em->getRepository('AppBundle:ArchProductCollection');
+		$collections = $em->getRepository('AppBundle:ArchProductCollection');
 
 		$item = new ArchProductCollection();
 		$form = $this->createForm(ArchProductCollectionNewType::class, $item);
@@ -31,7 +33,7 @@ class ArchProductCollectionController extends Controller
 				$list_action = $data['list_action'];
 				if ($list_action == 'delete') {
 					foreach ($data['items'] as $item) {
-						$item = $items->findOneBy(array('id' => $item));
+						$item = $collections->findOneBy(array('id' => $item));
 						
 						foreach($item->getFilters() as $filter) 
 							$em->remove($filter);
@@ -51,7 +53,7 @@ class ArchProductCollectionController extends Controller
 					$status = $list_action == 'disable' ? 0 : 1;
 					
 					foreach ($data['items'] as $item) {
-						$item = $items->findOneBy(array('id' => $item));
+						$item = $collections->findOneBy(array('id' => $item));
 						$item->setIsActive($status);
 					}
 					
@@ -81,7 +83,8 @@ class ArchProductCollectionController extends Controller
 						$value = $filter->getValue();
 						
 						if ($field == 'tags') {
-							$filter->setValue('%'. $value .'%');
+							$value = '%'. $value .'%';
+							$filter->setValue($value);
 							$operator = 'LIKE';
 						}
 						else
@@ -101,7 +104,7 @@ class ArchProductCollectionController extends Controller
 					$products = $em->getRepository('AppBundle:ArchProduct');
 					
 					$collectionItems = $products->createQueryBuilder('i')
-						->where('i.variant_parent_id IS NULL'. $where)
+						->where('i.variant_parent_id IS NULL AND i.deleted_at IS NULL'. $where)
 						->orderBy('i.name', 'ASC');
 					
 					foreach ($filters as $filter)
@@ -122,8 +125,13 @@ class ArchProductCollectionController extends Controller
 					}
 				}
 					
+				$miscFunctions = $this->get('app.misc_functions');
+				$handle = $miscFunctions->slug($item->getName());
+				while ($collections->findBy(array('handle' => $handle))) {
+					$handle = $handle .'-';
+				}
 					
-				$item->setHandle($this->get('app.misc_functions')->slug($item->getName()));
+				$item->setHandle($handle);
 				$em->persist($item);
 					
 				$em->flush();
@@ -137,8 +145,52 @@ class ArchProductCollectionController extends Controller
 			}
 		}
 		
+		$items = array();
+		foreach ($collections->findAll() as $collection) {
+			$filters = '';
+			foreach ($collection->getFilters() as $filter) {
+				switch($filter->getField()) {
+					case 'name':
+						$field = 'Name has ';
+						break;
+					case 'product_type':
+						$field = 'Product type is ';
+						break;
+					case 'brand_name':
+						$field = 'Brand name is ';
+						break;
+					case 'supplier_name':
+						$field = 'Supplier is ';
+						break;
+					case 'tags':
+						$field = 'Tagged with ';
+						break;
+					case 'is_active':
+						$field = 'Site visibility is ';
+						break;
+					case 'vend_active':
+						$field = 'Vend status is ';
+						break;
+				}
+				
+				$value = ($filter->getField() == 'tags') ? "'". substr($filter->getValue(),1,-1) ."'" : $filter->getValue();
+				
+				$filters .= $field . $value .'. ';
+			}
+			
+			$items[] = array(
+					'id' => $collection->getId(),
+					'name' => $collection->getName(),
+					'products' => count($collection->getProducts()),
+					'filters' => $filters,
+					'image' => $collection->getImage(),
+					'isActive' => $collection->getIsActive()
+			);
+		}
+		
+		
 		return $this->render('admin/collections.html.twig', array(
-				'items' => $items->findAll(),
+				'items' => $items,
 				'form' => $form->createView(),
 		));
 	}
@@ -147,6 +199,8 @@ class ArchProductCollectionController extends Controller
 	 * @Route("/admin/collection-edit/{id}", name="admin_collection_edit")
 	 */
 	public function collectionEdit(Request $request, $id) {
+		$this->get('session')->set('filters_search', null);
+		
 		$em = $this->getDoctrine()->getManager();
 		$item = $em->getRepository('AppBundle:ArchProductCollection')->findOneBy(array('id'=>$id));
 		
@@ -154,8 +208,9 @@ class ArchProductCollectionController extends Controller
 			$this->addFlash('danger', 'ERROR: Collection not found.');
 			return $this->redirectToRoute('admin_collection');
 		}
-			
+
 		$old_image = $item->getImage();
+		$old_handle = $item->getHandle();
 		
 		// view list
 		$data = $request->query->all();
@@ -192,11 +247,17 @@ class ArchProductCollectionController extends Controller
 			return $this->redirectToRoute('admin_product');
 		}
 		
+		// collection form
 		$form = $this->createForm(ArchProductCollectionType::class, $item);
 		$form->handleRequest($request);
 		
-		// edit
 		if ($form->isSubmitted() && $form->isValid()) {
+			// check for duplicate handles
+			$handles = $em->getRepository('AppBundle:ArchProductCollection')->findBy(array('handle' => $item->getHandle()));
+			if (count($handles) > 0 && $item->getHandle() != $old_handle) {
+				$this->addFlash('danger', 'Handle already used by another collection.');
+				return $this->redirectToRoute('admin_collection_edit', array('id' => $item->getId()));
+			}
 			
 			// image
 			if ($item->getImage()!= null) {
@@ -213,7 +274,62 @@ class ArchProductCollectionController extends Controller
 				'Collection info updated.'
 			);
 		}
+
+		// buying guide form
+		$guide = $item->getGuides();
+		if (count($guide) == 0)
+			$guide = new ArchProductCollectionGuide();
+		else 
+			$guide = $guide[0];
 		
+		$originalSteps = new ArrayCollection();
+		$originalStepImages = array();
+		foreach ($guide->getSteps() as $step) {
+			$originalSteps->add($step);
+			$originalStepImages[$step->getId()] = $step->getImage();
+		}
+		
+		$form_guide = $this->createForm(ArchProductCollectionGuideType::class, $guide);
+		$form_guide->handleRequest($request);
+		
+		if ($form_guide->isSubmitted() && $form_guide->isValid()) {
+			foreach ($guide->getSteps() as $step) {
+				
+				// image
+				if ($step->getImage()!= null) {
+					$filename = $this->get('app.misc_functions')->slug($step->getName()) .'-'. $step->getId();
+					if (isset($originalStepImages[$step->getId()]))
+						$filename = $this->get('app.image_functions')->upload('thumb_square', 'collections-guides', $filename, $step->getImage(), $originalStepImages[$step->getId()]);
+					else
+						$filename = $this->get('app.image_functions')->upload('thumb_square', 'collections-guides', $filename, $step->getImage());
+						
+					$step->setImage($filename);
+				}
+				else {
+					if (isset($originalStepImages[$step->getId()]))
+						$step->setImage($originalStepImages[$step->getId()]);
+				}
+				
+				$step->setGuide($guide);
+				$em->persist($step);
+			}
+			
+			$guide->setCollection($item);
+			$em->persist($guide);
+
+			// remove collection
+			foreach ($originalSteps as $step) {
+				if (false === $guide->getSteps()->contains($step)) {
+					$guide->getSteps()->removeElement($step);
+					$em->remove($step);
+				}
+			}
+			
+			$em->flush();
+			
+			$this->addFlash('info', 'Buying Guide updated.');
+		}
+				
 		$items = array();
 		foreach ($item->getFilters() as $filter) {
 			switch($filter->getField()) {
@@ -244,12 +360,10 @@ class ArchProductCollectionController extends Controller
 					'value' => $filter->getValue()
 			);
 		}
-		
-		if ($item == null)
-			return new Response('ERROR: Collection does not exist.');
 			
 		return $this->render('admin/collections-edit.html.twig', array(
 				'form' => $form->createView(),
+				'form_guide' => $form_guide->createView(),
 				'items' => $items,
 				'item' => $item
 		));

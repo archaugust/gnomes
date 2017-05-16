@@ -23,6 +23,11 @@ class ArchProductDiscounter
     private $name;
     
     /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private $discount_type;
+    
+    /**
      * @ORM\Column(type="decimal", precision=5, scale=2)
      */
     private $rate;
@@ -49,6 +54,7 @@ class ArchProductDiscounter
     
     public function __construct() {
     	$this->is_active = 0;
+    	$this->discount_type = 'VIP';
     	$this->filters = new ArrayCollection();
     	$this->products = new ArrayCollection();
     }
@@ -225,5 +231,29 @@ class ArchProductDiscounter
     public function getProducts()
     {
         return $this->products;
+    }
+
+    /**
+     * Set discountType
+     *
+     * @param string $discountType
+     *
+     * @return ArchProductDiscounter
+     */
+    public function setDiscountType($discountType)
+    {
+        $this->discount_type = $discountType;
+
+        return $this;
+    }
+
+    /**
+     * Get discountType
+     *
+     * @return string
+     */
+    public function getDiscountType()
+    {
+        return $this->discount_type;
     }
 }

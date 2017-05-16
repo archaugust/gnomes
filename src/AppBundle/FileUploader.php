@@ -11,14 +11,14 @@ class FileUploader extends Controller
 		$this->targetDir = $targetDir;
 	}
 
-	public function upload(UploadedFile $file, $alias)
+	public function upload(UploadedFile $file, $folder, $alias)
 	{
 		$ext = strtolower($file->getClientOriginalExtension());
 		$fileName = $alias .'.'. $ext;
 
 		$types = array('jpg','jpeg','gif','png','docx','pdf','bmp');
 		if (in_array($ext, $types)) {
-			$file->move($this->targetDir, $fileName);
+			$file->move($this->targetDir .'/'. $folder, $fileName);
 			return $fileName;
 		}
 		else {

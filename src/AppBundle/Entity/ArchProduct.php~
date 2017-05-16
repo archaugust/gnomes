@@ -40,6 +40,11 @@ class ArchProduct
      */
     private $description;
     
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $features;
+    
     /** 
      * @ORM\Column(type="boolean", nullable=true)
      */
@@ -51,12 +56,12 @@ class ArchProduct
     private $vend_active;
     
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $handle;
 
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $product_type;
     
@@ -131,12 +136,12 @@ class ArchProduct
     private $tax_id;
     
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $brand_name;
     
     /**
-     * @ORM\Column(type="string", length=50, nullable=true)
+     * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $supplier_name;
     
@@ -201,6 +206,17 @@ class ArchProduct
     private $pre_sell;
     
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $pre_sell_text_id;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="ArchProductPresellText")
+     * @ORM\JoinColumn(name="pre_sell_text_id", referencedColumnName="id")
+     */
+    private $pre_sell_text;
+    
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $updated_at;
@@ -209,6 +225,11 @@ class ArchProduct
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $deleted_at;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $size_guide;
     
     public function __construct() {
     	$this->images = new ArrayCollection();
@@ -1183,5 +1204,101 @@ class ArchProduct
     public function getDeletedAt()
     {
         return $this->deleted_at;
+    }
+
+    /**
+     * Set preSellTextId
+     *
+     * @param integer $preSellTextId
+     *
+     * @return ArchProduct
+     */
+    public function setPreSellTextId($preSellTextId)
+    {
+        $this->pre_sell_text_id = $preSellTextId;
+
+        return $this;
+    }
+
+    /**
+     * Get preSellTextId
+     *
+     * @return integer
+     */
+    public function getPreSellTextId()
+    {
+        return $this->pre_sell_text_id;
+    }
+
+    /**
+     * Set preSellText
+     *
+     * @param \AppBundle\Entity\ArchProductPresellText $preSellText
+     *
+     * @return ArchProduct
+     */
+    public function setPreSellText(\AppBundle\Entity\ArchProductPresellText $preSellText = null)
+    {
+        $this->pre_sell_text = $preSellText;
+
+        return $this;
+    }
+
+    /**
+     * Get preSellText
+     *
+     * @return \AppBundle\Entity\ArchProductPresellText
+     */
+    public function getPreSellText()
+    {
+        return $this->pre_sell_text;
+    }
+
+    /**
+     * Set features
+     *
+     * @param string $features
+     *
+     * @return ArchProduct
+     */
+    public function setFeatures($features)
+    {
+        $this->features = $features;
+
+        return $this;
+    }
+
+    /**
+     * Get features
+     *
+     * @return string
+     */
+    public function getFeatures()
+    {
+        return $this->features;
+    }
+
+    /**
+     * Set sizeGuide
+     *
+     * @param string $sizeGuide
+     *
+     * @return ArchProduct
+     */
+    public function setSizeGuide($sizeGuide)
+    {
+        $this->size_guide = $sizeGuide;
+
+        return $this;
+    }
+
+    /**
+     * Get sizeGuide
+     *
+     * @return string
+     */
+    public function getSizeGuide()
+    {
+        return $this->size_guide;
     }
 }

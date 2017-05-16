@@ -1,0 +1,262 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* boot fitting */
+.c-page-boot {
+	font-size: 13px;
+	letter-spacing: .02em;
+	
+	h2, h3 {
+		font-size: 21px;
+		font-weight: 300;
+		letter-spacing: .07em;
+		text-transform: none;
+	}
+
+	.u-bg-blue h3 {
+		margin: 0;
+	}
+}
+
+.c-page-740 {
+	width: 740px;
+	padding: 40px 0 10px;
+}
+
+.c-page-800 {
+	width: 800px;
+}
+
+.o-col {
+  	display: flex;
+  	margin-bottom: 45px;
+  
+	> * {
+		position: relative;
+		
+		> div {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+		}
+	}
+	
+	.o-col-text {
+		background: #ededed;
+		font-size: 13px;
+		width: 64%;
+		margin-right: 60px;
+		
+		> div {
+			padding: 55px 55px 30px;
+		}
+	}
+	
+	.o-col-image {
+		width: 36%;
+	}
+
+	.o-col-50 {
+		width: 50%;
+	}
+  
+  	&.reverse {
+  		
+		.o-col-image {
+			order: 1;
+		}
+  		
+		.o-col-text {
+			order: 2;
+			margin: 0 0 0 60px;
+		}
+  	}
+}
+
+.o-price {
+	width: 100%;
+	padding-left: 40px;
+	display: block; 
+	background: #f4f4f4;
+	color: #737373;
+	margin-bottom: 10px;
+	font-weight: 400;
+	
+	> * {
+		display: inline-block;
+		padding: 4px 0 0;
+		margin: 0;
+		font-size: 14px;
+		line-height: 14px;
+		padding: 35px 0 30px;
+	}
+
+	p {
+		margin: 0;
+		padding:0;
+		font-weight: 300;
+	}
+	
+	strong {
+		font-weight: 400;
+	}
+
+	.text {
+		width: calc(100% - 184px);
+	}
+	
+	.price {
+		float: right;
+		text-align: center;
+		width: 164px;
+		color: #fff;
+	}
+}
+
+.o-products {
+	padding-left: 35px;
+}
+.o-product {
+	text-transform: uppercase;
+	color: #000;
+	width: 100%;
+	padding: 5px 35px 40px;
+	text-align: center;
+	font-size: 13.5px;
+	position: relative;
+	
+	img {
+		width: 100%;
+		padding: 22px 0;
+		
+		&:hover {
+			opacity: .8;
+		}
+	}
+
+	.badge {
+		position: absolute;
+		top: 10px;
+		right: 0;
+		padding: 7px 10px 2px;
+		font-size: 11px;
+		font-weight: 900;
+		color: #fff;
+		background: $global-primary-color;
+		z-index: 1000;
+	}
+
+	> a {
+		color: #000;
+		line-height: 18px;
+		
+		&:hover {
+			color: $global-primary-color!important;
+		}
+	}
+
+	.active {
+		color: $global-primary-color!important;
+	}
+
+	> div {
+		font-size: 15px;
+	}
+
+	.price {
+		padding: 5px 0;
+	}
+
+	.vip {
+		color: $global-primary-color;
+		font-weight: 700;
+	}
+
+	.wishlist {
+		padding: 15px 0 10px;
+		display: block;
+		
+		a {
+			color: #b7b7b8;
+			font-size: 17px;
+			position: relative;
+			z-index: 1000;
+			cursor: pointer;
+			
+			&:hover, .active {
+				color: $global-primary-color;
+			}
+		}
+	}
+}
+
+
+@media (max-width: 767px) {
+	.o-col {
+		display: block;
+		
+		> * {
+			position: initial;
+			
+			> div {
+				position: initial;
+				top: 0;
+				transform: none;
+			}
+		}
+		
+		.o-col-text {
+			width: 100%;
+			margin-right: 0;
+			
+			> div {
+				padding: 30px 25px 10px;
+			}
+		}
+		
+		.o-col-image {
+			width: 100%;
+			padding: 30px 0;
+		}
+	
+		.o-col-50 {
+			width: 100%;
+		}
+	
+	  	&.reverse .o-col-text {
+	  		margin: 0;
+	  	}
+	}
+
+	.o-products {
+		padding-left: 0;
+	}
+
+	.o-product {
+		padding-top: 40px;
+		
+		.details {
+			padding-left: 0;
+		}
+	}
+
+	.o-price {
+		padding-left: 20px;
+		margin-bottom: 10px;
+		display: flex;
+		align-content: center;
+		
+		.text {
+			width: calc(100% - 100px);
+		}
+		
+		.price {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			max-width: 100px!important;
+			margin-left: 20px;
+		}
+	}
+}

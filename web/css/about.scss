@@ -1,0 +1,49 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* about */
+.o-about {
+	font-size: 13px;
+	line-height: 26px;
+	padding-top: 40px;
+	
+	img {
+		width: 100%!important;
+		height: auto;
+	}
+
+	h1, h2 {
+		font-size: 30px;
+		font-weight: 200;
+		letter-spacing: .08em;
+		text-transform: uppercase;
+		padding-right: 100px;
+	}
+
+	hr {
+		margin: 55px 0;
+	}
+
+	&-left {
+		img {
+			width: 80%!important;
+			height: auto;
+			margin-bottom: 30px;
+		}
+	}
+}
+
+@media screen and (max-width: 979px) {
+	.o-about {
+		padding-top: 10px;
+		
+		h1, h2 {
+			font-size: 21px;
+			padding-right: 0;
+		}
+	}
+	.o-about-left img {
+		width: 100%!important;
+	}
+}

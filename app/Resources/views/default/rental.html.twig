@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if item.metaTitle %}{{ item.metaTitle }}{% else %}Ski Hire and Snowboard Hire | Gnomes Alpine Sports{% endif %}{% endblock %}
+{% block description %}{% if item.metaDescription %}{{ item.metaDescription }}{% else %}{{ item.intro|striptags|slice(0,160) }}{% endif %}{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/rental.css') }}" rel="stylesheet">
+	<link href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block banner %}
+{% if item.banner %}
+<section id="banner">
+	<div class="o-wrapper o-box--flush">
+		<figure class="c-banner">
+			<img src="{{ asset('images/rental/'~ item.banner) }}" alt="{{ item.bannerText }}" />
+			{% if item.bannerOverlay == 1 %}<img src="{{ asset('images/banner-overlay.png') }}" class="overlay" />{% endif %}
+			<figcaption>
+				<h1 class="u-ls-110{% if item.bannerTextColor == 1 %} u-black{% endif %}">{{ item.bannerText }}</h1>
+			</figcaption>
+		</figure>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / Rental
+	</div>
+	
+	{% include('flash.html.twig') %}
+	
+	<div class="c-page-padded c-page-900">
+		<div class="o-layout--flush u-ml-60">
+			<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+				<a href="#price-schedule" class="c-btn c-btn--rental">PRICE SCHEDULE</a>
+			</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+				<a href="#faqs" class="c-btn c-btn--rental">FAQ’s</a>
+			</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+				<a href="#booking" class="c-btn c-btn--rental">BOOK NOW</a>
+			</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+				<a href="#gear" class="c-btn c-btn--rental">THE GEAR</a>
+			</div>
+		</div>
+	</div>
+	
+	<div class="c-page-rental">
+       	{{ item.intro|raw }}
+		
+    	<div class="o-layout--center u-bg-blue u-flash u-pv-25 u-mt-40 u-mb-55 u-fs-15">
+        	<img src="{{ asset('images/icon-like.png') }}" alt="Like" /> &nbsp; Book ski or board hire online and save 10%!
+        </div>
+        
+        <h3 id="price-schedule" class="u-blue">RENTAL PRICE SCHEDULES</h3>
+        <div class="u-fs-15 u-mb-55">See our complete Rental Price Schedule <a href="/pdf/rental-price-schedule.pdf">here</a>.</div>
+        
+        {% for price in item.prices %}
+        <div class="o-price">
+        	<div class="button">
+        		<h3>{{ price.name }} - <span>{{ price.items }}</span></h3>
+        		<img src="{{ asset('images/icon-minimize.png') }}" alt="Details" />
+        	</div>
+        	<div class="details{% if loop.first %} active{% endif %}">
+        		<div class="table">
+        			<table>
+        				<tr>
+        					<td class="header"></td>
+        					<td class="header">1 Day</td>
+        					<td class="header">2 Days</td>
+        					<td class="header">3 Days</td>
+        					<td class="header">4 Days</td>
+        					<td class="header">5 Days</td>
+        					<td class="header">6 Days</td>
+        					<td class="header">7 Days</td>
+        				</tr>
+{% for variant in price.variants %}{% set name = variant.name|split('|') %}<div class="o-layout__item u-1/8@desktop u-1/4@mobile name ">
+        				<tr>
+        				<td class="name{% if name|length>1 %} name-2{% endif %} bg-{{ loop.index }}">{{ name[0]|upper }}{% if name|length > 1 %} <span>{{ name[1] }}</span>{% endif %}</td>
+{% for pricing in variant.prices|split(',') %}
+        		    	<td>{{ pricing }}</td>
+{% endfor %}
+        		    	<tr>
+        		    	<tr><td class="spacer" colspan="8"></td></tr>
+{% endfor %}
+           			</table>
+           		</div>
+        		<div class="u-fs-15 link">Part sets available, <a href="/pdf/rental-price-schedule.pdf">see full Price Schedule here</a>.</div>
+        	</div>
+        </div>
+        {% endfor %}
+        <div class="u-pt-30 u-pb-20">
+        	<a href="/pdf/rental-price-schedule.pdf" class="c-btn c-btn--gray c-btn--wide">See Full Price Schedule</a>
+        </div>
+        Part sets are available and not all items are listed. Prices subject to change. Please <a href="/pages/contact">contact us</a> with any queries.
+        <hr class="u-mb-55" />
+        <h3 id="booking" class="u-blue">RENTAL BOOKING REQUEST</h3>
+        <p class="u-fs-15">
+        	Book your ski and board hire online using the booking form below to ensure gear is secured for you. We will check through your booking before we send a confirmation email. <b>Please note:</b> Bookings made after 6:30pm the night before collection can not be guaranteed for the next day.
+        </p>
+        
+        <div class="o-form">
+        {{ form_start(form, {'attr': {'enctype':'multipart/form-data'}}) }}
+        {{ form_errors(form) }}
+        	<strong>YOUR DETAILS</strong>
+        	<div class="o-layout--flush u-ml-60">
+        		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        			{{ form_row(form.first_name) }}
+        		</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        		    {{ form_row(form.last_name) }}
+        		</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        			{{ form_row(form.phone) }}
+        		</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        		    {{ form_row(form.email) }}
+        		</div>
+        	</div>
+        	<strong>Rental Booking Details</strong>
+        	<label for="guests">Number in Party*</label>
+			<select class="u-form-control guests" id="guests">
+				<option value="0">&nbsp;</option>
+				{% for i in 1..50 %}
+				<option value="{{ i }}">{{ i }}</option>
+				{% endfor %}
+			</select>
+        	<div class="o-layout--flush u-ml-60">
+        		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        			{{ form_row(form.collect_date) }}
+        		</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        		    {{ form_row(form.collect_time) }}
+        		</div>
+        	</div>
+			<div class="o-layout--flush u-ml-60">
+        		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        			{{ form_row(form.return_date) }}
+        		</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        		    {{ form_row(form.return_time) }}
+        		</div>
+        	</div>
+            <div id="guests" data-prototype="{{ _self.guestCollectionItem(form.guests.vars.prototype)|e }}"></div>
+	    	<div class="u-pv-25">{{ form_widget(form.save) }}</div>
+        {{ form_end(form) }}
+        </div>
+        
+        <div class="o-gears">
+        	<h3 id="gear" class="u-blue">THE GEAR</h3>
+			<div class="u-fs-15">{{ item.gearIntro|raw }}</div>
+			<hr />
+			{% for section in item.sections %}
+				<div class="o-layout--flush u-ml-30">
+					<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-30 o-gear">
+						<div class="header bg-{% if loop.index != 2 %}1">Standard{% else %}5">Child{% endif %}</div>
+						<a href="#booking">
+						<figure>
+							<img src="{{ asset('images/rental/'~ section.standardImage) }}" alt="{{ section.name }} Standard" />
+							<figcaption>
+								{{ section.standardPrice }}
+							</figcaption>
+						</figure>
+						<div class="description">{{ section.standardContent }}</div>
+						<div class="book">Book Now</div>
+						</a>
+					</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-30 o-gear">
+						<div class="header bg-{% if loop.index != 2 %}2">Performance{% else %}6">Preschool{% endif %}</div>
+						<a href="#booking">
+						<figure>
+							<img src="{{ asset('images/rental/'~ section.performanceImage) }}" alt="{{ section.name }} Performance" />
+							<figcaption>
+								{{ section.performancePrice }}
+							</figcaption>
+						</figure>
+						<div class="description">{{ section.performanceContent }}</div>
+						<div class="book">Book Now</div>
+						</a>
+					</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-30 o-gear">
+						<div class="header bg-{% if loop.index != 2 %}3">Demo{% else %}1">Standard{% endif %}</div>
+						<a href="#booking">
+						<figure>
+							<img src="{{ asset('images/rental/'~ section.demoImage) }}" alt="{{ section.name }} Demo" />
+							<figcaption>
+								{{ section.demoPrice }}
+							</figcaption>
+						</figure>
+						<div class="description">{{ section.demoContent }}</div>
+						<div class="book">Book Now</div>
+						</a>
+					</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-30 o-gear">
+						<div class="header bg-{% if loop.index != 2 %}4">Touring{% else %}2">Performance{% endif %}</div>
+						<a href="#booking">
+						<figure>
+							<img src="{{ asset('images/rental/'~ section.touringImage) }}" alt="{{ section.name }} Touring" />
+							<figcaption>
+								{{ section.touringPrice }}
+							</figcaption>
+						</figure>
+						<div class="description">{{ section.touringContent }}</div>
+						<div class="book">Book Now</div>
+						</a>
+					</div>
+				</div>
+			{% endfor %}
+        </div>
+        <hr />
+
+		<h3 id="faqs" class="u-blue">FREQUENTLY ASKED RENTAL QUESTIONS</h3>
+		<div class="u-fs-15">You may find the answer to your question below (or above). If not, get on the blower (03 318 8433)  or flick us an email - info@gnomes.co.nz - we’ll be happy to assist you.</div>
+		<div class="o-faq u-pv-20">{{ item.faq|raw }}</div>
+	</div>
+	
+</div>
+{% endblock %}
+
+{% macro guestCollectionItem(formData) %}
+<hr />
+<strong>Guest <div class="guest_no"></div> <span>- Details</span></strong>
+<div class="o-layout--flush u-ml-60">
+    <div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        {{ form_row(formData.first_name) }}
+    </div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        {{ form_row(formData.last_name) }}</div>
+</div>
+<div class="o-layout--flush u-ml-40">
+    <div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+		{{ form_row(formData.height) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+        {{ form_row(formData.weight) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+    	{{ form_row(formData.shoe_size) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+		{{ form_row(formData.age) }}
+    </div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-40">
+		{{ form_row(formData.ability_level) }}
+	</div>
+</div>	
+<strong>Guest <div class="guest_no"></div> <span>- Gear</span></strong>
+<div class="o-layout--flush u-ml-60">
+    <div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        {{ form_row(formData.gear) }}
+    </div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+        {{ form_row(formData.gear_type) }}
+    </div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+    	{{ form_row(formData.snowboard_stance) }}
+    </div>
+</div>
+<div class="o-layout--flush u-ml-40">
+    <div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+		{{ form_row(formData.jacket) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+        {{ form_row(formData.pants) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+    	{{ form_row(formData.goggles) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/4@tablet u-1/2@mobile u-pl-40">
+		{{ form_row(formData.gloves) }}
+    </div><div class="o-layout__item u-1/8@desktop u-1/2@tablet u-1/1@mobile u-pl-40">
+		{{ form_row(formData.helmet) }}
+    </div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-40 chain">
+		{{ form_row(formData.chains) }}<img src="{{ asset('images/icon-help.png') }}" alt="Hint" class="u-tooltip" title="A tyre’s size is imprinted on its outer wall. Example: 215/60 R" /> 
+	</div>
+</div>	
+<div class="o-layout--flush">
+	<div class="o-layout__item u-1/4@desktop u-1/1@tablet">
+    {{ form_row(formData.instructions) }}
+    </div>
+</div>
+{% endmacro %}
+
+{% block javascripts %}
+	<script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+	<script src="{{ asset('js/wishlist.js') }}"></script>
+	<script src="{{ asset('js/notify.min.js') }}"></script>
+	<script src="{{ asset('js/rental.js') }}"></script>
+{% endblock %}
