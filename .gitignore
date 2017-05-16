@@ -16,6 +16,8 @@
 /web/bundles/
 
 /web/images
+/web/uploads
+/web/pdf
 /web/assets
 /web/bundles
 /app/config/parameters.yml.dist
