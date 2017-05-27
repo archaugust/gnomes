@@ -2,7 +2,7 @@ Gnomes.co.nz
 ========================
 
 Ecommerce website built with Symfony 3, Inuitcss, jQuery.   
-http://gnomes.co.nz
+https://gnomes.co.nz
 
 What's inside?   
 --------------    
