@@ -1,0 +1,7 @@
+<div class="o-side-menu u-mb-40">
+{% if is_granted('ROLE_ADMIN') %}<a href="{{ path('admin') }}">Admin</a>{% endif %}
+	<a href="{{ path('member') }}">Account Summary</a>
+	<a href="{{ path('member_wishlist') }}">Wishlist</a>
+	<a href="{{ path('member_profile') }}">Profile</a>
+	<a href="{{ path('member_password_reset') }}" class="last">Change Password</a>
+</div>

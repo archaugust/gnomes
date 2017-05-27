@@ -75,6 +75,14 @@
 	input[type="radio"] {
 		margin: 0 5px 15px 0;
 	}
+
+	.vip {
+		color: $global-primary-color;
+	}
+	
+	.sale {
+		color: #ff0000;
+	}
 }
 
 table {
@@ -98,12 +106,13 @@ table {
 		border-bottom: 1px solid #bfbfbf;
 
 		img {
-			width: auto!important;
+			width: 100%!important;
 		}
 	}
 
 	select {
 		width: 60px;
+		padding-left: 10px!important;
 	}
 
 	.image {
@@ -155,7 +164,7 @@ table {
 		font-size: 17px;
 		font-weight: 300;
 		
-		span {
+		a {
 			display: block;
 			font-size: 11.5px;
 			letter-spacing: .05em;
@@ -193,13 +202,6 @@ table {
 		}
 	}
 
-	.vip {
-		color: $global-primary-color;
-	}
-	
-	.sale {
-		color: #ff0000;
-	}
 }
 
 table.cart-items {
@@ -217,7 +219,7 @@ table.cart-items {
 		width: 100px;
 		
 		img {
-			width: auto;
+			width: 100%;
 			margin: 0!important;
 		}
 	}

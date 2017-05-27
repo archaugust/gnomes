@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block title %}Wishlist | Gnomes Alpine Sports{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/member.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page u-ph-25-xs">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / <a href="{{ path('member') }}">VIP Customer Page</a> / Wishlist 
+	</div>
+	{% include('flash.html.twig') %}
+	<div class="o-layout--flush c-page--member u-ml-60">
+		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+			{% include('member/menu.html.twig') %}
+		</div><div class="o-layout__item u-3/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+    		<h1>YOUR WISHLIST</h1>
+    		<div class="cart-items-container">
+        		<table class="cart-items">
+        			<tr>
+        				<th colspan="2">ITEM</th>
+        				<th>PRICE</th>
+        			</tr> 
+               	{% if items|length == 0 %}
+            		<tr><td colspan="4">Add items to your wishlist.</td></tr>
+            	{% else %}
+            		{% for key, product in items %}
+            		<tr>
+            			<td class="image">
+                			<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset('images/products/thumb/'~ product.image) }}" alt="{{ product.name }}" /></a>
+                		</td>
+                		<td class="details">
+                			<a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}</a>
+                		</td>
+                		<td>
+                				${{ product.price|number_format(2,'.',',') }} 
+                				{% if (product.discount_price > 0) %}
+                					<div class="{% if product.discount_type == 'VIP' %}vip">VIP:{% else %}sale">SALE:{% endif %} ${{ product.discount_price|number_format(2,'.',',') }}</div>
+                				{% endif %}
+                		</td>
+            		</tr>
+            		{% endfor %}
+            	{% endif %}
+                </table>
+           	</div>
+        </div>
+	</div>
+</div>
+
+{% endblock %}

@@ -41,6 +41,7 @@ function onContactSubmit(token) {
 $('#subscribeForm').submit(function(event) {
 	var data = $(this).serialize();
     var recaptcha = grecaptcha.getResponse(recaptcha1);
+    $("#recaptcha1").html('<i class="fa fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>');
     $.ajax({
         url: "/subscribe-process",
         data: data+"&g-recaptcha-response="+recaptcha,
@@ -54,6 +55,7 @@ $('#subscribeForm').submit(function(event) {
             	$('#messageDiv').html('Robot verification failed, please try again.');
             	grecaptcha.reset(recaptcha1);
             }
+            $("#recaptcha1").html('GO');
         }
     });
     event.preventDefault();
@@ -62,37 +64,25 @@ $('#subscribeForm').submit(function(event) {
 $('#contactForm').submit(function(event) {
 	var data = $(this).serialize();
     var recaptcha = grecaptcha.getResponse(recaptcha2);
+    $("#contact_save").html('<i class="fa fa-refresh fa-spin"></i><span class="sr-only">Loading...</span>').prop('disabled','disabled');
     $.ajax({
         url: "/pages/contact",
         data: data+"&g-recaptcha-response="+recaptcha,
         type: "POST",
         success: function (data) {
             if (data != 'error') {
-                $('#contact_save').html('Message Sent').prop('disabled','disabled');
+                $('#contact_save').html('Message Sent');
             	$('#contactDiv').hide().html('<h3 class="u-blue u-margin-none">Thanks for that!</h3><div class="u-ls-20">Your info is now blasting through cyberspace en route to our inbox. We’ll take a look and be right in touch!</div>').fadeIn();
             } 
             else {
             	$('#contactDiv').html('Robot verification failed, please try again.');
             	grecaptcha.reset(recaptcha2);
+                $("#contact_save").html('SEND MESSAGE').prop('disabled',false);
             }
         }
     });
     event.preventDefault();
 });
-
-function initMap() { 
-	var gnomes = new google.maps.LatLng(-43.489878, 172.114674);
-	var map = new google.maps.Map(document.getElementById('map'), {
-	    zoom: 11,
-	    center: gnomes,
-	    scrollwheel: false,
-	    styles: [{"featureType":"all","elementType":"all","stylers":[{"saturation":-100},{"gamma":1}]}]      
-    });
-    var marker = new google.maps.Marker({
-        position: gnomes,
-        map: map,
-    });
-}
 
 $(function(){
 	$('label').each(function(){

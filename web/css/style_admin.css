@@ -312,6 +312,7 @@ hr.dotted {
 }
 .order-item {
 	border-top: 1px dotted #ccd3d9;
+	padding: 10px 0;
 }
 .light {
 	color: #a6b3bd;

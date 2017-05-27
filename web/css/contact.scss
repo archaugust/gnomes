@@ -95,15 +95,22 @@
 	padding: 0;
 	width:100%;
 }
+@media (max-width: 979px) {
+	.c-page-900 {
+		.u-col-left {
+			padding-left: 60px;
+		}
+	}
+}
 
-@media (max-width: 767px) {
+@media (max-width: 740px) {
 	.c-page-900 {
 		width: 100%;
 		
 		.u-col-left {
 			padding: 0;
 		}
-	
+		
 		.o-form {
 			width: 100%;
 		}

@@ -1,4 +1,0 @@
-section#content { background: #e1e1e1; }
-@media (max-width: 767px) { #content { margin: 0 -15px; } }
-@media (min-width: 768px) { #content .container { padding: 0 80px; } }
-@media (min-width: 1367px) { #content { width: 1668px; } #content .container { padding: 0 125px; } }

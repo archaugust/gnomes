@@ -1,0 +1,31 @@
+<p><strong>{{ store_name }}!</strong></p>
+
+<p>{{ item.firstName }} {{ item.lastName }} booked a rental with you today ({{ "now" | date('j F Y') }}).</p> 
+<p>
+{{ item.email }}<br />
+{{ item.phone }}<br />
+</p>
+<p><b>Collect:</b> {{ item.collectDate|date('j M Y') ~' - '~ item.collectTime }}</p>
+<p><b>Return:</b> {{ item.returnDate|date('j M Y') }}</p>
+<p><strong>Guests: {{ item.guests|length }}</strong></p>
+{% for guest in item.guests %}
+<p>Guest {{ loop.index }}</p>
+<p>{{ guest.firstName }} {{ guest.lastName }}<br />
+<b>Height:</b> {{ guest.height }}<br />
+<b>Weight:</b> {{ guest.weight }}<br />
+<b>Shoe Size:</b> {{ guest.shoeSize }}<br />
+<b>Age:</b> {{ guest.age }}<br />
+<b>Ability Level:</b> {{ guest.abilityLevel }}<br />
+<b>Gear:</b> {{ guest.gear }}<br />
+<b>Gear Type:</b> {{ guest.gearType }}<br />
+<b>Snowboard Stance:</b> {{ guest.snowboardStance }}<br />
+<b>Jacket:</b> {{ guest.jacket }}<br />
+<b>Pants:</b> {{ guest.pants }}<br />
+<b>Goggles:</b> {{ guest.goggles }}<br />
+<b>Gloves:</b> {{ guest.gloves }}<br />
+<b>Helmet:</b> {{ guest.helmet }}<br />
+<b>Chains:</b> {{ guest.chains }}<br />
+<b>Instructions:</b><br />
+{{ guest.instructions }}
+</p>
+{% endfor %}

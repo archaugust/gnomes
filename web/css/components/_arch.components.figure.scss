@@ -3,7 +3,6 @@ figure {
 	margin: 0;
 	position: relative;
 	background: #000;
-	display: block;
 }
 
 .c-banner {
@@ -30,7 +29,6 @@ figure {
 			text-transform: uppercase;
 		}
 	}
-
 	&.c-banner-guide {
 		max-height: 523px;
 		overflow: hidden;
@@ -46,7 +44,6 @@ figure {
 }
 
 .c-home {
-	
 	figcaption {
 		position: absolute;
 		bottom: 55px;
@@ -87,6 +84,11 @@ figure {
 	background: #fff;
 	margin-bottom: 55px;
 
+	a {
+		color: #000!important;
+	}	
+		
+
 	figcaption {
 		position: absolute;
 		top: 0;
@@ -103,6 +105,9 @@ figure {
 			font-size: 30px;
 			font-weight: 300!important;
 			text-transform: uppercase;
+			&:hover {
+				color: $global-primary-color;
+			}
 		}
 	
 		div {
@@ -112,14 +117,17 @@ figure {
 		b {
 			font-weight: 400;
 			color: #000;
+			&:hover {
+				color: $global-primary-color;
+			}
 		}
 	
-		a:hover {
-			color: $global-primary-color;
-		}	
+		&.u-active {
+			opacity: 1;
+		}		
 	}
 
-	&:hover, &.active {
+	&:hover {
 		
 		figcaption { 
 			opacity: 1;
@@ -130,3 +138,9 @@ figure {
 		}
 	}
 }
+
+figure.u-active {
+		img {
+			opacity: .15!important;
+		}
+}	

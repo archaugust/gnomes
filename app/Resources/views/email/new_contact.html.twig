@@ -1,0 +1,10 @@
+<p><strong>{{ store_name }}!</strong></p>
+
+<p>{{ item.name }} sent you a contact message today ({{ "now" | date('j F Y') }}).</p>
+<p> 
+<b>Email:</b> {{ item.email }}<br />
+<b>Subject:</b> {{ item.subject }}
+</p>
+<p><b>Message:</b><br />
+{{ item.message }}
+</p>

@@ -1,0 +1,29 @@
+<p>Dear {{ order.billing.firstName }} {{ order.billing.lastName }},</p>
+
+<p>The following items from order {{ order.invoiceNumber }} {% if requires_shipping == true %}have now been shipped{% else %}are now ready for collecting{% endif %}:</p>
+
+<p>
+{% for item in shipment_items %}
+{{ item.quantity }}x <a href="{{ path("product", {'handle':item.handle|lower}) }}">{{ item.name }}</a><br />
+{% endfor %}
+</p>
+
+{% if requires_shipping == true %}
+<p>They are being shipped via Fastway Couriers to the following address:</p>
+<p>
+{{ order.shipping.firstName }} {{ order.shipping.lastName }}<br />
+{{ order.shipping.address }}<br />
+{{ order.shipping.city }}<br />
+{{ order.shipping.region }} {{ order.shipping.postcode }}<br />
+{{ order.shipping.country }}
+</p>
+
+{% if note %}<p>{{ note }}</p>{% endif %}
+
+<p>The tracking number for these items is {{ tracking_number }}. You can see the status of this shipment at the following URL:<br />
+<a href="http://www.fastway.co.nz/courier-services/track-your-parcel?l={{ tracking_number }}">http://www.fastway.co.nz/courier-services/track-your-parcel?l={{ tracking_number }}</a>
+
+<p>Please allow some time for the status of the shipment to correctly display at the above address.</p>
+{% endif %}
+
+<p>Thank you for shopping with {{ store_name }}!</p>

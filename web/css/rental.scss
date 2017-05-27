@@ -45,15 +45,22 @@
 .o-price {
 	border-bottom: 1px solid #bfbfbf;
 	
+	h3 {
+		margin-top: 5px;
+		line-height: 26px;
+	}
+	
 	.button {
+		display: -webkit-flex;
 		display: flex;
+		-webkit-align-items: center;
 		align-items: center;
+		-webkit-justify-content: space-between;
 		justify-content: space-between;
 		padding: 15px 0 5px;
 		
-		img {
-			width: auto!important;
-			padding: 10px 0;
+		span {
+			font-size: 16px;
 		}
 	
 		&:hover {
@@ -96,8 +103,9 @@
 			width: 12.5%;
 		}
 	
-		.header {
+		th {
 			background: none;
+			font-weight: 300;
 			padding: 15px 0;
 			height: 40px;
 		}
@@ -160,7 +168,7 @@
 	padding: 15px 10px 10px;
 	letter-spacing: .07em;
 	width: 100%;
-	margin-bottom: 5px;
+	margin-bottom: 15px;
 	border: 1px solid #737373;
 	color: #737373;
 
@@ -189,7 +197,8 @@
 		}
 	}
 	label {
-		font-size: 13px;
+		font-size: 12px;
+		letter-spacing: .02em!important;
 		margin: 5px 0;
 		display: block;
 	}
@@ -205,6 +214,10 @@
 		} 
 		input {
 			width: calc(100% - 23px)!important;
+		}
+		
+		img {
+			margin-top: -30px;
 		}
 	}
 	textarea {
@@ -291,8 +304,93 @@
 	text-transform: uppercase;
 }
 @media (max-width: 979px) {
-	.o-price .details .table {
-		overflow-x: scroll;
-		overflow-y: hidden;
+	.o-price { 
+		.details { 
+			.table {
+				overflow-x: scroll;
+				overflow-y: hidden;
+			}
+		}
+	
+		table {
+			min-width: 300px;
+			padding: 0;
+		
+			.name {
+				font-size: 12px;
+				letter-spacing: .02em; 
+			}
+		}	
+	}
+
+}
+
+@media (max-width: 767px) {
+	.c-page-rental .c-btn {
+		padding: 15px 0 10px;
+		width: 100%;
+	}
+
+	.o-gears {
+		padding: 35px 20px 15px;
+		background: #f4f4f4;
+	}
+
+	.o-price {
+		
+        table, thead, tbody, th, td, tr {
+            display: block;
+            width: 100%!important;
+        }
+       
+        /* Hide table headers (but not display: none;, for accessibility) */
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        tr { border: 1px solid #ccc; }
+
+        td {
+            /* Behave  like a "row" */
+            border: none;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 50%;
+            padding-top: 10px!important;
+            padding-bottom: 10px!important;
+            height: 40px!important;
+        }
+
+		.name {
+			padding-top: 14px!important;
+			font-size: 14px!important;
+			
+			> * {
+				display: inline-block!important;
+			}
+		}
+
+        td:before {
+            /* Now like a table header */
+            position: absolute;
+            /* Top/left values mimic padding */
+            top: 10px;
+            left: 6px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+        }
+
+        td:nth-of-type(1):before { content: ""; }
+        td:nth-of-type(2):before { content: "Day 1"; }
+        td:nth-of-type(3):before { content: "Day 2"; }
+        td:nth-of-type(4):before { content: "Day 3"; }
+        td:nth-of-type(5):before { content: "Day 4"; }
+        td:nth-of-type(6):before { content: "Day 5"; }
+        td:nth-of-type(7):before { content: "Day 6"; }
+        td:nth-of-type(8):before { content: "Day 7"; }
+		
 	}
 }

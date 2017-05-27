@@ -1,0 +1,155 @@
+@import "settings/arch.settings.config";
+@import "settings/settings.core";
+@import "settings/arch.settings.global";
+
+/* checkout */
+.c-page--member {
+	font-size: 13px;
+	letter-spacing: .02em;
+	padding: 40px 0;
+	
+	h1 {
+		font-size: 26px;
+		font-weight: 200;
+		margin: 0 0 20px;
+		letter-spacing: .02em;
+		text-align: left;
+		
+		span {
+			font-size: 16px;
+		}
+	}
+
+	h3 {
+		font-size: 20.5px;
+		font-weight: 300;
+		margin: 0;
+	}
+
+	.vip {
+		color: $global-primary-color;
+	}
+	
+	.sale {
+		color: #ff0000;
+	}
+
+	.o-layout__item {
+		> div {
+			padding-top: 10px;
+		}
+	}
+}
+
+.o-side-menu {
+	a {
+		display: block;
+		padding: 10px 10px 5px;
+		border-bottom: 1px solid #bfbfbf;
+		
+		&.last {
+			border: none;
+		}
+	
+		&:hover {
+			background: #EFEFEF;
+		}
+	}
+}
+
+
+table.cart-items {
+	min-width: 800px;
+	padding: 0;
+
+	th {
+		font-size: 11.5px;
+		font-weight: 300;
+		vertical-align: bottom;
+		padding-bottom: 20px;
+		border-bottom: 1px solid #BFBFBF;
+	}
+	td {
+		font-size: 13px;
+		font-weight: 400;
+		letter-spacing: .075em;
+		padding: 20px 0;
+		height: 82px;
+		border-bottom: 1px solid #bfbfbf;
+		text-align: center;
+
+		img {
+			width: 100%!important;
+		}
+	}
+
+	.image {
+		width: 100px;
+		padding-right: 20px;
+	}	
+
+	.details {
+		text-align: left;
+		line-height: 20px;
+		
+		a {
+			font-weight: 600;
+			color: #000;
+			font-size: 13.5px;
+			text-transform: uppercase;
+			
+			&:hover {
+				color: $global-primary-color;
+			}
+		}
+	
+		.vip, .sale {
+			font-weight: 700;
+		}
+	}
+	
+	.price {
+		font-size: 17px;
+		line-height: 20px;
+		font-weight: 300;
+		
+		span {
+			display: block;
+			font-size: 11.5px;
+			letter-spacing: .05em;
+		}
+	}
+}
+
+.o-help {
+	font-size: 19px;
+	font-weight: 300;
+	letter-spacing: .08em;
+	margin: 30px 0;
+ 	
+	span {
+		font-size: 16px;
+		font-weight: 200; 
+	}
+}
+
+@media (max-width: 979px) {
+	.c-page--member {
+		h1 {
+			font-size: 21px;
+		}
+	
+		.c-btn {
+			width: 100%;
+		}
+	}
+
+	table {
+		min-width: 700px;
+	}
+
+	.cart-items-container {
+		overflow-x: scroll;
+	}
+
+}

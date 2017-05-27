@@ -4,6 +4,15 @@
 	border: 1px solid;
 }
 
+.u-noborder {
+	border: none!important;
+}
+
+.u-img-responsive {
+	width: auto!important;
+	height: auto;
+}
+
 .clear {
 	clear: both;
 }
@@ -17,7 +26,9 @@
 .u-right {
 	float: right;
 }
-
+.u-text-right {
+	text-align: right!important;
+}
 .u-center {
 	text-align: center;
 }
@@ -26,9 +37,13 @@
 	border: 0!important;
 }
 
-.visible-xs {
+.u-visible-xs {
 	display: none;
 }
+
+.u-nowrap {
+	 white-space: nowrap;
+ }
 
 hr {
 	border: none;
@@ -154,6 +169,10 @@ $single-padding-widths: 20 25 30 40;
     	padding-bottom: ($width - 2) + px;
     }
     
+    .u-ph-#{$width} {
+    	padding-left: $width + px;
+    	padding-right: $width + px;
+    }
   }
  
   @media (min-width: 61.25em) {

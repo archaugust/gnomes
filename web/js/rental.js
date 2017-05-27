@@ -1,5 +1,7 @@
 $('.button').click(function(){
-	$(this).parent('.o-price').find('.details').slideToggle();
+	var e = $(this);
+	e.parent('.o-price').find('.details').slideToggle();
+	e.find('i').toggleClass('fa-angle-down');
 });
 
 var $guestHolder;
@@ -12,12 +14,17 @@ $(function() {
 	    dateFormat: 'yy-mm-dd',
 	    changeMonth: true, 
 	    changeYear: true, 
+	    minDate: "+0d"
     });
+	
 	$('#arch_rental_booking_return_date').datepicker({
 	    dateFormat: 'yy-mm-dd',
 	    changeMonth: true, 
 	    changeYear: true, 
+	    minDate: "+1d"
     });
+	
+    $('.description').matchHeight();
 	
     $guestHolder = $('div#guests');
 
@@ -31,6 +38,8 @@ $(function() {
         addItemForm($guestHolder, $newGuestLi);
     });
 });
+
+var maxHeight;
 
 function blueAsterisk() {
 	$('label').each(function(){
@@ -85,6 +94,21 @@ function addItemForm($collectionHolder, $newLinkLi) {
 
     addItemFormDeleteLink($newFormLi);
     blueAsterisk();
+    $('div#guests .u-tooltip').off('mouseenter');
+    $('div#guests .u-tooltip').off('mouseleave');
+	$('div#guests .u-tooltip').hover(function(){
+	    var title = $(this).attr('title');
+	    $(this).data('tipText', title).removeAttr('title');
+	    $('<p class="u-tooltip-text"></p>').text(title).appendTo('body').fadeIn('slow');
+	}, function() {
+	        $(this).attr('title', $(this).data('tipText'));
+	        $('.u-tooltip-text').remove();
+	}).mousemove(function(e) {
+	        var mousex = e.pageX - 40; //Get X coordinates
+	        var mousey = e.pageY + 20; //Get Y coordinates
+	        $('.u-tooltip-text').css({ top: mousey, left: mousex })
+	});
+    
 }
 
 function addItemFormDeleteLink($itemFormLi) {

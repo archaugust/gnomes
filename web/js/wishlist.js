@@ -12,7 +12,7 @@ $(function(){
 			mode = 'add';
 			e.addClass('active').prop('title', 'Remove from Wishlist');
 		}
-		console.log(e.prop('title'));
+
 	    $.ajax({
 	        url: "/wishlist-toggle",
 	        data: 'mode='+ mode +'&handle='+ handle,

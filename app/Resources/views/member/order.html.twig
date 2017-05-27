@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+{% block title %}VIP Customer Page | Gnomes Alpine Sports{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/member.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / <a href="{{ path('member') }}">VIP Customer Page</a> / Order Invoice Number {{ item.invoiceNumber }} 
+	</div>
+	{% include('flash.html.twig') %}
+	<div class="o-layout--flush c-page--member u-ml-60 u-pb-40">
+		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+			{% include('member/menu.html.twig') %}
+		</div><div class="o-layout__item u-3/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+    		<h1>ORDER INVOICE NUMBER {{ item.invoiceNumber }}</h1>
+    		<div class="cart-items-container">
+        		<table class="cart-items">
+        			<tr>
+        				<th colspan="2">ITEM</th>
+        				<th width="100">QTY</th>
+        				<th width="180">PRICE</th>
+        			</tr>
+            		{% for product in items %}
+            			{% if (product.image|slice(0,6) == "https:") %}
+            				{% set image = product.image %}
+            			{% else %}
+            				{% set image = 'images/products/thumb/'~ product.image %}
+            			{% endif %}
+            		<tr>
+            			<td class="image">
+                			<a href="{{ path('product', {'handle':product.handle|lower}) }}"><img src="{{ asset(image) }}" alt="{{ product.name }}" /></a>
+                		</td>
+                		<td class="details">
+                			<a href="{{ path('product', {'handle':product.handle|lower}) }}">{{ product.name }}</a>
+            				{% for variant in product.variant %}
+            					<div>{{ variant.name|upper ~': '~ variant.value }}</div>
+            				{% endfor %}
+                		</td>
+                		<td>{{ product.quantity }}</td>
+                		<td class="price">
+                			${{ product.price_total|number_format(2,'.',',') }}
+                			{% if product.discount > 0 %}<span class="sale">Discount: ${{ product.discount|number_format(2,'.',',') }}</span>{% endif %}
+                		</td>
+            		</tr>
+            		{% endfor %}
+                </table>
+           	</div>
+            
+            <h2 class="u-mt-55">SHIPMENTS SENT</h2>
+            {% if item.shipments|length > 0 %}
+			{% for shipment in item.shipments %}
+				<div class="o-layout--flush">
+					<div class="o-layout__item u-1/2@mobile">
+                        <b>Date Placed</b><br />
+                        {{ shipment.shipDate|date("j F Y") }}
+					</div><div class="o-layout__item u-1/2@mobile">
+            			{% if shipment.trackingNumber %}
+                        <div class="u-right"><b>Tracking Number</b><br />
+            				<a href="http://www.fastway.co.nz/courier-services/track-your-parcel?l={{ shipment.trackingNumber }}">{{ shipment.trackingNumber }}</a>
+            			</div>            
+           				{% endif %}
+					</div>
+				</div>
+        		<div class="cart-items-container">
+            		<table class="cart-items">
+            			<tr>
+            				<th colspan="2">ITEM</th>
+            				<th>QUANTITY</th>
+            			</tr>
+    				{% for product in shipment.products %}
+   					    {% set image = product.orderProduct.product.images[0].filename %}
+                    <tr>
+            			<td class="image">
+            				{% if image %}<a href="{{ path('product', {'handle':product.orderProduct.product.handle|lower}) }}"><img src="{{ asset('images/products/thumb/'~ image) }}" alt="{{ product.orderProduct.name }}" /></a>{% endif %}
+            			</td>
+            			<td class="details">
+                    		<a href="{{ path('product', {'handle':product.orderProduct.product.handle|lower}) }}">{{ product.orderProduct.name }}</a>
+                    	</td>
+                    	<td class="price">
+                    		{{ product.quantity }}
+                    	</td>
+                    </tr>
+                    {% endfor %}
+    				{% if shipment.note %}
+    					<tr>
+    						<td colspan="2">
+    							<p><i>Shipment Note</i><br />
+    							{{ shipment.note }}
+    							</p>
+    						</td>
+    					</tr>
+    				{% endif %}
+    				</table>
+    			</div>
+			{% endfor %}
+			{% else %}
+				<p>No shipments yet.</p>
+			{% endif %}
+        </div>
+	</div>
+</div>
+
+{% endblock %}

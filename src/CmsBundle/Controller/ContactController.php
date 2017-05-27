@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Entity\Contact;
 use AppBundle\Form\ContactType;
+use CmsBundle\Form\ArchPageContactType;
 
 class ContactController extends Controller
 {
@@ -41,13 +42,41 @@ class ContactController extends Controller
 	}
 	
 	/**
+	 * @Route("/admin/contact-page", name="admin_contact_page")
+	 */
+	public function adminContactPage(Request $request) {
+		$em = $this->getDoctrine()->getManager();
+		$item = $em->getRepository('CmsBundle:ArchPageContact')->find(1);
+		
+		$form = $this->createForm(ArchPageContactType::class, $item);
+		$form->handleRequest($request);
+		if ($form->isSubmitted() && $form->isValid()) {
+			$this->addFlash('info', 'Contact page updated.');
+			
+			$em->flush();
+			
+			return $this->redirectToRoute('admin_contact_page');
+		}
+		
+		return $this->render('cms/contact-edit.html.twig', array(
+				'form' => $form->createView(),
+		));
+	}
+	
+	/**
 	 * @Route("/pages/contact", name="contact")
 	 */
 	public function contact(Request $request) {
 		$em = $this->getDoctrine()->getManager();
-		$secret = $em->getRepository('AppBundle:ArchConfig')->findOneBy(array('name' => 'google_recaptcha_secret'))->getValue();
-		$email = $em->getRepository('AppBundle:ArchConfig')->findOneBy(array('name' => 'gen_sender_email'))->getValue();
-		$site_key = $em->getRepository('AppBundle:ArchConfig')->findOneBy(array('name' => 'google_recaptcha_key'))->getValue();
+		$config = $em->getRepository('AppBundle:ArchConfig');
+		$secret = $config->findOneBy(array('name' => 'google_recaptcha_secret'))->getValue();
+		$email = $config->findOneBy(array('name' => 'gen_sender_email'))->getValue();
+		$site_key = $config->findOneBy(array('name' => 'google_recaptcha_key'))->getValue();
+		$item = $em->getRepository('CmsBundle:ArchPageContact')->find(1);
+		
+		// page hit
+		$item->setHits($item->getHits() + 1);
+		$em->flush();
 		
 		$contact = new Contact();
 		
@@ -66,6 +95,39 @@ class ContactController extends Controller
 					$em->flush();
 					
 					// email
+					$sender_email = $config->findOneBy(array('name' => 'gen_sender_email_swift'))->getValue();
+					$store_name = $config->findOneBy(array('name' => 'gen_store_name'))->getValue();
+					
+/*					// mail admin
+					$message = \Swift_Message::newInstance()
+					->setSubject('New Contact Message')
+					->setFrom(array($sender_email => $store_name))
+					->setTo($email)
+					->setReplyTo($email)
+					->setBody(
+							$this->renderView('email/new_contact.html.twig', array(
+									'store_name' => $store_name,
+									'item' => $contact,
+							)),
+							'text/html'
+							);
+					$this->get('mailer')->send($message);
+	*/				
+					$admin = "admin@gnomes.co.nz";
+					$message = \Swift_Message::newInstance()
+					->setSubject('New Contact Message')
+					->setFrom(array($sender_email => $store_name))
+					->setTo($admin)
+					->setReplyTo($email)
+					->setBody(
+							$this->renderView('email/new_contact.html.twig', array(
+									'store_name' => $store_name,
+									'item' => $contact,
+							)),
+							'text/html'
+							);
+					
+					$this->get('mailer')->send($message);
 					
 					return new Response('success');
 				}
@@ -75,6 +137,7 @@ class ContactController extends Controller
 		}
 		
 		return $this->render('default/contact.html.twig', array(
+				'item' => $item,
 				'form' => $form->createView(),
 				'site_key' => $site_key,
 				'email' => $email

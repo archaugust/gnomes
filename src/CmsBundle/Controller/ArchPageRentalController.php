@@ -83,7 +83,7 @@ class ArchPageRentalController extends Controller
 					$demo_image = null;
 					if (!is_null($section->getStandardImage())) {
 						// process image
-						$standard_image = $imageFunctions->upload('rental', 'rental', $miscFunctions->slug($section->getName()) .'-standard', $section->getStandardImage());
+						$standard_image = $imageFunctions->upload('rental', 'rental', rand(0,10000) .'-standard', $section->getStandardImage());
 					}
 					else {
 						// get original image since no image is sent with a file input type
@@ -95,7 +95,7 @@ class ArchPageRentalController extends Controller
 
 					if (!is_null($section->getPerformanceImage())) {
 						// process image
-						$performance_image = $imageFunctions->upload('rental', 'rental', $miscFunctions->slug($section->getName()) .'-performance', $section->getPerformanceImage());
+						$performance_image = $imageFunctions->upload('rental', 'rental', rand(0,10000) .'-performance', $section->getPerformanceImage());
 					}
 					else {
 						// get original image since no image is sent with a file input type
@@ -107,7 +107,7 @@ class ArchPageRentalController extends Controller
 
 					if (!is_null($section->getDemoImage())) {
 						// process image
-						$demo_image = $imageFunctions->upload('rental', 'rental', $miscFunctions->slug($section->getName()) .'-demo', $section->getDemoImage());
+						$demo_image = $imageFunctions->upload('rental', 'rental', rand(0,10000) .'-demo', $section->getDemoImage());
 					}
 					else {
 						// get original image since no image is sent with a file input type
@@ -119,7 +119,7 @@ class ArchPageRentalController extends Controller
 					
 					if (!is_null($section->getTouringImage())) {
 						// process image
-						$touring_image = $imageFunctions->upload('rental', 'rental', $miscFunctions->slug($section->getName()) .'-touring', $section->getTouringImage());
+						$touring_image = $imageFunctions->upload('rental', 'rental', rand(0,10000) .'-touring', $section->getTouringImage());
 					}
 					else {
 						// get original image since no image is sent with a file input type

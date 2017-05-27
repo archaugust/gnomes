@@ -52,19 +52,13 @@ class ArchRentalBookingType extends AbstractType
             		'attr' => array('placeholder' => 'Enter a Date', 'class' => 'u-form-control'),
             		'widget' => 'single_text'
             ))
-            ->add('return_time', TextType::class, array(
-            		'label' => 'At *',
-            		'attr' => array(
-            				'placeholder' => 'Enter a Time',
-            				'class' => 'u-form-control'
-            		),
-            ))
             ->add('guests', CollectionType::class, array(
             		'entry_type'    => ArchRentalBookingGuestType::class,
             		'by_reference' => false,
             		'allow_add'     => true,
             		'allow_delete' => true,
             		'label' => false,
+            		'attr' => array('class' => 'u-form-control'),
             ))
        		->add('save', SubmitType::class, array(
        				'label' => 'Submit Booking Request',

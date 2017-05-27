@@ -1,0 +1,276 @@
+/* rental */
+.c-page-rental {
+  font-size: 13px;
+  letter-spacing: .02em; }
+  .c-page-rental h2, .c-page-rental h3 {
+    font-size: 21px;
+    font-weight: 300;
+    line-height: 36px;
+    margin: 0 0 5px;
+    letter-spacing: .07em;
+    text-transform: none; }
+    .c-page-rental h2 span, .c-page-rental h3 span {
+      font-size: 13px; }
+  .c-page-rental img {
+    width: auto !important; }
+  .c-page-rental .u-bg-blue {
+    letter-spacing: .08em; }
+    .c-page-rental .u-bg-blue img {
+      margin-top: -10px; }
+  .c-page-rental .c-btn {
+    padding: 15px 35px 10px;
+    font-weight: 700; }
+    .c-page-rental .c-btn:hover {
+      color: #fff; }
+
+.o-price {
+  border-bottom: 1px solid #bfbfbf; }
+  .o-price h3 {
+    margin-top: 5px;
+    line-height: 26px; }
+  .o-price .button {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    padding: 15px 0 5px; }
+    .o-price .button span {
+      font-size: 16px; }
+    .o-price .button:hover {
+      color: #00b7eb;
+      cursor: pointer; }
+  .o-price .details {
+    color: #737373;
+    display: none; }
+    .o-price .details .table {
+      overflow: hidden;
+      margin-top: -20px; }
+    .o-price .details.active {
+      display: block; }
+    .o-price .details .link {
+      padding: 15px 0 25px; }
+  .o-price table {
+    width: 100%;
+    min-width: 800px;
+    padding: 0; }
+    .o-price table td {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: .075em;
+      padding: 30px 0 25px;
+      text-align: center;
+      background: #f4f4f4;
+      height: 82px;
+      width: 12.5%; }
+    .o-price table th {
+      background: none;
+      font-weight: 300;
+      padding: 15px 0;
+      height: 40px; }
+    .o-price table .spacer {
+      height: 8px;
+      background: #fff;
+      padding: 0; }
+    .o-price table .name {
+      color: #fff;
+      line-height: 16px; }
+      .o-price table .name-2 {
+        padding-top: 28px; }
+      .o-price table .name span {
+        font-size: 12px;
+        display: block; }
+
+.bg-1, .bg-7 {
+  background: #69be28 !important; }
+
+.bg-2, .bg-8 {
+  background: #e00747 !important; }
+
+.bg-3, .bg-9 {
+  background: #f7941d !important; }
+
+.bg-4, .bg-10 {
+  background: #00b7eb !important; }
+
+.bg-5, .bg-11 {
+  background: #a6a6a6 !important; }
+
+.bg-6, .bg-12 {
+  background: #5bbbb7 !important; }
+
+.c-page-900 {
+  width: 900px;
+  padding: 50px 0 45px; }
+
+.c-btn--rental {
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  padding: 15px 10px 10px;
+  letter-spacing: .07em;
+  width: 100%;
+  margin-bottom: 15px;
+  border: 1px solid #737373;
+  color: #737373; }
+  .c-btn--rental:hover, .c-btn--rental:focus {
+    background: #737373;
+    color: #fff;
+    font-weight: 900; }
+
+.o-form strong {
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin: 20px 0 0;
+  display: block; }
+  .o-form strong > * {
+    display: inline-block; }
+  .o-form strong span {
+    font-weight: 300 !important; }
+.o-form label {
+  font-size: 12px;
+  letter-spacing: 0.02em !important;
+  margin: 5px 0;
+  display: block; }
+.o-form hr {
+  margin: 30px 0; }
+.o-form .guests {
+  width: 70px; }
+.o-form .chain > * {
+  display: inline-block; }
+.o-form .chain input {
+  width: calc(100% - 23px) !important; }
+.o-form .chain img {
+  margin-top: -30px; }
+.o-form textarea {
+  height: 155px;
+  padding-top: 10px; }
+
+.o-gears {
+  margin-top: 35px;
+  padding: 45px 60px 25px;
+  background: #f4f4f4; }
+  .o-gears h3 {
+    text-transform: uppercase; }
+  .o-gears .o-gear {
+    margin: 25px 0; }
+    .o-gears .o-gear .header {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .075em;
+      color: #fff;
+      padding: 15px 0 10px;
+      border-radius: 10px 10px 0 0;
+      width: 80%;
+      text-transform: uppercase;
+      text-align: center; }
+    .o-gears .o-gear figure {
+      background: #fff; }
+      .o-gears .o-gear figure img {
+        width: 100% !important; }
+      .o-gears .o-gear figure figcaption {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 8px 15px 3px;
+        background: #262626;
+        color: #fff;
+        font-weight: 600;
+        font-size: 10px;
+        border-radius: 10px 0 0 0;
+        text-transform: uppercase; }
+    .o-gears .o-gear .description {
+      padding: 30px 35px 25px;
+      font-size: 12px;
+      font-weight: 300;
+      line-height: 22px;
+      background: #fff; }
+    .o-gears .o-gear .book {
+      padding: 15px 0 10px;
+      background: #737373;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      text-align: center; }
+    .o-gears .o-gear a {
+      color: #000; }
+      .o-gears .o-gear a:hover > * {
+        opacity: .8; }
+
+.o-faq strong {
+  text-transform: uppercase; }
+
+@media (max-width: 979px) {
+  .o-price .details .table {
+    overflow-x: scroll;
+    overflow-y: hidden; }
+  .o-price table {
+    min-width: 300px;
+    padding: 0; }
+    .o-price table .name {
+      font-size: 12px;
+      letter-spacing: .02em; } }
+@media (max-width: 767px) {
+  .c-page-rental .c-btn {
+    padding: 15px 0 10px;
+    width: 100%; }
+
+  .o-gears {
+    padding: 35px 20px 15px;
+    background: #f4f4f4; }
+
+  .o-price {
+    /* Hide table headers (but not display: none;, for accessibility) */ }
+    .o-price table, .o-price thead, .o-price tbody, .o-price th, .o-price td, .o-price tr {
+      display: block;
+      width: 100% !important; }
+    .o-price thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px; }
+    .o-price tr {
+      border: 1px solid #ccc; }
+    .o-price td {
+      /* Behave  like a "row" */
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 50%;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+      height: 40px !important; }
+    .o-price .name {
+      padding-top: 14px !important;
+      font-size: 14px !important; }
+      .o-price .name > * {
+        display: inline-block !important; }
+    .o-price td:before {
+      /* Now like a table header */
+      position: absolute;
+      /* Top/left values mimic padding */
+      top: 10px;
+      left: 6px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap; }
+    .o-price td:nth-of-type(1):before {
+      content: ""; }
+    .o-price td:nth-of-type(2):before {
+      content: "Day 1"; }
+    .o-price td:nth-of-type(3):before {
+      content: "Day 2"; }
+    .o-price td:nth-of-type(4):before {
+      content: "Day 3"; }
+    .o-price td:nth-of-type(5):before {
+      content: "Day 4"; }
+    .o-price td:nth-of-type(6):before {
+      content: "Day 5"; }
+    .o-price td:nth-of-type(7):before {
+      content: "Day 6"; }
+    .o-price td:nth-of-type(8):before {
+      content: "Day 7"; } }
+
+/*# sourceMappingURL=rental.css.map */

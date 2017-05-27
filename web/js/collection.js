@@ -104,28 +104,28 @@ $(function(){
 	
 	$('#name-asc').click(function () {
 	    var alphabeticallyOrderedDivs = products.sort(function (a, b) {
-	        return $(a).find('.name').text() > $(b).find('.name').text();
+	        return $(a).find('.name').text() > $(b).find('.name').text() ? 1 : -1 ;
 	    });
 	    $('.o-products').hide().html(alphabeticallyOrderedDivs).fadeIn();
 	});
 
 	$('#name-desc').click(function () {
 	    var alphabeticallyOrderedDivs = products.sort(function (a, b) {
-	        return $(a).find('.name').text() < $(b).find('.name').text();
+	        return $(a).find('.name').text() < $(b).find('.name').text() ? 1 : -1 ;
 	    });
 	    $('.o-products').hide().html(alphabeticallyOrderedDivs).fadeIn();
 	});
 
 	$('#price-asc').click(function () {
 	    var numericallyOrderedDivs = products.sort(function (a, b) {
-	        return parseInt($(a).find('.filter-price').text()) > parseInt($(b).find('.filter-price').text());
+	        return parseInt($(a).find('.filter-price').text()) > parseInt($(b).find('.filter-price').text())  ? 1 : -1;
 	    });
 	    $('.o-products').hide().html(numericallyOrderedDivs).fadeIn();
 	});
 	
 	$('#price-desc').click(function () {
 	    var numericallyOrderedDivs = products.sort(function (a, b) {
-	        return parseInt($(a).find('.filter-price').text()) < parseInt($(b).find('.filter-price').text());
+	        return parseInt($(a).find('.filter-price').text()) < parseInt($(b).find('.filter-price').text())  ? 1 : -1;
 	    });
 	    $('.o-products').hide().html(numericallyOrderedDivs).fadeIn();
 	});

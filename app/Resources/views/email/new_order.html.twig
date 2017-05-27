@@ -1,0 +1,37 @@
+<p><strong>{{ store_name }}!</strong></p>
+
+<p>{{ order.billing.firstName }} {{ order.billing.lastName }} placed a new order with you today ({{ "now" | date('j F Y') }}).</p> 
+
+<p>Email: {{ order.billing.email }}</p>
+
+{% if requires_shipping %}
+<p><strong>Shipping address</strong></p>
+<p>{{ order.shipping.firstName }} {{ order.shipping.lastName }}<br />
+{{ order.shipping.address }}<br />
+{{ order.shipping.city }}<br />
+{{ order.shipping.region }} {{ order.shipping.postcode }}<br />
+{{ order.shipping.country }}<br />
+{{ order.shipping.phone }}
+</p>
+{% endif %}
+
+<p><strong>Billing address</strong></p>
+<p>{{ order.billing.firstName }} {{ order.billing.lastName }}<br />
+{{ order.billing.address }}<br />
+{{ order.billing.city }}<br />
+{{ order.billing.region }} {{ order.billing.postcode }}<br />
+{{ order.billing.country }}<br />
+{{ order.billing.phone }}
+</p>
+
+<br />
+{% for item in order.products %}
+<p>
+{{ item.quantity }}x <a href="{{ path('product', {'handle':item.product.handle|lower}) }}">{{ item.name }}</a> for ${{ (item.priceTotal + item.taxTotal)|number_format(2,'.',',') }} each
+{% if item.discount > 0 %}<br />Discount: ${{ item.discount|number_format(2,'.',',') }}{% endif %}
+</p>
+{% endfor %}
+
+
+<p><strong>Total</strong>     : ${{ (order.totalPrice + order.totalTax)|number_format(2,'.',',') }}</p>
+<p>Payment method: {{ order.payment }}</p>

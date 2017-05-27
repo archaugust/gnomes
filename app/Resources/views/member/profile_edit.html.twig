@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+{% block title %}Wishlist | Gnomes Alpine Sports{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/member.css') }}" rel="stylesheet">
+	<link href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page u-ph-25-xs">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / <a href="{{ path('member') }}">VIP Customer Page</a> / <a href="{{ path('member_profile_edit') }}">Profile</a> / Update 
+	</div>
+	{% include('flash.html.twig') %}
+	<div class="o-layout--flush c-page--member u-ml-60">
+		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+			{% include('member/menu.html.twig') %}
+		</div><div class="o-layout__item u-3/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+    		<h1>UPDATE PROFILE</h1>
+    		<hr />
+            {{ form_start(form) }}
+			<div class="o-layout--flush u-ml-60">
+				<div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.first_name, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.last_name, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.email, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.phone, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.mobile, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.fax, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.website, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.date_of_birth, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+                    {{ form_row(form.sex, {'attr':{'class':'u-form-control'}}) }}
+				</div>
+			</div>
+			<hr />
+			<div class="o-layout--flush u-ml-60 u-pb-20">
+				<div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+					<b>Physical Address</b>
+                    {{ form_row(form.physical_address1, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.physical_address2, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.physical_suburb, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.physical_city, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.physical_postcode, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.physical_state, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.physical_country_id, {'attr':{'class':'u-form-control'}}) }}
+				</div><div class="o-layout__item u-1/2@tablet u-1/1@mobile u-pl-60">
+					<a class="u-right" href="javascript:" id="same_address">Same as Physical Address</a>
+					<b>Postal Address</b>
+                    {{ form_row(form.postal_address1, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.postal_address2, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.postal_suburb, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.postal_city, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.postal_postcode, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.postal_state, {'attr':{'class':'u-form-control'}}) }}
+                    {{ form_row(form.postal_country_id, {'attr':{'class':'u-form-control'}}) }}
+				</div>
+			</div>
+			
+	        {{ form_widget(form.save, {'attr': {'class': 'c-btn c-btn--gray c-btn--wide'}}) }}
+      </div>
+      {{ form_end(form) }}
+	</div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(function(){
+	$('#user_admin_date_of_birth').datepicker({
+	    dateFormat: 'yy-mm-dd',
+	    changeMonth: true, 
+	    changeYear: true, 
+    });
+
+    $('#same_address').click(function(){
+        $('#user_admin_postal_address1').val($('#user_admin_physical_address1').val());
+        $('#user_admin_postal_address2').val($('#user_admin_physical_address2').val());
+        $('#user_admin_postal_suburb').val($('#user_admin_physical_suburb').val());
+        $('#user_admin_postal_city').val($('#user_admin_physical_city').val());
+        $('#user_admin_postal_postcode').val($('#user_admin_physical_postcode').val());
+        $('#user_admin_postal_country_id').val($('#user_admin_physical_country_id').val());
+        $('#user_admin_postal_state').val($('#user_admin_physical_state').val());
+        
+    });
+});
+</script>
+<script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+{% endblock %}

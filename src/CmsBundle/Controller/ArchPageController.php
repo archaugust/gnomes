@@ -65,7 +65,7 @@ class ArchPageController extends Controller
 				
 				// images
 				if ($item->getBanner() != null) {
-					$banner = $imageFunctions->upload('banner', 'pages', $handle, $item->getBanner());
+					$banner = $imageFunctions->upload('page', 'pages', $handle, $item->getBanner());
 					$item->setBanner($banner);
 				}
 				
@@ -91,6 +91,7 @@ class ArchPageController extends Controller
 		$em = $this->getDoctrine()->getManager();
 		$items = $em->getRepository('CmsBundle:ArchPage');
 		$item = $items->find($id);
+		$old_handle = $item->getHandle();
 		
 		if ($item == null) {
 			$this->addFlash('danger', 'Page not found.');
@@ -109,18 +110,21 @@ class ArchPageController extends Controller
 			
 			$handle = $miscFunctions->slug($item->getName());
 			// check duplicate
-			while (count($items->findOneBy(array('handle' => $handle))) > 0) {
-				$handle = $handle .'-';
+			if ($handle != $old_handle) {
+				while (count($items->findOneBy(array('handle' => $handle))) > 0) {
+					$handle = $handle .'-';
+				}
 			}
 			
 			// images
 			if ($item->getBanner() != null) {
-				$banner = $imageFunctions->upload('banner', 'pages', $handle, $item->getBanner());
+				$banner = $imageFunctions->upload('page', 'pages', $handle, $item->getBanner(), $old_banner);
 			}
 			else
 				$banner = $old_banner;
 				
 			$item
+				->setHandle($handle)
 				->setBanner($banner)
 			;
 				

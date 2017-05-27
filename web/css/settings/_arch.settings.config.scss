@@ -6,7 +6,7 @@
 // feature switches, etc. in here.
 
 $inuit-config: (
-  env: dev,
+  env: prod,
   healthcheck: false,
   debug: true,
 );

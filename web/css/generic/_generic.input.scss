@@ -2,21 +2,32 @@
    form input
    ========================================================================== */
 @charset "UTF-8";
-input[type="text"], input[type="email"], input[type="date"], input[type="password"], input[type="number"], textarea, select {
-	width: 100%;
+input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="password"],  textarea, select {
 	border: 1px solid #bfbfbf;
-	padding: 5px 0 0 5px;
 	font-size: 14px;
-	height: 37px;
+	padding-top: 5px!important;
+	height: 36px;
 	line-height: normal;
-	border-radius: 0!important;
+	vertical-align:bottom;
+	border-radius: 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+}
+
+select {
+	line-height: 30px!important;
+	background: url(../images/arrow-down.png) no-repeat right 50%!important;
+	-webkit-appearance:none;
+	-moz-appearance: none; 
+	appearance: none;	
 }
 	
 .u-form-control {
+	width: 100%;
 	margin-bottom: 10px;
 	padding-left: 15px!important;
+	background: #fff;
 }
-
 /* placeholders */
 ::-webkit-input-placeholder, ::-moz-placeholder, :-ms-input-placeholder, :-moz-placeholder {
 	color: #898989;

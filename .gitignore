@@ -22,5 +22,9 @@
 /web/bundles
 /app/config/parameters.yml.dist
 /web/css/.sass-cache
+/web/*.raw.css
+/web/*.raw.js
+/src/ShopBundle/Controller/TestController.php
+/src/ShopBundle/Controller/VendController.php
 /src/ShopBundle/Controller/VendWebhookController.php
 /src/AppBundle/Controller/PxPayController.php

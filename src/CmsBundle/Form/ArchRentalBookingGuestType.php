@@ -13,11 +13,13 @@ class ArchRentalBookingGuestType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
     	$height = $weight = $shoe_size = $age = array();
-    	for ($i=148; $i<=204; $i=$i+2)
+    	for ($i=80; $i<=204; $i=$i+2)
     		$height[$i] = $i;
-    	for ($i=44; $i<=104; $i=$i+2)
+    	for ($i=10; $i<=104; $i=$i+2)
     		$weight[$i] = $i;
-    	for ($i=0; $i<16; $i=$i+0.5) 
+    	for ($i=8; $i<14; $i++)
+    		$shoe_size["Kids $i"] = "Kids $i";
+    	for ($i=1; $i<15; $i++) 
     		$shoe_size["$i"] = "$i";
    		for ($i=0; $i<100; $i++)
    			$age[$i] = $i;
@@ -51,27 +53,26 @@ class ArchRentalBookingGuestType extends AbstractType
 	        		'label' => 'Height (cm) *',
 	        		'choices' => $height,
 	        		'attr' => array('class' => 'u-form-control'),
+	        		'data' => "160"
 	        ))
 	        ->add('weight', ChoiceType::class, array(
 	        		'label' => 'Weight (kg) *',
 	        		'choices' => $weight,
 	        		'attr' => array('class' => 'u-form-control'),
+	        		'data' => "60"
 	        ))
 	        ->add('shoe_size', ChoiceType::class, array(
 	        		'label' => 'Shoe Size (UK) *',
 	        		'choices' => $shoe_size,
 	        		'attr' => array('class' => 'u-form-control'),
-	        ))
-	        ->add('shoe_size', ChoiceType::class, array(
-	        		'label' => 'Shoe Size (UK) *',
-	        		'choices' => $shoe_size,
-	        		'attr' => array('class' => 'u-form-control'),
+	        		'data' => "5"
 	        ))
 	        ->add('age', ChoiceType::class, array(
 	        		'label' => 'Age',
 	        		'required' => false,
 	        		'choices' => $age,
 	        		'attr' => array('class' => 'u-form-control'),
+	        		'data' => "30"
 	        ))
 	        ->add('ability_level', ChoiceType::class, array(
 	        		'label' => 'Ability Level',
@@ -164,7 +165,11 @@ class ArchRentalBookingGuestType extends AbstractType
 	        ->add('instructions', TextareaType::class, array(
 	        		'label' => 'Special Instructions',
 	        		'required' => false,
-	        		'attr' => array('class' => 'u-form-control', 'placeholder' => 'Anything else we should know?'),
+	        		'attr' => array(
+	        				'class' => 'u-form-control', 
+	        				'placeholder' => 'Anything else we should know?',
+	        				'style' => 'height: 120px!important'
+	        		),
 	        ))
 	        
 	        ;

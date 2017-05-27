@@ -1,0 +1,9 @@
+{{ email_template.header|raw }}
+
+<p><b>Login Details</b>:</p>
+<p>
+Email: {{ item.email }}<br />
+Password: {{ password }}
+</p>
+
+{{ email_template.footer|raw }}

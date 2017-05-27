@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+{% block title %}VIP Customer Page | Gnomes Alpine Sports{% endblock %}
+{% block stylesheets %}
+	<link href="{{ asset('css/member.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="o-layout--flush c-page u-ph-25-xs">
+	<div class="c-breadcrumbs">
+		<a href="/">Home</a> / VIP Customer Page
+	</div>
+	{% include('flash.html.twig') %}
+	<div class="o-layout--flush c-page--member u-ml-60">
+		<div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+			{% include('member/menu.html.twig') %}
+		</div><div class="o-layout__item u-3/4@desktop u-1/2@tablet u-1/1@mobile u-pl-60">
+			<div class="o-layout--flush">
+				<h1>ACCOUNT SUMMARY</h1>
+				<div class="o-layout__item u-3/4@desktop u-1/2@tablet u-1/1@mobile">
+					<p><b>{{ user.fullName }}</b></p>
+					<p>{{ user.email }}<br />
+						{{ user.phone }}<br />
+						{{ user.physicalCity }} {{ user.physicalCountryId }}
+					</p>
+				</div><div class="o-layout__item u-1/4@desktop u-1/2@tablet u-1/1@mobile u-text-right">
+						<p><b>Last 12 Months</b><br />
+						${{ user.yearToDate|number_format(2,'.',',') }}
+						</p>
+						<p><b>Balance</b><br />
+						${{ user.balance|number_format(2,'.',',') }}
+						</p>
+				</div>
+			</div>
+			<hr />
+    		<h1>YOUR ORDERS</h1>
+    		<div class="cart-items-container">
+        		<table class="cart-items">
+        			<tr>
+        				<th>INVOICE NUMBER</th>
+        				<th>DATE PLACED</th>
+        				<th>ORDER STATUS</th>
+        				<th>FULFILLMENT STATUS</th>
+        				<th>TOTAL PRICE</th>
+        			</tr>
+                   	{% for item in items %}
+            		<tr>
+            			<td><a href="{{ path('member_order', {'id':item.id}) }}">{{ item.invoiceNumber }}</a>
+            			<td>{{ item.saleDate|date('j F Y') }}</td>
+                   		<td>{{ item.status }}</td>
+                   		<td>{% if item.delivery %}{{ item.delivery }}{% else %}Unfulfilled{% endif %}</td>
+                   		<td>${{ (item.totalPrice + item.totalTax)|number_format(2,'.',',') }}</td>
+                   	</tr>
+                   	{% endfor %}
+                   	{% if (items|length == 0) %}<tr><td colspan="5">Nothing to display.</td></tr>{% endif %}
+                </table>
+           	</div>
+        </div>
+	</div>
+</div>
+
+{% endblock %}

@@ -69,7 +69,7 @@ class ArchPage
     private $meta_title;
     
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $meta_description;
     

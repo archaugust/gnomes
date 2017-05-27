@@ -1,7 +1,13 @@
 $(function () {
 	recalculateCheckout();
 	reloadShipping();
+	
+	$('label').each(function(){
+		if ($(this).find('span').length == 0)
+			$(this).html($(this).html().replace('*', '<span class="u-blue">*</span>'));
+	});
 })
+
 function recalculateCheckout() {
 	var	subTotal = 0,
 		shippingCost = parseFloat($(".shipping-cost").val()),
@@ -43,19 +49,6 @@ function reloadShipping() {
 		}
 	});
 }
-
-$("#form_country").change(function(){
-    var country = $(this).val();
-    $.ajax({
-        url: "/regions",
-        data: "country="+ country + "&field=form[region]",
-        type: "POST",
-        success: function (data) {
-	    	$('#regionDiv').html(data);
-	    	reloadShipping();
-        }
-    });
-});
 
 $("input[name='shipping']").change(function(){
 	$.ajax({

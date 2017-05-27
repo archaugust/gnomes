@@ -3,6 +3,7 @@ namespace CmsBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -44,6 +45,7 @@ class ArchRentalBooking
     
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Assert\Date()
      */
     private $collect_date;
     
@@ -54,13 +56,9 @@ class ArchRentalBooking
     
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Assert\Date()
      */
     private $return_date;
-    
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
-    private $return_time;
     
     /**
      * @ORM\OneToMany(targetEntity="ArchRentalBookingGuest", mappedBy="booking")
@@ -71,6 +69,7 @@ class ArchRentalBooking
     	$this->guests = new ArrayCollection();
     }
 
+
     /**
      * Get id
      *
@@ -79,6 +78,30 @@ class ArchRentalBooking
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set dateReceived
+     *
+     * @param integer $dateReceived
+     *
+     * @return ArchRentalBooking
+     */
+    public function setDateReceived($dateReceived)
+    {
+        $this->date_received = $dateReceived;
+
+        return $this;
+    }
+
+    /**
+     * Get dateReceived
+     *
+     * @return integer
+     */
+    public function getDateReceived()
+    {
+        return $this->date_received;
     }
 
     /**
@@ -250,30 +273,6 @@ class ArchRentalBooking
     }
 
     /**
-     * Set returnTime
-     *
-     * @param string $returnTime
-     *
-     * @return ArchRentalBooking
-     */
-    public function setReturnTime($returnTime)
-    {
-        $this->return_time = $returnTime;
-
-        return $this;
-    }
-
-    /**
-     * Get returnTime
-     *
-     * @return string
-     */
-    public function getReturnTime()
-    {
-        return $this->return_time;
-    }
-
-    /**
      * Add guest
      *
      * @param \CmsBundle\Entity\ArchRentalBookingGuest $guest
@@ -305,29 +304,5 @@ class ArchRentalBooking
     public function getGuests()
     {
         return $this->guests;
-    }
-
-    /**
-     * Set dateReceived
-     *
-     * @param integer $dateReceived
-     *
-     * @return ArchRentalBooking
-     */
-    public function setDateReceived($dateReceived)
-    {
-        $this->date_received = $dateReceived;
-
-        return $this;
-    }
-
-    /**
-     * Get dateReceived
-     *
-     * @return integer
-     */
-    public function getDateReceived()
-    {
-        return $this->date_received;
     }
 }

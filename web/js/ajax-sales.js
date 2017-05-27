@@ -33,7 +33,7 @@ $('.filters a').click(function(){
         data: 'remove='+ remove,
         cache: false,
         success: function (data) {
-            $('.details').hide().html(data).slideDown();
+            $('#details').hide().html(data).slideDown();
         }
     });
 });

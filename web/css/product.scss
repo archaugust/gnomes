@@ -180,10 +180,17 @@ h3 {
 		padding: 5px 0;
 	}
 
-	.vip {
-		color: $global-primary-color;
+	.vip, .discount {
 		font-weight: 700;
 	}
+
+	.vip {
+		color: $global-primary-color;
+	}
+
+	.discount {
+		color: $global-red-color;
+	} 
 
 	.wishlist {
 		padding: 15px 0 10px;
@@ -384,13 +391,17 @@ h3 {
 			display: initial!important;
 
 			.discount, .vip {
-				padding: 10px 0;
+				padding: 10px 0 5px;
 				display: block!important;
 				width: 100%;
 			}
 		
 			.sign-up {
 				margin: 0!important;
+				
+				a {
+					padding: 5px 10px!important;
+				}
 			}
 		}
 	}
